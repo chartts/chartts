@@ -236,6 +236,11 @@
       "types": "./dist/renko.d.ts",
       "import": "./dist/renko.js",
       "require": "./dist/renko.cjs"
+    },
+    "./finance": {
+      "types": "./dist/finance.d.ts",
+      "import": "./dist/finance.js",
+      "require": "./dist/finance.cjs"
     }
   },
   "files": ["dist"],

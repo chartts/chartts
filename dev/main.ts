@@ -12,6 +12,11 @@ import {
   renderToString,
   resolveTheme, THEME_PRESETS,
   formatValue, formatPercent,
+  // Financial analysis utilities
+  sma, ema, rsi, bollingerBands, macd,
+  cumulativeReturns, drawdown, simpleReturns,
+  toBollingerData, toMACDData, volumeDirections,
+  obv,
 } from '@chartts/core'
 import type { ChartInstance, ChartData } from '@chartts/core'
 import {
@@ -607,92 +612,221 @@ const pages: Page[] = [
   {
     id: 'financial', name: 'Financial', icon: '$', group: 'Charts',
     render(main) {
-      main.appendChild(section('Financial Charts', 'Full suite of financial visualization: candlestick, OHLC, volume, range bands, baseline, kagi & renko.'))
+      main.appendChild(section('Financial Analysis', 'Real-world fintech scenarios powered by built-in technical indicators: SMA, EMA, RSI, MACD, Bollinger Bands, portfolio analytics, and more. Every indicator is a pure function — import { sma } from "@chartts/core/finance".'))
 
-      // --- Price Charts ---
-      main.appendChild(section('Price Charts', 'Candlestick, OHLC, and step interpolation for price action.'))
-      const priceGrid = grid(2)
-      const priceLabels = ['Mon','Tue','Wed','Thu','Fri','Mon','Tue','Wed','Thu','Fri']
-      const ohlcData = {
-        open:  [148,152,155,148,153,157,154,158,156,152],
-        high:  [154,158,156,155,160,159,162,160,158,156],
-        low:   [146,150,147,146,151,153,152,154,153,150],
-        close: [152,155,148,153,157,154,158,155,153,154],
-      }
-      const priceItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['Candlestick', 'Classic OHLC with colored bodies', c => Candlestick(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'AAPL', values: ohlcData.close }] }, ohlc: ohlcData } as any)],
-        ['OHLC', 'Tick-mark style price chart', c => OHLC(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'AAPL', values: ohlcData.close }] }, ohlc: ohlcData } as any)],
-        ['Step', 'Stair-step for discrete rates', c => Step(c, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], series: [{ name: 'Fed Rate', values: [5.25,5.25,5.50,5.50,5.50,5.50,5.25,5.25,5.00,5.00,4.75,4.75] }] } })],
-        ['Candlestick (Extended)', '10-day price action', c => Candlestick(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'TSLA', values: [242,248,245,250,253,249,255,251,258,254] }] }, ohlc: { open:[238,242,248,245,250,253,249,255,251,258], high:[244,250,249,252,256,255,258,257,260,259], low:[236,240,244,243,248,247,248,250,249,252], close:[242,248,245,250,253,249,255,251,258,254] } } as any)],
+      // ===================================================================
+      // Shared 40-day synthetic AAPL-like price data
+      // ===================================================================
+      const DAY_LABELS = Array.from({length:40}, (_,i) => {
+        const d = new Date(2025, 0, 6 + i) // starts Mon Jan 6 2025
+        return `${d.getMonth()+1}/${d.getDate()}`
+      })
+      const CLOSE = [
+        148,152,149,155,153,158,156,160,157,163,
+        161,165,162,159,156,160,164,167,163,170,
+        168,172,169,175,173,178,176,180,177,183,
+        181,185,182,179,176,180,184,188,185,190,
       ]
-      for (const [title, desc, factory] of priceItems) {
+      const OPEN = [
+        146,148,152,149,155,153,158,156,160,157,
+        163,161,165,162,159,156,160,164,167,163,
+        170,168,172,169,175,173,178,176,180,177,
+        183,181,185,182,179,176,180,184,188,185,
+      ]
+      const HIGH = CLOSE.map((c,i) => Math.max(c, OPEN[i]!) + Math.round(Math.random()*3 + 1))
+      const LOW = CLOSE.map((c,i) => Math.min(c, OPEN[i]!) - Math.round(Math.random()*3 + 1))
+      const VOL = [
+        32,45,28,52,38,61,42,55,36,48,
+        51,43,58,67,72,55,49,38,62,44,
+        53,41,59,47,56,63,42,51,68,45,
+        57,39,64,71,66,48,54,42,58,50,
+      ]
+
+      // ===================================================================
+      // SCENARIO 1: Stock Trading Dashboard
+      // Candlestick + SMA/EMA overlay, Volume, RSI oscillator
+      // ===================================================================
+      main.appendChild(section('Scenario 1: Stock Trading Dashboard', 'Candlestick with SMA(10) & EMA(20) overlays, volume bars, and RSI(14) oscillator. The bread and butter of any trading terminal.'))
+      const s1Grid = grid(2)
+
+      // Compute indicators
+      const sma10 = sma(CLOSE, 10)
+      const ema20 = ema(CLOSE, 20)
+      const rsi14 = rsi(CLOSE, 14)
+      const volDirs = volumeDirections(CLOSE)
+      const obvValues = obv(CLOSE, VOL)
+
+      const s1Items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['AAPL Candlestick + SMA(10) + EMA(20)', 'Price action with moving average overlays', c => Candlestick(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
+          { name: 'AAPL', values: CLOSE },
+          { name: 'SMA(10)', values: sma10 },
+          { name: 'EMA(20)', values: ema20 },
+        ] }, ohlc: { open: OPEN, high: HIGH, low: LOW, close: CLOSE }, legend: true } as any)],
+
+        ['OHLC + SMA(10)', 'Tick-mark price chart with trend line', c => OHLC(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
+          { name: 'AAPL', values: CLOSE },
+          { name: 'SMA(10)', values: sma10 },
+        ] }, ohlc: { open: OPEN, high: HIGH, low: LOW, close: CLOSE }, legend: true } as any)],
+
+        ['Trading Volume', 'Green = price up, Red = price down', c => Volume(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Volume (M)', values: VOL }] }, directions: volDirs } as any)],
+
+        ['RSI(14)', 'Overbought > 70, Oversold < 30', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'RSI', values: rsi14 }] }, yMin: 0, yMax: 100, colors: ['#8b5cf6'] })],
+      ]
+      for (const [title, desc, factory] of s1Items) {
         const { card, container } = chartCard(title, desc)
-        priceGrid.appendChild(card)
+        s1Grid.appendChild(card)
         requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
       }
-      main.appendChild(priceGrid)
+      main.appendChild(s1Grid)
 
-      // --- Volume ---
-      main.appendChild(section('Volume', 'Trading volume bars colored by price direction.'))
-      const volGrid = grid(2)
-      const volItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['Volume', 'Auto-detected direction', c => Volume(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'Vol (M)', values: [2.1,3.4,1.8,4.2,2.9,3.1,5.2,2.8,4.1,3.5] }] } } as any)],
-        ['Volume (Custom Colors)', 'Green up / Red down', c => Volume(c, { theme: theme(), data: { labels: ['Mon','Tue','Wed','Thu','Fri','Mon','Tue','Wed'], series: [{ name: 'Vol', values: [45,62,38,71,55,48,82,44] }] }, upColor: '#22c55e', downColor: '#ef4444' } as any)],
+      // ===================================================================
+      // SCENARIO 2: Portfolio Performance Analytics
+      // Cumulative returns (baseline), drawdown, rolling volatility
+      // ===================================================================
+      main.appendChild(section('Scenario 2: Portfolio Performance', 'Cumulative returns vs benchmark, drawdown analysis, and rolling volatility. Every hedge fund dashboard needs these.'))
+      const s2Grid = grid(2)
+
+      const cumRet = cumulativeReturns(CLOSE).map(v => +(v * 100).toFixed(2))
+      const dd = drawdown(CLOSE).map(v => +(v * 100).toFixed(2))
+      const dailyRet = simpleReturns(CLOSE)
+      const rollingVol = (typeof (volatility as any)(dailyRet, 10) === 'object' ? (volatility as any)(dailyRet, 10) : []) as number[]
+
+      // Fake benchmark (S&P 500) — slightly lower returns
+      const benchClose = CLOSE.map((v,i) => 148 + (v - 148) * 0.7 + Math.sin(i/5)*2)
+      const benchCumRet = cumulativeReturns(benchClose).map(v => +(v * 100).toFixed(2))
+
+      const s2Items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Cumulative Returns: Portfolio vs S&P 500', 'Performance comparison since inception', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
+          { name: 'Portfolio', values: cumRet },
+          { name: 'S&P 500', values: benchCumRet },
+        ] }, legend: true, yLabel: '% Return', colors: ['#22c55e', '#6366f1'] })],
+
+        ['Portfolio Alpha', 'Excess return vs benchmark (baseline at 0%)', c => Baseline(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Alpha %', values: cumRet.map((v,i) => +(v - benchCumRet[i]!).toFixed(2)) }] }, baseline: 0, positiveColor: '#22c55e', negativeColor: '#ef4444' } as any)],
+
+        ['Drawdown', 'Peak-to-trough decline — how much pain?', c => Area(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Drawdown %', values: dd, fill: true, fillOpacity: 0.4 }] }, colors: ['#ef4444'], yLabel: '% from peak' })],
+
+        ['On-Balance Volume', 'Cumulative volume flow — smart money indicator', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'OBV', values: obvValues }] }, colors: ['#f59e0b'] })],
       ]
-      for (const [title, desc, factory] of volItems) {
+      for (const [title, desc, factory] of s2Items) {
         const { card, container } = chartCard(title, desc)
-        volGrid.appendChild(card)
+        s2Grid.appendChild(card)
         requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
       }
-      main.appendChild(volGrid)
+      main.appendChild(s2Grid)
 
-      // --- Range & Baseline ---
-      main.appendChild(section('Range & Baseline', 'Bollinger bands, confidence intervals, and P&L vs benchmark.'))
-      const rbGrid = grid(2)
-      const rbItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['Range/Band', 'Bollinger bands', c => Range(c, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'], series: [{ name: 'Price', values: [100,105,103,108,112,109,115,118,114,120] }] }, range: { upper: [108,113,112,116,120,118,124,126,122,128], lower: [92,97,94,100,104,100,106,110,106,112] } } as any)],
-        ['Baseline (P&L)', 'Profit/loss vs zero', c => Baseline(c, { theme: theme(), data: { labels: ['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4'], series: [{ name: 'P&L %', values: [5.2,-3.1,8.4,-1.5,6.8,2.1,-4.3,9.2] }] }, baseline: 0 } as any)],
-        ['Range (Forecast)', 'Confidence interval', c => Range(c, { theme: theme(), data: { labels: ['W1','W2','W3','W4','W5','W6','W7','W8'], series: [{ name: 'Revenue', values: [340,355,362,370,385,392,405,418] }] }, range: { upper: [360,378,388,400,418,428,445,460], lower: [320,332,336,340,352,356,365,376] }, bandColor: '#6366f1', bandOpacity: 0.15 } as any)],
-        ['Baseline (Benchmark)', 'Performance vs index', c => Baseline(c, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], series: [{ name: 'Alpha', values: [2.1,1.5,-0.8,3.2,1.9,-1.2,0.5,2.8,-0.3,1.7,3.1,2.4] }] }, baseline: 0, positiveColor: '#22c55e', negativeColor: '#ef4444' } as any)],
+      // ===================================================================
+      // SCENARIO 3: Bollinger Bands Technical Analysis
+      // Range chart with computed bands + volume
+      // ===================================================================
+      main.appendChild(section('Scenario 3: Bollinger Bands', 'Computed Bollinger Bands (SMA(20) \u00B1 2\u03C3) displayed as a Range chart. Price touching the bands signals overbought/oversold conditions.'))
+      const s3Grid = grid(2)
+
+      const bb = toBollingerData(CLOSE, 10, 2) // period=10 for demo data
+
+      const s3Items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Bollinger Bands', 'SMA(10) \u00B1 2\u03C3 computed from close prices', c => Range(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'AAPL', values: bb.middle }] }, range: { upper: bb.upper, lower: bb.lower }, bandColor: '#6366f1', bandOpacity: 0.15, showPoints: false } as any)],
+
+        ['Price vs Upper/Lower Band', 'Where is price relative to bands?', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
+          { name: 'Close', values: CLOSE },
+          { name: 'Upper', values: bb.upper },
+          { name: 'Lower', values: bb.lower },
+        ] }, legend: true, colors: ['#f59e0b', '#ef4444', '#22c55e'] })],
+
+        ['Volume Profile', 'Volume under Bollinger analysis period', c => Volume(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Volume', values: VOL }] }, directions: volDirs } as any)],
+
+        ['Bandwidth', 'Band width = (upper - lower) / middle — volatility proxy', c => {
+          const bandwidth = bb.upper.map((u,i) => {
+            const m = bb.middle[i]!
+            return isNaN(u) || isNaN(m) || m === 0 ? NaN : +((u - bb.lower[i]!) / m * 100).toFixed(2)
+          })
+          return Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Bandwidth %', values: bandwidth }] }, colors: ['#ec4899'] })
+        }],
       ]
-      for (const [title, desc, factory] of rbItems) {
+      for (const [title, desc, factory] of s3Items) {
         const { card, container } = chartCard(title, desc)
-        rbGrid.appendChild(card)
+        s3Grid.appendChild(card)
         requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
       }
-      main.appendChild(rbGrid)
+      main.appendChild(s3Grid)
 
-      // --- Reversal Charts ---
-      main.appendChild(section('Reversal Charts', 'Kagi and Renko — noise-filtering price action charts.'))
-      const revGrid = grid(2)
-      const priceAction = [100,102,101,105,103,108,106,110,107,112,109,114,111,108,105,109,113,110,115,112,118,115,120,117,122,119,125,121,128,124]
-      const priceLabels30 = Array.from({length:30}, (_,i) => `D${i+1}`)
-      const revItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['Kagi', 'Trend reversal chart', c => Kagi(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: priceAction }] } } as any)],
-        ['Renko', 'Brick-based price action', c => Renko(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: [100,102,105,103,108,106,112,109,115,111,118,114,120,116,122,118,125,121,128,124,130,126,132,128,135,131,138,134,140,136] }] } } as any)],
-        ['Kagi (Tight Reversal)', '2% reversal', c => Kagi(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: priceAction }] }, reversalAmount: 0.02 } as any)],
-        ['Renko (Large Bricks)', 'brickSize: 5', c => Renko(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: [100,102,105,103,108,106,112,109,115,111,118,114,120,116,122,118,125,121,128,124,130,126,132,128,135,131,138,134,140,136] }] }, brickSize: 5 } as any)],
+      // ===================================================================
+      // SCENARIO 4: MACD Momentum Analysis
+      // Price line + MACD histogram/signal combo
+      // ===================================================================
+      main.appendChild(section('Scenario 4: MACD Signal', 'MACD(8,17,9) histogram + signal line for momentum analysis. Histogram crossing zero = trend shift. Signal crossovers = buy/sell signals.'))
+      const s4Grid = grid(2)
+
+      const m = toMACDData(CLOSE, 8, 17, 9) // shorter periods for 40-point data
+
+      const s4Items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Price Action', 'AAPL close prices — the data behind the signals', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Close', values: CLOSE }] }, colors: ['#3b82f6'] })],
+
+        ['MACD Histogram + Signal', 'Bars = momentum strength, Lines = MACD & signal crossovers', c => Combo(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
+          { name: 'Histogram', values: m.histogram },
+          { name: 'MACD', values: m.macd },
+          { name: 'Signal', values: m.signal },
+        ] }, legend: true, colors: ['#6366f1', '#22c55e', '#ef4444'] })],
+
+        ['MACD Line vs Signal Line', 'Crossovers indicate trend changes', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
+          { name: 'MACD', values: m.macd },
+          { name: 'Signal', values: m.signal },
+        ] }, legend: true, colors: ['#22c55e', '#ef4444'] })],
+
+        ['RSI + MACD Confirmation', 'RSI confirms MACD signals — dual indicator strategy', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
+          { name: 'RSI(14)', values: rsi14 },
+        ] }, yMin: 0, yMax: 100, colors: ['#8b5cf6'] })],
       ]
-      for (const [title, desc, factory] of revItems) {
+      for (const [title, desc, factory] of s4Items) {
         const { card, container } = chartCard(title, desc)
-        revGrid.appendChild(card)
+        s4Grid.appendChild(card)
         requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
       }
-      main.appendChild(revGrid)
+      main.appendChild(s4Grid)
 
-      // --- Waterfall ---
-      main.appendChild(section('Waterfall', 'Running totals and P&L breakdowns.'))
-      const wfGrid = grid(2)
-      const wfItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['Waterfall', 'Running total', c => Waterfall(c, { theme: theme(), data: DATA.waterfall, totals: [0,6] } as any)],
-        ['Waterfall (No Connectors)', 'connectors: false', c => Waterfall(c, { theme: theme(), data: { labels: ['Rev','COGS','Gross','SGA','R&D','EBIT'], series: [{ name: 'P&L', values: [500,-180,320,-90,-60,170] }] }, totals: [0,2,5], connectors: false } as any)],
+      // ===================================================================
+      // SCENARIO 5: Corporate Finance / Revenue & P&L
+      // Waterfall, baseline P&L, combo revenue+margin, step rates
+      // ===================================================================
+      main.appendChild(section('Scenario 5: Revenue & P&L', 'Corporate finance dashboards: waterfall P&L breakdown, revenue vs margin, interest rate impact, and quarterly performance tracking.'))
+      const s5Grid = grid(2)
+
+      const s5Items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Quarterly P&L Waterfall', 'Revenue breakdown: where the money goes', c => Waterfall(c, { theme: theme(), data: { labels: ['Revenue','COGS','Gross Profit','S&A','R&D','Operating','Tax','Net Income'], series: [{ name: 'Q4 FY25', values: [850,-320,530,-180,-120,230,-55,175] }] }, totals: [0,2,5,7] } as any)],
+
+        ['Monthly P&L vs Budget', 'Green = above budget, Red = below', c => Baseline(c, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], series: [{ name: 'Variance %', values: [3.2,-1.5,5.8,-2.1,1.9,4.2,-3.8,2.5,6.1,-0.8,3.5,7.2] }] }, baseline: 0, positiveColor: '#22c55e', negativeColor: '#ef4444' } as any)],
+
+        ['Revenue + Profit Margin', 'Bars = revenue ($M), Line = margin %', c => Combo(c, { theme: theme(), data: { labels: ['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4'], series: [
+          { name: 'Revenue ($M)', values: [42,48,51,55,58,62,68,75] },
+          { name: 'Margin %', values: [18,21,19,23,22,25,24,28] },
+        ] }, legend: true, colors: ['#3b82f6', '#f59e0b'] })],
+
+        ['Fed Rate Impact', 'Step chart: discrete rate changes', c => Step(c, { theme: theme(), data: { labels: ['Jan 24','Mar 24','May 24','Jul 24','Sep 24','Nov 24','Jan 25','Mar 25','May 25','Jul 25','Sep 25','Nov 25'], series: [{ name: 'Fed Funds Rate %', values: [5.50,5.50,5.50,5.50,5.25,5.00,4.75,4.50,4.50,4.25,4.00,4.00] }] }, colors: ['#ef4444'] })],
       ]
-      for (const [title, desc, factory] of wfItems) {
+      for (const [title, desc, factory] of s5Items) {
         const { card, container } = chartCard(title, desc)
-        wfGrid.appendChild(card)
+        s5Grid.appendChild(card)
         requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
       }
-      main.appendChild(wfGrid)
+      main.appendChild(s5Grid)
+
+      // ===================================================================
+      // SCENARIO 6: Noise-Filtered Price Action
+      // Kagi + Renko reversal charts for pure trend analysis
+      // ===================================================================
+      main.appendChild(section('Scenario 6: Trend & Reversal Analysis', 'Kagi and Renko charts filter noise and reveal pure price trends. Used by serious technical traders who want to cut through market noise.'))
+      const s6Grid = grid(2)
+      const s6Items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Kagi', 'Yang (thick green) = uptrend, Yin (thin red) = downtrend', c => Kagi(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'AAPL', values: CLOSE }] } } as any)],
+        ['Renko', 'Fixed-size bricks — only significant moves form new bricks', c => Renko(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'AAPL', values: CLOSE }] } } as any)],
+        ['Kagi (Tight 2%)', 'More sensitive reversal detection', c => Kagi(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'AAPL', values: CLOSE }] }, reversalAmount: 0.02 } as any)],
+        ['Renko (Brick = 3)', 'Larger bricks = longer-term trend view', c => Renko(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'AAPL', values: CLOSE }] }, brickSize: 3 } as any)],
+      ]
+      for (const [title, desc, factory] of s6Items) {
+        const { card, container } = chartCard(title, desc)
+        s6Grid.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(s6Grid)
     },
   },
   {

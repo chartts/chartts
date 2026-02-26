@@ -10,6 +10,7 @@ const chartEntries = [
   'sunburst', 'tree', 'graph', 'parallel', 'themeriver',
   'pictorialbar', 'chord', 'geo', 'lines', 'matrix', 'custom',
   'ohlc', 'step', 'volume', 'range', 'baseline', 'kagi', 'renko',
+  'finance',
 ]
 
 const entry: Record<string, string> = {

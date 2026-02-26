@@ -97,6 +97,22 @@ export { THEME_PRESETS, CORPORATE_THEME, SAAS_THEME, STARTUP_THEME, EDITORIAL_TH
 // Formatters
 export { formatValue, formatPercent } from './utils/format'
 
+// Financial analysis utilities
+export {
+  sma, ema, wma,
+  rsi, stochastic,
+  macd,
+  bollingerBands,
+  atr,
+  vwap, obv,
+  simpleReturns, logReturns, cumulativeReturns,
+  drawdown, maxDrawdown, sharpeRatio, volatility,
+  toOHLC, volumeDirections, toBollingerData, toMACDData,
+} from './finance/index'
+export type {
+  MACDResult, BollingerResult, StochasticResult, OHLCAggregation,
+} from './finance/types'
+
 // Events
 export { createEventBus } from './events/bus'
 
