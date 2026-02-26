@@ -1,6 +1,6 @@
 {
   "name": "@chartts/core",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Tiny, beautiful, SVG-based charting library. Tailwind-native. Every framework.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -243,15 +243,25 @@
       "require": "./dist/finance.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch"
   },
   "keywords": [
-    "chart", "charts", "svg", "graph", "visualization",
-    "tailwind", "lightweight", "typescript", "reactive"
+    "chart",
+    "charts",
+    "svg",
+    "graph",
+    "visualization",
+    "tailwind",
+    "lightweight",
+    "typescript",
+    "reactive"
   ],
   "license": "MIT",
   "repository": {
