@@ -1,0 +1,202 @@
+{
+  "name": "@chartts/core",
+  "version": "0.1.0",
+  "description": "Tiny, beautiful, SVG-based charting library. Tailwind-native. Every framework.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./line": {
+      "types": "./dist/line.d.ts",
+      "import": "./dist/line.js",
+      "require": "./dist/line.cjs"
+    },
+    "./bar": {
+      "types": "./dist/bar.d.ts",
+      "import": "./dist/bar.js",
+      "require": "./dist/bar.cjs"
+    },
+    "./stacked-bar": {
+      "types": "./dist/stacked-bar.d.ts",
+      "import": "./dist/stacked-bar.js",
+      "require": "./dist/stacked-bar.cjs"
+    },
+    "./horizontal-bar": {
+      "types": "./dist/horizontal-bar.d.ts",
+      "import": "./dist/horizontal-bar.js",
+      "require": "./dist/horizontal-bar.cjs"
+    },
+    "./pie": {
+      "types": "./dist/pie.d.ts",
+      "import": "./dist/pie.js",
+      "require": "./dist/pie.cjs"
+    },
+    "./donut": {
+      "types": "./dist/donut.d.ts",
+      "import": "./dist/donut.js",
+      "require": "./dist/donut.cjs"
+    },
+    "./scatter": {
+      "types": "./dist/scatter.d.ts",
+      "import": "./dist/scatter.js",
+      "require": "./dist/scatter.cjs"
+    },
+    "./sparkline": {
+      "types": "./dist/sparkline.d.ts",
+      "import": "./dist/sparkline.js",
+      "require": "./dist/sparkline.cjs"
+    },
+    "./area": {
+      "types": "./dist/area.d.ts",
+      "import": "./dist/area.js",
+      "require": "./dist/area.cjs"
+    },
+    "./radar": {
+      "types": "./dist/radar.d.ts",
+      "import": "./dist/radar.js",
+      "require": "./dist/radar.cjs"
+    },
+    "./bubble": {
+      "types": "./dist/bubble.d.ts",
+      "import": "./dist/bubble.js",
+      "require": "./dist/bubble.cjs"
+    },
+    "./candlestick": {
+      "types": "./dist/candlestick.d.ts",
+      "import": "./dist/candlestick.js",
+      "require": "./dist/candlestick.cjs"
+    },
+    "./gauge": {
+      "types": "./dist/gauge.d.ts",
+      "import": "./dist/gauge.js",
+      "require": "./dist/gauge.cjs"
+    },
+    "./waterfall": {
+      "types": "./dist/waterfall.d.ts",
+      "import": "./dist/waterfall.js",
+      "require": "./dist/waterfall.cjs"
+    },
+    "./funnel": {
+      "types": "./dist/funnel.d.ts",
+      "import": "./dist/funnel.js",
+      "require": "./dist/funnel.cjs"
+    },
+    "./heatmap": {
+      "types": "./dist/heatmap.d.ts",
+      "import": "./dist/heatmap.js",
+      "require": "./dist/heatmap.cjs"
+    },
+    "./boxplot": {
+      "types": "./dist/boxplot.d.ts",
+      "import": "./dist/boxplot.js",
+      "require": "./dist/boxplot.cjs"
+    },
+    "./histogram": {
+      "types": "./dist/histogram.d.ts",
+      "import": "./dist/histogram.js",
+      "require": "./dist/histogram.cjs"
+    },
+    "./treemap": {
+      "types": "./dist/treemap.d.ts",
+      "import": "./dist/treemap.js",
+      "require": "./dist/treemap.cjs"
+    },
+    "./polar": {
+      "types": "./dist/polar.d.ts",
+      "import": "./dist/polar.js",
+      "require": "./dist/polar.cjs"
+    },
+    "./radialbar": {
+      "types": "./dist/radialbar.d.ts",
+      "import": "./dist/radialbar.js",
+      "require": "./dist/radialbar.cjs"
+    },
+    "./lollipop": {
+      "types": "./dist/lollipop.d.ts",
+      "import": "./dist/lollipop.js",
+      "require": "./dist/lollipop.cjs"
+    },
+    "./bullet": {
+      "types": "./dist/bullet.d.ts",
+      "import": "./dist/bullet.js",
+      "require": "./dist/bullet.cjs"
+    },
+    "./dumbbell": {
+      "types": "./dist/dumbbell.d.ts",
+      "import": "./dist/dumbbell.js",
+      "require": "./dist/dumbbell.cjs"
+    },
+    "./calendar": {
+      "types": "./dist/calendar.d.ts",
+      "import": "./dist/calendar.js",
+      "require": "./dist/calendar.cjs"
+    },
+    "./combo": {
+      "types": "./dist/combo.d.ts",
+      "import": "./dist/combo.js",
+      "require": "./dist/combo.cjs"
+    },
+    "./sankey": {
+      "types": "./dist/sankey.d.ts",
+      "import": "./dist/sankey.js",
+      "require": "./dist/sankey.cjs"
+    },
+    "./sunburst": {
+      "types": "./dist/sunburst.d.ts",
+      "import": "./dist/sunburst.js",
+      "require": "./dist/sunburst.cjs"
+    },
+    "./tree": {
+      "types": "./dist/tree.d.ts",
+      "import": "./dist/tree.js",
+      "require": "./dist/tree.cjs"
+    },
+    "./graph": {
+      "types": "./dist/graph.d.ts",
+      "import": "./dist/graph.js",
+      "require": "./dist/graph.cjs"
+    },
+    "./parallel": {
+      "types": "./dist/parallel.d.ts",
+      "import": "./dist/parallel.js",
+      "require": "./dist/parallel.cjs"
+    },
+    "./themeriver": {
+      "types": "./dist/themeriver.d.ts",
+      "import": "./dist/themeriver.js",
+      "require": "./dist/themeriver.cjs"
+    },
+    "./pictorialbar": {
+      "types": "./dist/pictorialbar.d.ts",
+      "import": "./dist/pictorialbar.js",
+      "require": "./dist/pictorialbar.cjs"
+    },
+    "./chord": {
+      "types": "./dist/chord.d.ts",
+      "import": "./dist/chord.js",
+      "require": "./dist/chord.cjs"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [
+    "chart", "charts", "svg", "graph", "visualization",
+    "tailwind", "lightweight", "typescript", "reactive"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raidframe/chartts"
+  },
+  "homepage": "https://chartts.com"
+}

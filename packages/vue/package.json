@@ -1,0 +1,27 @@
+{
+  "name": "@chartts/vue",
+  "version": "0.1.0",
+  "description": "Chartts Vue components — native, not a wrapper.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "vue": ">=3.3.0",
+    "@chartts/core": "workspace:*"
+  },
+  "license": "MIT"
+}
