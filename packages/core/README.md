@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://chartts.com">
-    <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/og.png" alt="Chart.ts - Beautiful charts. Tiny bundle. Every framework." width="100%" />
+    <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/og.png" alt="Chart.ts" width="100%" />
   </a>
 </p>
 
@@ -10,15 +10,11 @@
   <a href="https://chartts.com"><img src="https://img.shields.io/badge/docs-chartts.com-06B6D4" alt="Documentation" /></a>
 </p>
 
-<p align="center">
-  <a href="https://chartts.com">Website</a> · <a href="https://chartts.com/docs">Docs</a> · <a href="https://chartts.com/examples">Examples</a> · <a href="https://chartts.com/demos">Demos</a>
-</p>
+# @chartts/core
 
----
+Beautiful charts. Tiny bundle. Every framework.
 
-## What is Chart.ts?
-
-A design-native charting library that renders real SVG, styles with Tailwind classes, and ships under 15kb gzipped. 40+ chart types. Native packages for React, Vue, Svelte, Solid, and Vanilla JS. Not wrappers - native implementations.
+SVG-first charting library with Tailwind support, under 15kb gzipped. 40+ chart types with a flat, declarative API.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/line-dark.png" alt="Line Chart" width="48%" />
@@ -41,41 +37,7 @@ A design-native charting library that renders real SVG, styles with Tailwind cla
 npm install @chartts/core
 ```
 
-Framework packages:
-
-```bash
-npm install @chartts/react    # React
-npm install @chartts/vue      # Vue
-npm install @chartts/svelte   # Svelte
-npm install @chartts/solid    # Solid
-```
-
 ## Quick start
-
-```tsx
-import { LineChart } from "@chartts/react"
-
-export default function Dashboard() {
-  return (
-    <LineChart
-      data={[
-        { month: "Jan", revenue: 4200 },
-        { month: "Feb", revenue: 5800 },
-        { month: "Mar", revenue: 7100 },
-        { month: "Apr", revenue: 6400 },
-        { month: "May", revenue: 8200 },
-        { month: "Jun", revenue: 9600 },
-      ]}
-      x="month"
-      y="revenue"
-    />
-  )
-}
-```
-
-Labels, axes, tooltips, gradients, responsive scaling, dark mode, accessibility - all automatic.
-
-### Vanilla JS / Server-side rendering
 
 ```ts
 import { createChart, lineChartType } from "@chartts/core"
@@ -89,12 +51,20 @@ const chart = createChart(lineChartType, {
   height: 300,
 })
 
-// Client-side
 document.getElementById("chart").innerHTML = chart.toSVG()
+```
 
-// Server-side
+## Server-side rendering
+
+```ts
 import { renderToString, lineChartType } from "@chartts/core"
-const svg = renderToString(lineChartType, data, { width: 600, height: 300 })
+
+const svg = renderToString(lineChartType, {
+  labels: ["Jan", "Feb", "Mar"],
+  series: [{ name: "Sales", values: [10, 20, 15] }],
+}, { width: 600, height: 300 })
+
+// Returns a full <svg> string - embed anywhere, no DOM needed
 ```
 
 ## Why Chart.ts?
@@ -113,7 +83,7 @@ const svg = renderToString(lineChartType, data, { width: 600, height: 300 })
 
 Line, bar, area, pie, donut, scatter, bubble, radar, sparkline, candlestick, OHLC, waterfall, funnel, gauge, heatmap, treemap, boxplot, histogram, polar, radial bar, lollipop, bullet, dumbbell, calendar, combo, sankey, sunburst, tree, graph, parallel coordinates, theme river, pictorial bar, chord, geo, matrix, step, volume, range, baseline, kagi, renko, stacked bar, horizontal bar.
 
-Same flat API surface for all of them. Tree-shakeable - import only what you use:
+Tree-shakeable. Import only what you use:
 
 ```ts
 import { lineChartType } from "@chartts/core/line"
@@ -121,21 +91,9 @@ import { barChartType } from "@chartts/core/bar"
 import { candlestickChartType } from "@chartts/core/candlestick"
 ```
 
-## Styling with Tailwind
+## Tailwind integration
 
-```tsx
-<LineChart
-  data={data}
-  x="month"
-  y="revenue"
-  lineClassName="stroke-cyan-500 dark:stroke-cyan-400"
-  axisClassName="text-zinc-600 dark:text-zinc-400"
-/>
-```
-
-Every chart element is a real SVG node styled with real CSS. Your design tokens, your classes, your charts.
-
-Charts automatically adapt to light/dark mode via CSS custom properties:
+Charts render as real SVG DOM elements. Style with CSS variables:
 
 ```css
 :root {
@@ -157,20 +115,15 @@ Charts automatically adapt to light/dark mode via CSS custom properties:
 | ApexCharts | ~120kb |
 | ECharts | ~300kb |
 
-## Project structure
+## Framework packages
 
-```
-packages/
-  core/     # Rendering engine, 40+ chart types, themes, utilities
-```
-
-## Development
+For React, Vue, Svelte, and Solid, use the dedicated packages:
 
 ```bash
-cd packages/core
-npm install
-npm run build    # Production build
-npm run dev      # Watch mode
+npm install @chartts/react   # React
+npm install @chartts/vue     # Vue
+npm install @chartts/svelte  # Svelte
+npm install @chartts/solid   # Solid
 ```
 
 ## Links
@@ -178,7 +131,7 @@ npm run dev      # Watch mode
 - [Documentation](https://chartts.com/docs)
 - [Examples](https://chartts.com/examples)
 - [Live Demos](https://chartts.com/demos)
-- [npm](https://www.npmjs.com/package/@chartts/core)
+- [GitHub](https://github.com/chartts/chartts)
 
 ## License
 

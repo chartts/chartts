@@ -4,3 +4,5 @@ dist/
 .env
 debug-output/
 debug-render.cjs
+scripts/
+render-demos.mjs
