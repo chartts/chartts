@@ -45,8 +45,10 @@ export const rangeChartType: ChartTypePlugin = {
       let yMin = prepared.bounds.yMin
       let yMax = prepared.bounds.yMax
       for (let i = 0; i < range.upper.length; i++) {
-        if (range.upper[i]! > yMax) yMax = range.upper[i]!
-        if (range.lower[i]! < yMin) yMin = range.lower[i]!
+        const u = range.upper[i]!
+        const l = range.lower[i]!
+        if (!isNaN(u) && u > yMax) yMax = u
+        if (!isNaN(l) && l < yMin) yMin = l
       }
       prepared.bounds.yMin = yMin
       prepared.bounds.yMax = yMax
@@ -76,21 +78,24 @@ export const rangeChartType: ChartTypePlugin = {
     const pb = new PathBuilder()
     const n = range.upper.length
 
-    // Upper path (left to right)
+    // Upper path (left to right) — skip NaN
+    let bandStarted = false
     for (let i = 0; i < n; i++) {
+      if (isNaN(range.upper[i]!)) continue
       const x = xScale.map(i)
       const y = yScale.map(range.upper[i]!)
-      if (i === 0) pb.moveTo(x, y)
+      if (!bandStarted) { pb.moveTo(x, y); bandStarted = true }
       else pb.lineTo(x, y)
     }
 
-    // Lower path (right to left)
+    // Lower path (right to left) — skip NaN
     for (let i = n - 1; i >= 0; i--) {
+      if (isNaN(range.lower[i]!)) continue
       const x = xScale.map(i)
       const y = yScale.map(range.lower[i]!)
       pb.lineTo(x, y)
     }
-    pb.close()
+    if (bandStarted) pb.close()
 
     seriesNodes.push(path(pb.build(), {
       class: 'chartts-range-band',
@@ -133,6 +138,7 @@ export const rangeChartType: ChartTypePlugin = {
 
       if (showPoints) {
         for (let i = 0; i < series.values.length; i++) {
+          if (isNaN(series.values[i]!)) continue
           const x = xScale.map(i)
           const y = yScale.map(series.values[i]!)
           seriesNodes.push(circle(x, y, theme.pointRadius, {
@@ -167,6 +173,7 @@ export const rangeChartType: ChartTypePlugin = {
     let bestDist = Infinity
 
     for (let i = 0; i < series.values.length; i++) {
+      if (isNaN(series.values[i]!)) continue
       const x = xScale.map(i)
       const y = yScale.map(series.values[i]!)
       const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
@@ -187,9 +194,13 @@ function buildLinePath(
 ): string {
   if (values.length === 0) return ''
   const pb = new PathBuilder()
-  pb.moveTo(xScale.map(0), yScale.map(values[0]!))
-  for (let i = 1; i < values.length; i++) {
-    pb.lineTo(xScale.map(i), yScale.map(values[i]!))
+  let started = false
+  for (let i = 0; i < values.length; i++) {
+    if (isNaN(values[i]!)) { started = false; continue }
+    const x = xScale.map(i)
+    const y = yScale.map(values[i]!)
+    if (!started) { pb.moveTo(x, y); started = true }
+    else pb.lineTo(x, y)
   }
   return pb.build()
 }

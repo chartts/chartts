@@ -53,6 +53,7 @@ export interface ZoomPanInstance {
 export function createZoomPan(
   config: ZoomPanConfig,
   onUpdate: () => void,
+  interactionState?: { isPanning: boolean },
 ): ZoomPanInstance {
   const cfg = {
     x: config.x ?? true,
@@ -120,7 +121,10 @@ export function createZoomPan(
 
   function onPointerDown(e: PointerEvent): void {
     if (!cfg.drag) return
+    // Don't start pan if shift is held (reserved for brush selection)
+    if (e.shiftKey) return
     isDragging = true
+    if (interactionState) interactionState.isPanning = true
     dragStartX = e.clientX
     dragStartY = e.clientY
     dragStartPanX = state.panX
@@ -149,6 +153,7 @@ export function createZoomPan(
   function onPointerUp(e: PointerEvent): void {
     if (!isDragging) return
     isDragging = false
+    if (interactionState) interactionState.isPanning = false
     el!.releasePointerCapture(e.pointerId)
     ;(el as HTMLElement).style.cursor = 'crosshair'
   }

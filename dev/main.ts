@@ -14,9 +14,11 @@ import {
   formatValue, formatPercent,
   // Financial analysis utilities
   sma, ema, rsi, bollingerBands, macd,
-  cumulativeReturns, drawdown, simpleReturns,
+  cumulativeReturns, drawdown, simpleReturns, volatility,
   toBollingerData, toMACDData, volumeDirections,
   obv,
+  // Interaction utilities
+  linkCharts, applyDataZoom, createDataZoomWidget,
 } from '@chartts/core'
 import type { ChartInstance, ChartData } from '@chartts/core'
 import {
@@ -689,7 +691,7 @@ const pages: Page[] = [
       const cumRet = cumulativeReturns(CLOSE).map(v => +(v * 100).toFixed(2))
       const dd = drawdown(CLOSE).map(v => +(v * 100).toFixed(2))
       const dailyRet = simpleReturns(CLOSE)
-      const rollingVol = (typeof (volatility as any)(dailyRet, 10) === 'object' ? (volatility as any)(dailyRet, 10) : []) as number[]
+      const rollingVol = volatility(dailyRet, 10) as number[]
 
       // Fake benchmark (S&P 500) — slightly lower returns
       const benchClose = CLOSE.map((v,i) => 148 + (v - 148) * 0.7 + Math.sin(i/5)*2)
@@ -705,7 +707,7 @@ const pages: Page[] = [
 
         ['Drawdown', 'Peak-to-trough decline — how much pain?', c => Area(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Drawdown %', values: dd, fill: true, fillOpacity: 0.4 }] }, colors: ['#ef4444'], yLabel: '% from peak' })],
 
-        ['On-Balance Volume', 'Cumulative volume flow — smart money indicator', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'OBV', values: obvValues }] }, colors: ['#f59e0b'] })],
+        ['Rolling Volatility (10-day)', 'Annualized volatility — risk spikes visible', c => Line(c, { theme: theme(), data: { labels: DAY_LABELS, series: [{ name: 'Vol %', values: rollingVol.map(v => isNaN(v) ? NaN : +(v * 100).toFixed(1)) }] }, colors: ['#f59e0b'], yLabel: '% annualized' })],
       ]
       for (const [title, desc, factory] of s2Items) {
         const { card, container } = chartCard(title, desc)

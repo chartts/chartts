@@ -73,7 +73,7 @@ export const geoChartType: ChartTypePlugin = {
     const range = maxVal - minVal || 1
 
     // Coordinate system
-    const vb = gOpts.viewBox ?? { x: 0, y: 0, width: 2000, height: 857 }
+    const vb = gOpts.viewBox ?? { x: 0, y: 0, width: 1009.6727, height: 665.96301 }
     const scaleX = area.width / vb.width
     const scaleY = area.height / vb.height
     const scale = Math.min(scaleX, scaleY) * 0.92

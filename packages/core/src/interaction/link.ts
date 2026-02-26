@@ -30,13 +30,10 @@ export function linkCharts(...charts: ChartInstance[]): () => void {
 
       const { x, label } = payload as { x: number; label: string | number | Date }
 
-      // Broadcast to all other charts
+      // Broadcast to all other charts via public _bus
       for (const other of charts) {
         if (other === chart) continue
-        // Emit synthetic crosshair event on linked charts
-        try {
-          (other as unknown as { _bus?: { emit(e: string, p: unknown): void } })._bus?.emit('crosshair:move', { x, label })
-        } catch { /* ignore if bus not exposed */ }
+        other._bus.emit('crosshair:move' as never, { x, label } as never)
       }
 
       broadcasting = false
@@ -50,9 +47,7 @@ export function linkCharts(...charts: ChartInstance[]): () => void {
       broadcasting = true
       for (const other of charts) {
         if (other === chart) continue
-        try {
-          (other as unknown as { _bus?: { emit(e: string, p: unknown): void } })._bus?.emit('crosshair:hide', undefined)
-        } catch { /* ignore */ }
+        other._bus.emit('crosshair:hide' as never, undefined as never)
       }
       broadcasting = false
     })

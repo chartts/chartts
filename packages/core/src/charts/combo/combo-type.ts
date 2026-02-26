@@ -53,6 +53,7 @@ export const comboChartType: ChartTypePlugin = {
 
     const barNodes: RenderNode[] = []
     for (let i = 0; i < barSeries.values.length; i++) {
+      if (isNaN(barSeries.values[i]!)) continue // skip missing data
       const cx = xScale.map(i)
       const barX = cx - barWidth / 2
       const vy = yScale.map(barSeries.values[i]!)
@@ -103,6 +104,7 @@ export const comboChartType: ChartTypePlugin = {
       const pb = new PathBuilder()
       let started = false
       for (let i = 0; i < series.values.length; i++) {
+        if (isNaN(series.values[i]!)) { started = false; continue } // break line at NaN
         const px = xScale.map(i)
         const py = yScale.map(series.values[i]!)
         if (!started) {
@@ -122,6 +124,7 @@ export const comboChartType: ChartTypePlugin = {
 
       // Points
       for (let i = 0; i < series.values.length; i++) {
+        if (isNaN(series.values[i]!)) continue // skip missing data
         const px = xScale.map(i)
         const py = yScale.map(series.values[i]!)
         lineNodes.push(circle(px, py, 4, {
@@ -160,6 +163,7 @@ export const comboChartType: ChartTypePlugin = {
     const baseline = yScale.map(Math.max(0, yScale.getDomain()[0] as number))
 
     for (let i = 0; i < barSeries.values.length; i++) {
+      if (isNaN(barSeries.values[i]!)) continue
       const cx = xScale.map(i)
       const barX = cx - barWidth / 2
       const vy = yScale.map(barSeries.values[i]!)
@@ -176,6 +180,7 @@ export const comboChartType: ChartTypePlugin = {
     for (let si = 1; si < data.series.length; si++) {
       const series = data.series[si]!
       for (let i = 0; i < series.values.length; i++) {
+        if (isNaN(series.values[i]!)) continue
         const px = xScale.map(i)
         const py = yScale.map(series.values[i]!)
         const dx = mx - px

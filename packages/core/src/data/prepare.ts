@@ -33,6 +33,7 @@ function computeBounds(series: PreparedSeries[], options: ResolvedOptions): Data
 
   for (const s of series) {
     for (const v of s.values) {
+      if (isNaN(v)) continue // skip NaN (missing data / indicator warmup)
       if (v < yMin) yMin = v
       if (v > yMax) yMax = v
     }

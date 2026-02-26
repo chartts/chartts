@@ -37,10 +37,12 @@ export function validateData(data: ChartData): void {
     }
 
     for (let j = 0; j < s.values.length; j++) {
-      if (typeof s.values[j] !== 'number' || !Number.isFinite(s.values[j]!)) {
+      const v = s.values[j]
+      // Allow NaN (used for missing data / indicator warmup periods)
+      if (typeof v !== 'number' || (!Number.isFinite(v) && !Number.isNaN(v))) {
         throw new CharttsError(
-          `series[${i}] ("${s.name}").values[${j}] must be a finite number. ` +
-          `Got: ${JSON.stringify(s.values[j])}`,
+          `series[${i}] ("${s.name}").values[${j}] must be a finite number (or NaN for missing data). ` +
+          `Got: ${JSON.stringify(v)}`,
         )
       }
     }

@@ -64,7 +64,14 @@ export const baselineChartType: ChartTypePlugin = {
       const values = series.values
       if (values.length === 0) continue
 
-      const points = values.map((v, i) => ({ x: xScale.map(i), y: yScale.map(v) }))
+      // Filter out NaN for path building — only use valid data points
+      const validPoints: { x: number; y: number; idx: number; val: number }[] = []
+      for (let i = 0; i < values.length; i++) {
+        if (!isNaN(values[i]!)) {
+          validPoints.push({ x: xScale.map(i), y: yScale.map(values[i]!), idx: i, val: values[i]! })
+        }
+      }
+      const points = validPoints.map(p => ({ x: p.x, y: p.y }))
 
       // Positive fill (above baseline, clipped at baseline)
       const posFill = buildClippedArea(points, baseY, 'above')
@@ -88,11 +95,13 @@ export const baselineChartType: ChartTypePlugin = {
         }))
       }
 
-      // Main line
+      // Main line (using valid points only)
       const linePath = new PathBuilder()
-      linePath.moveTo(points[0]!.x, points[0]!.y)
-      for (let i = 1; i < points.length; i++) {
-        linePath.lineTo(points[i]!.x, points[i]!.y)
+      if (points.length > 0) {
+        linePath.moveTo(points[0]!.x, points[0]!.y)
+        for (let i = 1; i < points.length; i++) {
+          linePath.lineTo(points[i]!.x, points[i]!.y)
+        }
       }
       seriesNodes.push(path(linePath.build(), {
         class: 'chartts-baseline-line',
@@ -101,21 +110,20 @@ export const baselineChartType: ChartTypePlugin = {
         'data-series': series.index,
       }))
 
-      // Data points
+      // Data points (only for valid points)
       if (showPoints) {
-        for (let i = 0; i < values.length; i++) {
-          const v = values[i]!
-          const color = v >= bv ? posColor : negColor
-          seriesNodes.push(circle(points[i]!.x, points[i]!.y, theme.pointRadius, {
+        for (const vp of validPoints) {
+          const color = vp.val >= bv ? posColor : negColor
+          seriesNodes.push(circle(vp.x, vp.y, theme.pointRadius, {
             class: 'chartts-point',
             fill: color,
             stroke: `var(${CSS_PREFIX}-bg, #fff)`,
             strokeWidth: 2,
             'data-series': series.index,
-            'data-index': i,
+            'data-index': vp.idx,
             tabindex: 0,
             role: 'img',
-            ariaLabel: `${series.name}: ${v} (${v >= bv ? '+' : ''}${(v - bv).toFixed(1)})`,
+            ariaLabel: `${series.name}: ${vp.val} (${vp.val >= bv ? '+' : ''}${(vp.val - bv).toFixed(1)})`,
           }))
         }
       }
@@ -147,6 +155,7 @@ export const baselineChartType: ChartTypePlugin = {
 
     for (const series of data.series) {
       for (let i = 0; i < series.values.length; i++) {
+        if (isNaN(series.values[i]!)) continue
         const x = xScale.map(i)
         const y = yScale.map(series.values[i]!)
         const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)

@@ -158,7 +158,12 @@ export function resolveOptions(
 
     zoom: opts.zoom ?? false,
     pan: opts.pan ?? false,
-    crosshair: opts.crosshair ?? false,
+    crosshair: !opts.crosshair
+      ? false
+      : opts.crosshair === true
+        ? { enabled: true, mode: 'vertical' as const }
+        : { enabled: opts.crosshair.enabled ?? true, mode: opts.crosshair.mode ?? 'vertical' as const },
+    brush: opts.brush ?? false,
 
     colors: opts.colors ?? [...PALETTE],
     fontFamily: opts.fontFamily ?? FONT_FAMILY,

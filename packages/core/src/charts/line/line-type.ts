@@ -68,6 +68,7 @@ export const lineChartType: ChartTypePlugin = {
       // Data points with ambient glow
       if (series.showPoints) {
         for (let i = 0; i < series.values.length; i++) {
+          if (isNaN(series.values[i]!)) continue // skip missing data
           const x = xScale.map(i)
           const y = yScale.map(series.values[i]!)
 
@@ -107,6 +108,7 @@ export const lineChartType: ChartTypePlugin = {
 
     for (const series of data.series) {
       for (let i = 0; i < series.values.length; i++) {
+        if (isNaN(series.values[i]!)) continue // skip missing data
         const x = xScale.map(i)
         const y = yScale.map(series.values[i]!)
         const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
@@ -121,7 +123,7 @@ export const lineChartType: ChartTypePlugin = {
   },
 }
 
-/** Build a line path string using specified interpolation */
+/** Build a line path string using specified interpolation, skipping NaN gaps */
 function buildLinePath(
   values: number[],
   xScale: { map(v: number | string | Date): number },
@@ -130,14 +132,26 @@ function buildLinePath(
 ): string {
   if (values.length === 0) return ''
 
-  const points = values.map((v, i) => ({ x: xScale.map(i), y: yScale.map(v) }))
+  // Split into contiguous segments (break at NaN)
+  const segments: { x: number; y: number }[][] = []
+  let current: { x: number; y: number }[] = []
+  for (let i = 0; i < values.length; i++) {
+    if (isNaN(values[i]!)) {
+      if (current.length > 0) { segments.push(current); current = [] }
+    } else {
+      current.push({ x: xScale.map(i), y: yScale.map(values[i]!) })
+    }
+  }
+  if (current.length > 0) segments.push(current)
 
-  if (curve === 'step') return buildStepPath(points)
-  if (curve === 'monotone') return buildMonotonePath(points)
-  return buildLinearPath(points)
+  // Build path for each segment
+  const builder = curve === 'step' ? buildStepPath
+    : curve === 'monotone' ? buildMonotonePath
+    : buildLinearPath
+  return segments.map(s => builder(s)).join('')
 }
 
-/** Build an area fill path (line path + close along x-axis) */
+/** Build an area fill path (line path + close along x-axis), skipping NaN gaps */
 function buildAreaPath(
   values: number[],
   xScale: { map(v: number | string | Date): number },
@@ -147,19 +161,30 @@ function buildAreaPath(
 ): string {
   if (values.length === 0) return ''
 
-  const points = values.map((v, i) => ({ x: xScale.map(i), y: yScale.map(v) }))
   const baseline = area.y + area.height
+  const builder = curve === 'monotone' ? buildMonotonePath
+    : curve === 'step' ? buildStepPath
+    : buildLinearPath
 
-  let linePart: string
-  if (curve === 'monotone') linePart = buildMonotonePath(points)
-  else if (curve === 'step') linePart = buildStepPath(points)
-  else linePart = buildLinearPath(points)
+  // Split into contiguous segments (break at NaN)
+  const segments: { x: number; y: number }[][] = []
+  let current: { x: number; y: number }[] = []
+  for (let i = 0; i < values.length; i++) {
+    if (isNaN(values[i]!)) {
+      if (current.length > 0) { segments.push(current); current = [] }
+    } else {
+      current.push({ x: xScale.map(i), y: yScale.map(values[i]!) })
+    }
+  }
+  if (current.length > 0) segments.push(current)
 
-  // Close the area: from last point down to baseline, across to first point's x, back up
-  const first = points[0]!
-  const last = points[points.length - 1]!
-
-  return `${linePart}L${formatNum(last.x)},${formatNum(baseline)}L${formatNum(first.x)},${formatNum(baseline)}Z`
+  // Build closed area for each segment
+  return segments.map(pts => {
+    const linePart = builder(pts)
+    const first = pts[0]!
+    const last = pts[pts.length - 1]!
+    return `${linePart}L${formatNum(last.x)},${formatNum(baseline)}L${formatNum(first.x)},${formatNum(baseline)}Z`
+  }).join('')
 }
 
 function buildLinearPath(points: { x: number; y: number }[]): string {

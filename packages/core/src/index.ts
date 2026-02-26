@@ -20,6 +20,10 @@ export type { ZoomPanConfig, ZoomPanState, ZoomPanInstance } from './interaction
 // Linked Charts
 export { linkCharts } from './interaction/link'
 
+// Brush Selection
+export { createBrush } from './interaction/brush'
+export type { BrushConfig, BrushInstance } from './interaction/brush'
+
 // Realtime Streaming
 export { createStreamingChart } from './data/streaming'
 export type { StreamingConfig, StreamingInstance } from './data/streaming'
@@ -76,6 +80,8 @@ export { renkoChartType } from './charts/renko/renko-type'
 export { filterData, filterSeries, filterLabels, sortData, aggregateData, transformData, pivotData, sliceData } from './features/dataset'
 export { createDataZoomState, applyDataZoom, renderDataZoomSlider } from './features/datazoom'
 export type { DataZoomRange, DataZoomState, DataZoomSliderOptions } from './features/datazoom'
+export { createDataZoomWidget } from './features/datazoom-widget'
+export type { DataZoomWidgetOptions, DataZoomWidget } from './features/datazoom-widget'
 export { createGraphicElements, horizontalLine, verticalLine, annotation } from './features/graphic'
 export type { GraphicElement, GraphicArea } from './features/graphic'
 export { parseRichText, richLabel } from './features/richtext'
@@ -122,7 +128,7 @@ export { createDebugPanel } from './debug/debug'
 // Types
 export type {
   Series, ChartData, DataPoint, PreparedData, PreparedSeries, DataBounds,
-  ChartOptions, ResolvedOptions, TooltipConfig, LegendPosition, CurveType,
+  ChartOptions, ResolvedOptions, TooltipConfig, CrosshairConfig, LegendPosition, CurveType,
   ThemeConfig,
   Scale, Tick, ScaleType, ScaleFactory,
   RenderNode, RenderAttrs, Renderer, RendererRoot,

@@ -76,6 +76,12 @@ export interface TooltipConfig {
   render?: (point: DataPoint & { color: string }) => string | HTMLElement
 }
 
+export interface CrosshairConfig {
+  enabled?: boolean
+  /** Crosshair line direction. Default 'vertical'. */
+  mode?: 'vertical' | 'horizontal' | 'both'
+}
+
 /** User-facing chart options. Flat. Every field optional. */
 export interface ChartOptions {
   width?: number
@@ -111,7 +117,8 @@ export interface ChartOptions {
 
   zoom?: boolean
   pan?: boolean
-  crosshair?: boolean
+  crosshair?: boolean | CrosshairConfig
+  brush?: boolean
 
   colors?: string[]
   fontFamily?: string
@@ -158,7 +165,8 @@ export interface ResolvedOptions {
 
   zoom: boolean
   pan: boolean
-  crosshair: boolean
+  crosshair: false | CrosshairConfig
+  brush: boolean
 
   colors: string[]
   fontFamily: string
@@ -367,8 +375,12 @@ export interface ChartInstance {
   toClipboard(): Promise<void>
   on(event: string, handler: (...args: unknown[]) => void): () => void
   resize(width: number, height: number): void
+  /** Reset zoom/pan to initial state. */
+  resetZoom(): void
   destroy(): void
   readonly element: SVGElement | HTMLCanvasElement
+  /** Event bus — used by linkCharts() and advanced consumers. */
+  readonly _bus: EventBus
 }
 
 // ---------------------------------------------------------------------------
@@ -386,6 +398,9 @@ export interface ChartEvents {
   'tooltip:hide': void
   'crosshair:move': { x: number; label: string | number | Date }
   'crosshair:hide': void
+  'zoom:change': { zoomX: number; zoomY: number; panX: number; panY: number }
+  'zoom:reset': void
+  'brush:end': { startIndex: number; endIndex: number; startLabel: string | number | Date; endLabel: string | number | Date }
   'destroy': void
 }
 

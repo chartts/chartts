@@ -17,6 +17,8 @@ import { createCategoricalScale } from '../scales/categorical'
 import { group, defs, clipPathDef, rect } from '../render/tree'
 import { createEffectDefs } from '../render/effects'
 import { createInteractionLayer } from '../interaction/interaction'
+import { createZoomPan, type ZoomPanInstance } from '../interaction/zoom-pan'
+import { createBrush, type BrushInstance } from '../interaction/brush'
 import { createDebugPanel, type DebugPanel } from '../debug/debug'
 import { renderEmptyState, renderLoadingState, renderErrorState } from '../render/states'
 import { decimateData } from '../data/decimate'
@@ -82,6 +84,9 @@ export function createChart(
     container.style.background = currentTheme.background
   }
 
+  // Shared interaction state — coordinates between zoom-pan and interaction layer
+  const interactionState = { isPanning: false }
+
   // Interaction layer — attaches to SVG; for Canvas, attaches to the canvas element
   const interaction = createInteractionLayer(
     chartType,
@@ -92,11 +97,51 @@ export function createChart(
     currentTheme,
     currentOptions.onClick,
     currentOptions.onHover,
+    interactionState,
   )
   if (useCanvas) {
     interaction.attach(root.element as unknown as SVGElement, container)
   } else {
     interaction.attach(root.element as SVGElement, container)
+  }
+
+  // Zoom & Pan
+  let zoomPan: ZoomPanInstance | null = null
+  if (currentOptions.zoom || currentOptions.pan) {
+    zoomPan = createZoomPan(
+      {
+        x: true,
+        y: false,
+        wheel: currentOptions.zoom,
+        drag: currentOptions.pan,
+        pinch: currentOptions.zoom,
+      },
+      () => {
+        render()
+        const state = zoomPan!.getState()
+        bus.emit('zoom:change', state)
+      },
+      interactionState,
+    )
+    zoomPan.attach(
+      root.element as HTMLElement | SVGElement,
+      () => lastCtx!.area,
+      () => ({ xScale: lastCtx!.xScale, yScale: lastCtx!.yScale }),
+    )
+  }
+
+  // Brush selection
+  let brush: BrushInstance | null = null
+  if (currentOptions.brush) {
+    brush = createBrush(
+      {},
+      bus,
+      root.element as HTMLElement | SVGElement,
+      () => lastCtx!.area,
+      () => lastCtx!.xScale,
+      () => lastPrepared!,
+      !!currentOptions.pan,
+    )
   }
 
   // Debug panel
@@ -192,6 +237,11 @@ export function createChart(
       nice: true,
       format: currentOptions.yFormat,
     })
+
+    // Apply zoom/pan state to scales
+    if (zoomPan) {
+      zoomPan.applyToScales(xScale, yScale, area)
+    }
 
     const ctx: RenderContext = {
       data: prepared,
@@ -339,10 +389,19 @@ export function createChart(
       render()
     },
 
+    resetZoom(): void {
+      if (zoomPan) {
+        zoomPan.reset()
+        bus.emit('zoom:reset', undefined as never)
+      }
+    },
+
     destroy(): void {
       stopResize()
       stopThemeWatch()
       interaction.destroy()
+      zoomPan?.destroy()
+      brush?.destroy()
       debug?.destroy()
       bus.emit('destroy', undefined as never)
       bus.destroy()
@@ -351,6 +410,10 @@ export function createChart(
 
     get element(): SVGElement | HTMLCanvasElement {
       return root.element as SVGElement | HTMLCanvasElement
+    },
+
+    get _bus(): EventBus {
+      return bus
     },
   }
 
