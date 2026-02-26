@@ -46,7 +46,7 @@ export function validateData(data: ChartData): void {
     }
   }
 
-  if (data.labels && data.labels.length !== len) {
+  if (data.labels && data.labels.length > 0 && data.labels.length !== len) {
     throw new CharttsError(
       `labels has ${data.labels.length} entries but series have ${len} values. They must match.`,
     )

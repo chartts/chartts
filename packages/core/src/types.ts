@@ -244,11 +244,17 @@ export interface RenderAttrs {
   stroke?: string
   strokeWidth?: number
   strokeDasharray?: string
+  strokeOpacity?: number
+  strokeLinecap?: 'butt' | 'round' | 'square'
+  strokeLinejoin?: 'miter' | 'round' | 'bevel'
   fill?: string
   fillOpacity?: number
   opacity?: number
   transform?: string
   clipPath?: string
+  filter?: string
+  cursor?: string
+  pointerEvents?: string
   role?: string
   ariaLabel?: string
   tabindex?: number

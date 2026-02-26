@@ -1,0 +1,195 @@
+import type {
+  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult, ScaleType,
+} from '../../types'
+import { CSS_PREFIX } from '../../constants'
+import { prepareData } from '../../data/prepare'
+import { group, path, circle } from '../../render/tree'
+import { PathBuilder } from '../../render/tree'
+
+export interface RangeOptions {
+  /** Upper and lower bound arrays. */
+  range?: {
+    upper: number[]
+    lower: number[]
+  }
+  /** Band fill color. Default uses series color with opacity. */
+  bandColor?: string
+  /** Band fill opacity. Default 0.2. */
+  bandOpacity?: number
+  /** Show center line (series[0].values). Default true. */
+  showCenter?: boolean
+  /** Show data points on center line. Default false. */
+  showPoints?: boolean
+}
+
+/**
+ * Range / Band chart — shaded area between upper and lower bounds.
+ *
+ * Used for: Bollinger bands, confidence intervals, forecast ranges,
+ * bid-ask spread visualization.
+ */
+export const rangeChartType: ChartTypePlugin = {
+  type: 'range',
+
+  getScaleTypes(): { x: ScaleType; y: ScaleType } {
+    return { x: 'categorical', y: 'linear' }
+  },
+
+  prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
+    const opts = options as unknown as RangeOptions
+    const range = opts.range
+    const prepared = prepareData(data, options)
+
+    if (range) {
+      let yMin = prepared.bounds.yMin
+      let yMax = prepared.bounds.yMax
+      for (let i = 0; i < range.upper.length; i++) {
+        if (range.upper[i]! > yMax) yMax = range.upper[i]!
+        if (range.lower[i]! < yMin) yMin = range.lower[i]!
+      }
+      prepared.bounds.yMin = yMin
+      prepared.bounds.yMax = yMax
+    }
+
+    return prepared
+  },
+
+  render(ctx: RenderContext): RenderNode[] {
+    const { data, xScale, yScale, options, theme } = ctx
+    const nodes: RenderNode[] = []
+
+    const opts = options as unknown as RangeOptions
+    const range = opts.range
+    if (!range) return nodes
+
+    const series = data.series[0]
+    if (!series) return nodes
+
+    const showCenter = opts.showCenter ?? true
+    const showPoints = opts.showPoints ?? false
+    const bandOpacity = opts.bandOpacity ?? 0.2
+
+    const seriesNodes: RenderNode[] = []
+
+    // Build band polygon: upper path forward, lower path backward
+    const pb = new PathBuilder()
+    const n = range.upper.length
+
+    // Upper path (left to right)
+    for (let i = 0; i < n; i++) {
+      const x = xScale.map(i)
+      const y = yScale.map(range.upper[i]!)
+      if (i === 0) pb.moveTo(x, y)
+      else pb.lineTo(x, y)
+    }
+
+    // Lower path (right to left)
+    for (let i = n - 1; i >= 0; i--) {
+      const x = xScale.map(i)
+      const y = yScale.map(range.lower[i]!)
+      pb.lineTo(x, y)
+    }
+    pb.close()
+
+    seriesNodes.push(path(pb.build(), {
+      class: 'chartts-range-band',
+      fill: opts.bandColor ?? series.color,
+      fillOpacity: bandOpacity,
+      'data-series': 0,
+    }))
+
+    // Upper bound line
+    const upperPath = buildLinePath(range.upper, xScale, yScale)
+    seriesNodes.push(path(upperPath, {
+      class: 'chartts-range-bound',
+      stroke: series.color,
+      strokeWidth: 1,
+      strokeDasharray: '4,3',
+      opacity: 0.6,
+      'data-series': 0,
+    }))
+
+    // Lower bound line
+    const lowerPath = buildLinePath(range.lower, xScale, yScale)
+    seriesNodes.push(path(lowerPath, {
+      class: 'chartts-range-bound',
+      stroke: series.color,
+      strokeWidth: 1,
+      strokeDasharray: '4,3',
+      opacity: 0.6,
+      'data-series': 0,
+    }))
+
+    // Center line
+    if (showCenter && series.values.length > 0) {
+      const centerPath = buildLinePath(series.values, xScale, yScale)
+      seriesNodes.push(path(centerPath, {
+        class: 'chartts-range-center',
+        stroke: series.color,
+        strokeWidth: theme.lineWidth,
+        'data-series': 0,
+      }))
+
+      if (showPoints) {
+        for (let i = 0; i < series.values.length; i++) {
+          const x = xScale.map(i)
+          const y = yScale.map(series.values[i]!)
+          seriesNodes.push(circle(x, y, theme.pointRadius, {
+            class: 'chartts-point',
+            fill: series.color,
+            stroke: `var(${CSS_PREFIX}-bg, #fff)`,
+            strokeWidth: 2,
+            'data-series': 0,
+            'data-index': i,
+            tabindex: 0,
+            role: 'img',
+            ariaLabel: `${data.labels[i] ?? i}: ${series.values[i]} [${range.lower[i]}–${range.upper[i]}]`,
+          }))
+        }
+      }
+    }
+
+    nodes.push(group(seriesNodes, {
+      class: 'chartts-series chartts-series-0',
+      'data-series-name': series.name,
+    }))
+
+    return nodes
+  },
+
+  hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
+    const { data, xScale, yScale } = ctx
+    const series = data.series[0]
+    if (!series) return null
+
+    let best: HitResult | null = null
+    let bestDist = Infinity
+
+    for (let i = 0; i < series.values.length; i++) {
+      const x = xScale.map(i)
+      const y = yScale.map(series.values[i]!)
+      const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
+      if (dist < bestDist) {
+        bestDist = dist
+        best = { seriesIndex: 0, pointIndex: i, distance: dist }
+      }
+    }
+
+    return best && best.distance < 30 ? best : null
+  },
+}
+
+function buildLinePath(
+  values: number[],
+  xScale: { map(v: number | string | Date): number },
+  yScale: { map(v: number | string | Date): number },
+): string {
+  if (values.length === 0) return ''
+  const pb = new PathBuilder()
+  pb.moveTo(xScale.map(0), yScale.map(values[0]!))
+  for (let i = 1; i < values.length; i++) {
+    pb.lineTo(xScale.map(i), yScale.map(values[i]!))
+  }
+  return pb.build()
+}

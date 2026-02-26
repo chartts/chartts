@@ -232,6 +232,10 @@ function applyEntryAnimations(svg: Element): void {
     '.chartts-graph-node', '.chartts-themeriver-stream',
     '.chartts-pictorialbar-symbol', '.chartts-chord-arc',
     '.chartts-chord-ribbon',
+    '.chartts-geo-region', '.chartts-lines-flow',
+    '.chartts-lines-node', '.chartts-matrix-cell',
+    '.chartts-ohlc-stem', '.chartts-volume-bar',
+    '.chartts-kagi-line', '.chartts-renko-brick',
   ]
   for (const selector of STAGGER_SELECTORS) {
     svg.querySelectorAll(selector).forEach((el, i) => {

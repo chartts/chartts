@@ -72,7 +72,7 @@ function resolveGradientRef(
   const pieMatch = id.match(/^chartts-pie-(\d+)$/)
   if (pieMatch) {
     const color = resolveColor(colors[parseInt(pieMatch[1]!)])
-    return color // Simplified — just use the color
+    return color
   }
 
   // Point glow: chartts-pglow-N
@@ -134,8 +134,8 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
     createRoot(target, width, height, attrs) {
       const canvas = document.createElement('canvas')
       const dpr = window.devicePixelRatio || 1
-      canvas.width = width * dpr
-      canvas.height = height * dpr
+      canvas.width = Math.round(width * dpr)
+      canvas.height = Math.round(height * dpr)
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
       canvas.style.display = 'block'
@@ -144,12 +144,11 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
       if (attrs?.role) canvas.setAttribute('role', attrs.role)
       if (attrs?.ariaLabel) canvas.setAttribute('aria-label', attrs.ariaLabel)
 
-      const ctx2d = canvas.getContext('2d')!
-      ctx2d.scale(dpr, dpr)
+      const ctx2d = canvas.getContext('2d', { alpha: false })!
+      ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0)
 
       target.appendChild(canvas)
 
-      // Store metadata on the root
       const root = { element: canvas } as unknown as { element: HTMLCanvasElement }
       ;(root as unknown as CanvasRendererRoot).ctx = ctx2d
       ;(root as unknown as CanvasRendererRoot).width = width
@@ -161,8 +160,27 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
 
     render(root, nodes) {
       const cr = root as unknown as CanvasRendererRoot
+      const canvas = cr.element
+      const dpr = window.devicePixelRatio || 1
+
+      // Sync dimensions from actual canvas state
+      cr.width = canvas.width / dpr
+      cr.height = canvas.height / dpr
+      cr.dpr = dpr
+
       clipPaths = new Map()
-      cr.ctx.clearRect(0, 0, cr.width, cr.height)
+
+      const ctx = cr.ctx
+
+      // High-quality rendering settings
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
+
+      // Paint background
+      ctx.save()
+      ctx.fillStyle = resolveColor(theme.background, '#ffffff')
+      ctx.fillRect(0, 0, cr.width, cr.height)
+      ctx.restore()
 
       // First pass: collect clip path defs
       collectClipPaths(nodes)
@@ -237,32 +255,31 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
         const strokeWidth = node.attrs?.strokeWidth ?? 0
         const opacity = node.attrs?.opacity ?? 1
         const fillOpacity = node.attrs?.fillOpacity ?? 1
+        const strokeOpacity = node.attrs?.strokeOpacity ?? 1
 
         ctx.save()
         applyClip(ctx, node.attrs)
         ctx.globalAlpha = opacity
+        applyLineCaps(ctx, node.attrs)
 
         const p = new Path2D(node.d)
 
-        // Default: paths have no fill (like SVG renderer)
         if (fill && fill !== 'transparent' && fill !== 'none' && node.attrs?.fill) {
           ctx.save()
           ctx.globalAlpha = opacity * fillOpacity
-          if (typeof fill === 'object') {
-            ctx.fillStyle = fill
-          } else {
-            ctx.fillStyle = fill
-          }
+          ctx.fillStyle = typeof fill === 'object' ? fill : fill
           ctx.fill(p)
           ctx.restore()
         }
 
         if (stroke && stroke !== 'transparent' && stroke !== 'none' && strokeWidth > 0) {
+          ctx.save()
+          ctx.globalAlpha = opacity * strokeOpacity
           ctx.strokeStyle = typeof stroke === 'string' ? stroke : '#000'
           ctx.lineWidth = strokeWidth
           applyDash(ctx, node.attrs?.strokeDasharray)
           ctx.stroke(p)
-          ctx.setLineDash([])
+          ctx.restore()
         }
 
         ctx.restore()
@@ -275,6 +292,7 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
         const strokeWidth = node.attrs?.strokeWidth ?? 0
         const opacity = node.attrs?.opacity ?? 1
         const fillOpacity = node.attrs?.fillOpacity ?? 1
+        const strokeOpacity = node.attrs?.strokeOpacity ?? 1
         const rx = node.rx ?? 0
 
         ctx.save()
@@ -295,6 +313,8 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
         }
 
         if (stroke && stroke !== 'transparent' && stroke !== 'none' && strokeWidth > 0) {
+          ctx.save()
+          ctx.globalAlpha = opacity * strokeOpacity
           ctx.strokeStyle = typeof stroke === 'string' ? stroke : '#000'
           ctx.lineWidth = strokeWidth
           applyDash(ctx, node.attrs?.strokeDasharray)
@@ -304,7 +324,7 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
           } else {
             ctx.strokeRect(node.x, node.y, node.width, node.height)
           }
-          ctx.setLineDash([])
+          ctx.restore()
         }
 
         ctx.restore()
@@ -317,6 +337,7 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
         const strokeWidth = node.attrs?.strokeWidth ?? 0
         const opacity = node.attrs?.opacity ?? 1
         const fillOpacity = node.attrs?.fillOpacity ?? 1
+        const strokeOpacity = node.attrs?.strokeOpacity ?? 1
 
         ctx.save()
         ctx.globalAlpha = opacity
@@ -333,9 +354,12 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
         }
 
         if (stroke && stroke !== 'transparent' && stroke !== 'none' && strokeWidth > 0) {
+          ctx.save()
+          ctx.globalAlpha = opacity * strokeOpacity
           ctx.strokeStyle = typeof stroke === 'string' ? stroke : '#000'
           ctx.lineWidth = strokeWidth
           ctx.stroke()
+          ctx.restore()
         }
 
         ctx.restore()
@@ -346,17 +370,22 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
         const stroke = resolveColor(node.attrs?.stroke, '#000')
         const strokeWidth = node.attrs?.strokeWidth ?? 1
         const opacity = node.attrs?.opacity ?? 1
+        const strokeOpacity = node.attrs?.strokeOpacity ?? 1
 
         if (stroke === 'transparent' || stroke === 'none') break
 
         ctx.save()
-        ctx.globalAlpha = opacity
+        ctx.globalAlpha = opacity * strokeOpacity
         ctx.strokeStyle = stroke
         ctx.lineWidth = strokeWidth
+        applyLineCaps(ctx, node.attrs)
         applyDash(ctx, node.attrs?.strokeDasharray)
+
+        // Subpixel alignment for crisp 1px lines
+        const offset = strokeWidth % 2 === 1 ? 0.5 : 0
         ctx.beginPath()
-        ctx.moveTo(node.x1, node.y1)
-        ctx.lineTo(node.x2, node.y2)
+        ctx.moveTo(snapPixel(node.x1, offset), snapPixel(node.y1, offset))
+        ctx.lineTo(snapPixel(node.x2, offset), snapPixel(node.y2, offset))
         ctx.stroke()
         ctx.setLineDash([])
         ctx.restore()
@@ -367,16 +396,17 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
         const fill = resolveColor(node.attrs?.fill, theme.textColor)
         const resolvedFill = resolveColor(fill)
         const opacity = node.attrs?.opacity ?? 1
-        const fontSize = (node.attrs as Record<string, unknown>)?.fontSize as number ?? theme.fontSize
-        const fontFamily = (node.attrs as Record<string, unknown>)?.fontFamily as string ?? theme.fontFamily
-        const fontWeight = (node.attrs as Record<string, unknown>)?.fontWeight as string ?? 'normal'
-        const textAnchor = (node.attrs as Record<string, unknown>)?.textAnchor as string | undefined
-        const baseline = (node.attrs as Record<string, unknown>)?.dominantBaseline as string | undefined
+        const extra = node.attrs as Record<string, unknown> | undefined
+        const fontSize = (extra?.fontSize as number) ?? theme.fontSize
+        const fontFamily = (extra?.fontFamily as string) ?? theme.fontFamily
+        const fontWeight = (extra?.fontWeight as string) ?? 'normal'
+        const textAnchor = extra?.textAnchor as string | undefined
+        const baseline = extra?.dominantBaseline as string | undefined
 
         ctx.save()
         ctx.globalAlpha = opacity
         ctx.fillStyle = resolvedFill
-        ctx.font = `${fontWeight} ${fontSize}px ${resolveColor(fontFamily)}`
+        ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`
         ctx.textAlign = mapTextAlign(textAnchor)
         ctx.textBaseline = mapTextBaseline(baseline)
 
@@ -462,12 +492,22 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
     }
   }
 
+  function applyLineCaps(ctx: CanvasRenderingContext2D, attrs?: RenderAttrs): void {
+    if (attrs?.strokeLinecap) ctx.lineCap = attrs.strokeLinecap
+    if (attrs?.strokeLinejoin) ctx.lineJoin = attrs.strokeLinejoin
+  }
+
   function applyDash(ctx: CanvasRenderingContext2D, dasharray?: string): void {
     if (!dasharray) return
     const segments = dasharray.split(/[\s,]+/).map(Number).filter(n => !isNaN(n))
     if (segments.length > 0) {
       ctx.setLineDash(segments)
     }
+  }
+
+  /** Snap to pixel grid for crisp lines */
+  function snapPixel(v: number, offset: number): number {
+    return Math.round(v) + offset
   }
 
   function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {

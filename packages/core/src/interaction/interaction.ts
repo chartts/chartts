@@ -14,8 +14,12 @@ export interface InteractionLayer {
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
 /**
- * Interaction layer — handles mouse/touch events on the chart SVG.
+ * Interaction layer — handles mouse/touch events on the chart.
  * Provides: hover highlights, tooltips, crosshair, click events.
+ *
+ * For SVG renderer, interaction elements are appended directly to the SVG.
+ * For Canvas renderer, a transparent SVG overlay is created on top of the
+ * canvas to host crosshair lines, highlight dots, and other visual feedback.
  */
 export function createInteractionLayer(
   chartType: ChartTypePlugin,
@@ -27,7 +31,7 @@ export function createInteractionLayer(
   onClick?: (point: DataPoint, event: MouseEvent) => void,
   onHover?: (point: DataPoint | null, event: MouseEvent) => void,
 ): InteractionLayer {
-  let svg: SVGElement | HTMLCanvasElement | null = null
+  let targetEl: SVGElement | HTMLCanvasElement | null = null
   let container: HTMLElement | null = null
   let tooltip: TooltipInstance | null = null
   let crosshairEl: SVGLineElement | null = null
@@ -36,12 +40,32 @@ export function createInteractionLayer(
   let activePoint: { seriesIndex: number; pointIndex: number } | null = null
   let activeCrosshairIndex = -1
 
+  // Canvas overlay — a transparent SVG positioned over the canvas
+  let overlayEl: SVGSVGElement | null = null
+  let isCanvas = false
+
   // Create tooltip if configured
   if (tooltipConfig) {
     tooltip = createTooltip(
       typeof tooltipConfig === 'object' ? tooltipConfig : { enabled: true },
       theme,
     )
+  }
+
+  /** Get the SVG element where interaction visuals should be drawn */
+  function getOverlay(): SVGElement | null {
+    if (isCanvas) return overlayEl
+    return targetEl as SVGElement | null
+  }
+
+  /** Sync overlay SVG dimensions with the canvas */
+  function syncOverlay(): void {
+    if (!overlayEl || !targetEl) return
+    const w = (targetEl as HTMLCanvasElement).clientWidth || parseInt((targetEl as HTMLCanvasElement).style.width) || 400
+    const h = (targetEl as HTMLCanvasElement).clientHeight || parseInt((targetEl as HTMLCanvasElement).style.height) || 300
+    overlayEl.setAttribute('viewBox', `0 0 ${w} ${h}`)
+    overlayEl.setAttribute('width', String(w))
+    overlayEl.setAttribute('height', String(h))
   }
 
   function isCrosshairEnabled(): boolean {
@@ -97,7 +121,12 @@ export function createInteractionLayer(
   }
 
   function showCrosshair(pointIndex: number, mouseX: number, mouseY: number): void {
-    if (!svg || !container) return
+    if (!targetEl || !container) return
+    const overlay = getOverlay()
+    if (!overlay) return
+
+    if (isCanvas) syncOverlay()
+
     const ctx = getContext()
     const data = getData()
     const { area, xScale } = ctx
@@ -112,7 +141,7 @@ export function createInteractionLayer(
     line.setAttribute('x2', String(xPos))
     line.setAttribute('y2', String(area.y + area.height))
     line.style.opacity = '0.6'
-    if (!line.parentElement) svg.appendChild(line)
+    if (!line.parentElement) overlay.appendChild(line)
 
     // Dots on each series at this x
     clearCrosshairDots()
@@ -129,7 +158,7 @@ export function createInteractionLayer(
       dot.setAttribute('stroke-width', '2')
       dot.style.pointerEvents = 'none'
       dot.style.transition = 'cx 0.1s ease, cy 0.1s ease'
-      svg.appendChild(dot)
+      overlay.appendChild(dot)
       crosshairDots.push(dot)
     }
 
@@ -209,10 +238,11 @@ export function createInteractionLayer(
     const x = clientX - r.left
     const y = clientY - r.top
 
-    // SVG: scale to viewBox coords; Canvas: coords are direct (CSS pixels)
+    // Canvas: coords are CSS pixels (matching our coordinate system)
     if (el instanceof HTMLCanvasElement) {
       return { x, y, svgX: x, svgY: y }
     }
+    // SVG: scale to viewBox coords
     const viewBox = el.getAttribute('viewBox')?.split(' ').map(Number) ?? [0, 0, r.width, r.height]
     const scaleX = viewBox[2]! / r.width
     const scaleY = viewBox[3]! / r.height
@@ -220,9 +250,9 @@ export function createInteractionLayer(
   }
 
   function onMouseMove(e: MouseEvent): void {
-    if (!svg || !container) return
+    if (!targetEl || !container) return
 
-    const { x, y, svgX, svgY } = toChartCoords(svg, e.clientX, e.clientY)
+    const { x, y, svgX, svgY } = toChartCoords(targetEl, e.clientX, e.clientY)
 
     const ctx = getContext()
 
@@ -269,7 +299,7 @@ export function createInteractionLayer(
       // Update hover highlights
       if (!activePoint || activePoint.seriesIndex !== hit.seriesIndex || activePoint.pointIndex !== hit.pointIndex) {
         clearHighlights()
-        highlightPoint(hit.seriesIndex, hit.pointIndex)
+        highlightPoint(hit.seriesIndex, hit.pointIndex, svgX, svgY)
         activePoint = { seriesIndex: hit.seriesIndex, pointIndex: hit.pointIndex }
 
         bus.emit('point:enter', { point, event: e })
@@ -305,9 +335,9 @@ export function createInteractionLayer(
   }
 
   function onClickHandler(e: MouseEvent): void {
-    if (!svg || !onClick) return
+    if (!targetEl || !onClick) return
 
-    const { svgX, svgY } = toChartCoords(svg, e.clientX, e.clientY)
+    const { svgX, svgY } = toChartCoords(targetEl, e.clientX, e.clientY)
 
     const ctx = getContext()
     const hit = chartType.hitTest(ctx, svgX, svgY)
@@ -327,10 +357,54 @@ export function createInteractionLayer(
     }
   }
 
-  function highlightPoint(seriesIndex: number, pointIndex: number): void {
-    if (!svg) return
-    // Canvas doesn't have DOM elements to highlight — skip
-    if (svg instanceof HTMLCanvasElement) return
+  // -----------------------------------------------------------------------
+  // Highlight / dim
+  // -----------------------------------------------------------------------
+
+  function highlightPoint(seriesIndex: number, pointIndex: number, hitX?: number, hitY?: number): void {
+    const overlay = getOverlay()
+    if (!overlay) return
+
+    if (isCanvas) {
+      // Canvas mode: draw highlight marker at the mouse hit position on the overlay SVG.
+      // We use the actual hit coordinates (from hitTest) rather than trying to
+      // recompute from scales, which only works for cartesian chart types.
+      if (hitX == null || hitY == null) return
+      syncOverlay()
+      const data = getData()
+      const series = data.series[seriesIndex]
+      if (!series) return
+
+      // Glow ring
+      const glow = document.createElementNS(SVG_NS, 'circle')
+      glow.setAttribute('cx', String(hitX))
+      glow.setAttribute('cy', String(hitY))
+      glow.setAttribute('r', '12')
+      glow.setAttribute('fill', 'none')
+      glow.setAttribute('stroke', series.color)
+      glow.setAttribute('stroke-width', '2')
+      glow.setAttribute('opacity', '0.3')
+      glow.setAttribute('class', 'chartts-canvas-highlight')
+      glow.style.pointerEvents = 'none'
+      overlay.appendChild(glow)
+
+      // Solid dot
+      const dot = document.createElementNS(SVG_NS, 'circle')
+      dot.setAttribute('cx', String(hitX))
+      dot.setAttribute('cy', String(hitY))
+      dot.setAttribute('r', '5')
+      dot.setAttribute('fill', series.color)
+      dot.setAttribute('stroke', '#fff')
+      dot.setAttribute('stroke-width', '2')
+      dot.setAttribute('class', 'chartts-canvas-highlight')
+      dot.style.pointerEvents = 'none'
+      overlay.appendChild(dot)
+
+      return
+    }
+
+    // SVG mode: manipulate DOM elements directly
+    const svg = targetEl as SVGElement
 
     // Find the target interactive element
     const target = svg.querySelector(
@@ -357,9 +431,14 @@ export function createInteractionLayer(
   }
 
   function clearHighlights(): void {
+    if (isCanvas) {
+      // Canvas mode: remove overlay markers
+      overlayEl?.querySelectorAll('.chartts-canvas-highlight').forEach(el => el.remove())
+      return
+    }
+
+    const svg = targetEl as SVGElement | null
     if (!svg) return
-    // Canvas doesn't have DOM elements to highlight — skip
-    if (svg instanceof HTMLCanvasElement) return
 
     // Reset all points
     svg.querySelectorAll('.chartts-point').forEach((p) => {
@@ -374,10 +453,29 @@ export function createInteractionLayer(
     })
   }
 
+  // -----------------------------------------------------------------------
+  // Public API
+  // -----------------------------------------------------------------------
+
   return {
     attach(svgEl: SVGElement | HTMLCanvasElement, containerEl: HTMLElement): void {
-      svg = svgEl
+      targetEl = svgEl
       container = containerEl
+      isCanvas = svgEl instanceof HTMLCanvasElement
+
+      if (isCanvas) {
+        // Create transparent SVG overlay for interaction visuals
+        containerEl.style.position = 'relative'
+        overlayEl = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement
+        const w = svgEl.clientWidth || parseInt((svgEl as HTMLCanvasElement).style.width) || 400
+        const h = svgEl.clientHeight || parseInt((svgEl as HTMLCanvasElement).style.height) || 300
+        overlayEl.setAttribute('viewBox', `0 0 ${w} ${h}`)
+        overlayEl.setAttribute('width', String(w))
+        overlayEl.setAttribute('height', String(h))
+        overlayEl.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;overflow:visible;'
+        containerEl.appendChild(overlayEl)
+      }
+
       svgEl.style.cursor = 'crosshair'
       const el = svgEl as unknown as HTMLElement
       el.addEventListener('mousemove', onMouseMove as EventListener)
@@ -386,8 +484,8 @@ export function createInteractionLayer(
     },
 
     detach(): void {
-      if (!svg) return
-      const el = svg as unknown as HTMLElement
+      if (!targetEl) return
+      const el = targetEl as unknown as HTMLElement
       el.removeEventListener('mousemove', onMouseMove as EventListener)
       el.removeEventListener('mouseleave', onMouseLeave as EventListener)
       el.removeEventListener('click', onClickHandler as EventListener)
@@ -399,7 +497,9 @@ export function createInteractionLayer(
       crosshairEl?.remove()
       crosshairTipEl?.remove()
       clearCrosshairDots()
-      svg = null
+      overlayEl?.remove()
+      overlayEl = null
+      targetEl = null
       container = null
     },
   }

@@ -4,6 +4,9 @@ import {
   Heatmap, Boxplot, Histogram, Treemap, Polar,
   RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey,
   Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord,
+  Geo, Lines, Matrix, Custom,
+  OHLC, Step, Volume, Range, Baseline, Kagi, Renko,
+  WORLD_SIMPLE,
   createChart, lineChartType, barChartType, areaChartType, scatterChartType,
   pieChartType, radarChartType,
   renderToString,
@@ -11,10 +14,111 @@ import {
   formatValue, formatPercent,
 } from '@chartts/core'
 import type { ChartInstance, ChartData } from '@chartts/core'
+import {
+  Scatter3D, Bar3D, Surface3D, Globe3D, Map3D,
+  Lines3D, Line3D, ScatterGL, LinesGL, FlowGL, GraphGL,
+} from '@chartts/gl'
+import type { GLChartData, GLChartInstance } from '@chartts/gl'
 
 // ---------------------------------------------------------------------------
 // Sample data
 // ---------------------------------------------------------------------------
+
+const GL_DATA = {
+  scatter3d: {
+    series: [{
+      name: 'Cluster A', values: Array.from({length: 50}, () => Math.random() * 10),
+      x: Array.from({length: 50}, () => Math.random() * 10),
+      z: Array.from({length: 50}, () => Math.random() * 10),
+    }, {
+      name: 'Cluster B', values: Array.from({length: 50}, () => 5 + Math.random() * 10),
+      x: Array.from({length: 50}, () => 5 + Math.random() * 10),
+      z: Array.from({length: 50}, () => 5 + Math.random() * 10),
+    }],
+  } as GLChartData,
+  bar3d: {
+    series: [{
+      name: 'Sales',
+      values: [5, 8, 3, 12, 7, 9, 4, 11, 6, 10],
+      x: [0, 1, 2, 3, 4, 0, 1, 2, 3, 4],
+      z: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+    }],
+    categories: ['Q1','Q2','Q3','Q4','Q5'],
+  } as GLChartData,
+  surface3d: {
+    series: [],
+    grid: Array.from({length: 30}, (_, r) =>
+      Array.from({length: 30}, (_, c) => {
+        const x = (c / 29) * 4 - 2, z = (r / 29) * 4 - 2
+        return Math.sin(x * 2) * Math.cos(z * 2) * 3
+      })
+    ),
+  } as GLChartData,
+  globe3d: {
+    series: [{
+      name: 'Cities',
+      values: [100, 80, 60, 90, 70, 50, 85],
+      x: [-74, -0.12, 139.7, -43.2, 37.6, 151.2, 28.9],   // longitude
+      y: [40.7, 51.5, 35.7, -22.9, 55.8, -33.9, 41.0],     // latitude
+    }],
+  } as GLChartData,
+  lines3d: {
+    series: [{
+      name: 'Path A',
+      values: Array.from({length: 20}, (_, i) => Math.sin(i * 0.3) * 3 + 5),
+      x: Array.from({length: 20}, (_, i) => i * 0.5),
+      z: Array.from({length: 20}, (_, i) => Math.cos(i * 0.3) * 2),
+    }, {
+      name: 'Path B',
+      values: Array.from({length: 20}, (_, i) => Math.cos(i * 0.4) * 2 + 6),
+      x: Array.from({length: 20}, (_, i) => i * 0.5),
+      z: Array.from({length: 20}, (_, i) => Math.sin(i * 0.4) * 3),
+    }],
+  } as GLChartData,
+  line3d: {
+    series: [{
+      name: 'Helix',
+      values: Array.from({length: 50}, (_, i) => i * 0.2),
+      x: Array.from({length: 50}, (_, i) => Math.cos(i * 0.3) * 3),
+      z: Array.from({length: 50}, (_, i) => Math.sin(i * 0.3) * 3),
+    }],
+  } as GLChartData,
+  map3d: {
+    series: [{
+      name: 'Population',
+      values: [100, 80, 60, 40, 90, 70, 50, 30, 85, 65],
+      x: [0, 1.2, 2.4, 3.6, 4.8, 0, 1.2, 2.4, 3.6, 4.8],
+      z: [0, 0, 0, 0, 0, 1.2, 1.2, 1.2, 1.2, 1.2],
+    }],
+    categories: ['Region A','B','C','D','E','F','G','H','I','J'],
+  } as GLChartData,
+  scatterGL: {
+    series: [{
+      name: 'Points',
+      x: Array.from({length: 10000}, () => Math.random() * 100),
+      y: Array.from({length: 10000}, () => Math.random() * 100),
+    }, {
+      name: 'Cluster',
+      x: Array.from({length: 5000}, () => 30 + Math.random() * 40),
+      y: Array.from({length: 5000}, () => 30 + Math.random() * 40),
+    }],
+  } as GLChartData,
+  linesGL: {
+    series: Array.from({length: 5}, (_, si) => ({
+      name: `Series ${si + 1}`,
+      x: Array.from({length: 200}, (_, i) => i),
+      y: Array.from({length: 200}, (_, i) => Math.sin(i * 0.05 + si) * 50 + 50 + Math.random() * 10),
+    })),
+  } as GLChartData,
+  graphGL: {
+    series: [{
+      name: 'Nodes',
+      x: Array.from({length: 30}, () => Math.random() * 100),
+      y: Array.from({length: 30}, () => 1 + Math.random() * 5),
+    }],
+    categories: Array.from({length: 30}, (_, i) => `N${i}`),
+  } as GLChartData,
+}
 
 const DATA = {
   revenue: {
@@ -202,6 +306,38 @@ const DATA = {
       { name: 'Support', values: [10,3,8,15,0] },
     ],
   } as ChartData,
+  geo: {
+    labels: ['USA','China','Russia','Brazil','India','Australia','UK','France','Germany','Japan','Canada','Mexico','South Africa','Egypt','Nigeria','Argentina'],
+    series: [
+      { name: 'GDP (T$)', values: [21,15,1.7,1.6,3.2,1.4,2.8,2.6,3.8,4.9,1.7,1.1,0.4,0.3,0.4,0.5] },
+      { name: 'Population (M)', values: [330,1400,145,210,1380,25,67,67,83,125,38,128,60,100,220,45] },
+    ],
+  } as ChartData,
+  lines: {
+    labels: [],
+    series: [
+      { name: 'NYC → London', values: [120] },
+      { name: 'London → Tokyo', values: [85] },
+      { name: 'Tokyo → Sydney', values: [60] },
+      { name: 'Sydney → NYC', values: [45] },
+      { name: 'NYC → Tokyo', values: [100] },
+      { name: 'London → Sydney', values: [30] },
+    ],
+  } as ChartData,
+  matrix: {
+    labels: ['Math','Science','English','History','Art'],
+    series: [
+      { name: 'Math', values: [1.0, 0.72, 0.45, 0.38, 0.12] },
+      { name: 'Science', values: [0.72, 1.0, 0.55, 0.48, 0.20] },
+      { name: 'English', values: [0.45, 0.55, 1.0, 0.68, 0.52] },
+      { name: 'History', values: [0.38, 0.48, 0.68, 1.0, 0.42] },
+      { name: 'Art', values: [0.12, 0.20, 0.52, 0.42, 1.0] },
+    ],
+  } as ChartData,
+  custom: {
+    labels: ['A','B','C','D','E'],
+    series: [{ name: 'Values', values: [40, 80, 60, 95, 50] }],
+  } as ChartData,
 }
 
 // ---------------------------------------------------------------------------
@@ -209,12 +345,20 @@ const DATA = {
 // ---------------------------------------------------------------------------
 
 let charts: ChartInstance[] = []
+let glCharts: GLChartInstance[] = []
 let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 const theme = () => isDark ? 'dark' as const : 'light' as const
 
 function destroyCharts() {
   for (const c of charts) c.destroy()
   charts = []
+  for (const c of glCharts) c.destroy()
+  glCharts = []
+}
+
+function mountGL(_parent: HTMLElement, chart: GLChartInstance) {
+  glCharts.push(chart)
+  return chart
 }
 
 // ---------------------------------------------------------------------------
@@ -335,6 +479,24 @@ const pages: Page[] = [
         ['ThemeRiver', el => ThemeRiver(el, { theme: theme(), data: DATA.themeriver })],
         ['PictorialBar', el => PictorialBar(el, { theme: theme(), data: DATA.pictorialbar })],
         ['Chord', el => Chord(el, { theme: theme(), data: DATA.chord })],
+        ['GEO/Map', el => Geo(el, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE } as any)],
+        ['Lines', el => Lines(el, { theme: theme(), data: DATA.lines })],
+        ['Matrix', el => Matrix(el, { theme: theme(), data: DATA.matrix })],
+        ['Custom', el => Custom(el, { theme: theme(), data: DATA.custom, renderFn: (ctx: any) => {
+          const { area } = ctx; const nodes: any[] = [];
+          const vals = ctx.data.series[0]?.values ?? []; const max = Math.max(...vals.map(Math.abs), 1);
+          for (let i = 0; i < vals.length; i++) {
+            const x = area.x + 30 + i * 60; const h = (vals[i] / max) * (area.height - 40);
+            nodes.push({ type: 'rect', x, y: area.y + area.height - 20 - h, width: 40, height: h, attrs: { fill: ctx.options.colors[i % ctx.options.colors.length], rx: 6 } });
+          } return nodes;
+        } } as any)],
+        ['OHLC', el => OHLC(el, { theme: theme(), data: { labels: ['Mon','Tue','Wed','Thu','Fri','Mon','Tue','Wed'], series: [{ name: 'AAPL', values: [152,155,148,153,157,154,158,155] }] }, ohlc: { open:[148,152,155,148,153,157,154,158], high:[154,158,156,155,160,159,162,160], low:[146,150,147,146,151,153,152,154], close:[152,155,148,153,157,154,158,155] } } as any)],
+        ['Step', el => Step(el, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'], series: [{ name: 'Fed Rate', values: [5.25,5.25,5.50,5.50,5.50,5.25,5.00,5.00] }] } })],
+        ['Volume', el => Volume(el, { theme: theme(), data: { labels: ['Mon','Tue','Wed','Thu','Fri','Mon','Tue','Wed'], series: [{ name: 'Vol (M)', values: [2.1,3.4,1.8,4.2,2.9,3.1,5.2,2.8] }] } } as any)],
+        ['Range/Band', el => Range(el, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'], series: [{ name: 'Price', values: [100,105,103,108,112,109,115,118] }] }, range: { upper: [108,113,112,116,120,118,124,126], lower: [92,97,94,100,104,100,106,110] } } as any)],
+        ['Baseline', el => Baseline(el, { theme: theme(), data: { labels: ['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4'], series: [{ name: 'P&L', values: [5.2,-3.1,8.4,-1.5,6.8,2.1,-4.3,9.2] }] }, baseline: 0 } as any)],
+        ['Kagi', el => Kagi(el, { theme: theme(), data: { labels: Array.from({length:30}, (_,i) => `D${i+1}`), series: [{ name: 'Price', values: [100,102,101,105,103,108,106,110,107,112,109,114,111,108,105,109,113,110,115,112,118,115,120,117,122,119,125,121,128,124] }] } } as any)],
+        ['Renko', el => Renko(el, { theme: theme(), data: { labels: Array.from({length:30}, (_,i) => `D${i+1}`), series: [{ name: 'Price', values: [100,102,105,103,108,106,112,109,115,111,118,114,120,116,122,118,125,121,128,124,130,126,132,128,135,131,138,134,140,136] }] } } as any)],
       ]
 
       for (const [name, factory] of all) {
@@ -445,19 +607,92 @@ const pages: Page[] = [
   {
     id: 'financial', name: 'Financial', icon: '$', group: 'Charts',
     render(main) {
-      main.appendChild(section('Financial Charts', 'Candlestick and waterfall charts.'))
-      const g = grid(2)
-      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['Candlestick', 'OHLC with up/down colors', c => Candlestick(c, { theme: theme(), data: { labels: ['Mon','Tue','Wed','Thu','Fri'], series: [{ name: 'AAPL', values: [152,155,148,153,157] }] }, ohlc: { open:[148,152,155,148,153], high:[154,158,156,155,160], low:[146,150,147,146,151], close:[152,155,148,153,157] } } as any)],
+      main.appendChild(section('Financial Charts', 'Full suite of financial visualization: candlestick, OHLC, volume, range bands, baseline, kagi & renko.'))
+
+      // --- Price Charts ---
+      main.appendChild(section('Price Charts', 'Candlestick, OHLC, and step interpolation for price action.'))
+      const priceGrid = grid(2)
+      const priceLabels = ['Mon','Tue','Wed','Thu','Fri','Mon','Tue','Wed','Thu','Fri']
+      const ohlcData = {
+        open:  [148,152,155,148,153,157,154,158,156,152],
+        high:  [154,158,156,155,160,159,162,160,158,156],
+        low:   [146,150,147,146,151,153,152,154,153,150],
+        close: [152,155,148,153,157,154,158,155,153,154],
+      }
+      const priceItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Candlestick', 'Classic OHLC with colored bodies', c => Candlestick(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'AAPL', values: ohlcData.close }] }, ohlc: ohlcData } as any)],
+        ['OHLC', 'Tick-mark style price chart', c => OHLC(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'AAPL', values: ohlcData.close }] }, ohlc: ohlcData } as any)],
+        ['Step', 'Stair-step for discrete rates', c => Step(c, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], series: [{ name: 'Fed Rate', values: [5.25,5.25,5.50,5.50,5.50,5.50,5.25,5.25,5.00,5.00,4.75,4.75] }] } })],
+        ['Candlestick (Extended)', '10-day price action', c => Candlestick(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'TSLA', values: [242,248,245,250,253,249,255,251,258,254] }] }, ohlc: { open:[238,242,248,245,250,253,249,255,251,258], high:[244,250,249,252,256,255,258,257,260,259], low:[236,240,244,243,248,247,248,250,249,252], close:[242,248,245,250,253,249,255,251,258,254] } } as any)],
+      ]
+      for (const [title, desc, factory] of priceItems) {
+        const { card, container } = chartCard(title, desc)
+        priceGrid.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(priceGrid)
+
+      // --- Volume ---
+      main.appendChild(section('Volume', 'Trading volume bars colored by price direction.'))
+      const volGrid = grid(2)
+      const volItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Volume', 'Auto-detected direction', c => Volume(c, { theme: theme(), data: { labels: priceLabels, series: [{ name: 'Vol (M)', values: [2.1,3.4,1.8,4.2,2.9,3.1,5.2,2.8,4.1,3.5] }] } } as any)],
+        ['Volume (Custom Colors)', 'Green up / Red down', c => Volume(c, { theme: theme(), data: { labels: ['Mon','Tue','Wed','Thu','Fri','Mon','Tue','Wed'], series: [{ name: 'Vol', values: [45,62,38,71,55,48,82,44] }] }, upColor: '#22c55e', downColor: '#ef4444' } as any)],
+      ]
+      for (const [title, desc, factory] of volItems) {
+        const { card, container } = chartCard(title, desc)
+        volGrid.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(volGrid)
+
+      // --- Range & Baseline ---
+      main.appendChild(section('Range & Baseline', 'Bollinger bands, confidence intervals, and P&L vs benchmark.'))
+      const rbGrid = grid(2)
+      const rbItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Range/Band', 'Bollinger bands', c => Range(c, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'], series: [{ name: 'Price', values: [100,105,103,108,112,109,115,118,114,120] }] }, range: { upper: [108,113,112,116,120,118,124,126,122,128], lower: [92,97,94,100,104,100,106,110,106,112] } } as any)],
+        ['Baseline (P&L)', 'Profit/loss vs zero', c => Baseline(c, { theme: theme(), data: { labels: ['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4'], series: [{ name: 'P&L %', values: [5.2,-3.1,8.4,-1.5,6.8,2.1,-4.3,9.2] }] }, baseline: 0 } as any)],
+        ['Range (Forecast)', 'Confidence interval', c => Range(c, { theme: theme(), data: { labels: ['W1','W2','W3','W4','W5','W6','W7','W8'], series: [{ name: 'Revenue', values: [340,355,362,370,385,392,405,418] }] }, range: { upper: [360,378,388,400,418,428,445,460], lower: [320,332,336,340,352,356,365,376] }, bandColor: '#6366f1', bandOpacity: 0.15 } as any)],
+        ['Baseline (Benchmark)', 'Performance vs index', c => Baseline(c, { theme: theme(), data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], series: [{ name: 'Alpha', values: [2.1,1.5,-0.8,3.2,1.9,-1.2,0.5,2.8,-0.3,1.7,3.1,2.4] }] }, baseline: 0, positiveColor: '#22c55e', negativeColor: '#ef4444' } as any)],
+      ]
+      for (const [title, desc, factory] of rbItems) {
+        const { card, container } = chartCard(title, desc)
+        rbGrid.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(rbGrid)
+
+      // --- Reversal Charts ---
+      main.appendChild(section('Reversal Charts', 'Kagi and Renko — noise-filtering price action charts.'))
+      const revGrid = grid(2)
+      const priceAction = [100,102,101,105,103,108,106,110,107,112,109,114,111,108,105,109,113,110,115,112,118,115,120,117,122,119,125,121,128,124]
+      const priceLabels30 = Array.from({length:30}, (_,i) => `D${i+1}`)
+      const revItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Kagi', 'Trend reversal chart', c => Kagi(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: priceAction }] } } as any)],
+        ['Renko', 'Brick-based price action', c => Renko(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: [100,102,105,103,108,106,112,109,115,111,118,114,120,116,122,118,125,121,128,124,130,126,132,128,135,131,138,134,140,136] }] } } as any)],
+        ['Kagi (Tight Reversal)', '2% reversal', c => Kagi(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: priceAction }] }, reversalAmount: 0.02 } as any)],
+        ['Renko (Large Bricks)', 'brickSize: 5', c => Renko(c, { theme: theme(), data: { labels: priceLabels30, series: [{ name: 'Price', values: [100,102,105,103,108,106,112,109,115,111,118,114,120,116,122,118,125,121,128,124,130,126,132,128,135,131,138,134,140,136] }] }, brickSize: 5 } as any)],
+      ]
+      for (const [title, desc, factory] of revItems) {
+        const { card, container } = chartCard(title, desc)
+        revGrid.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(revGrid)
+
+      // --- Waterfall ---
+      main.appendChild(section('Waterfall', 'Running totals and P&L breakdowns.'))
+      const wfGrid = grid(2)
+      const wfItems: [string, string, (c: HTMLElement) => ChartInstance][] = [
         ['Waterfall', 'Running total', c => Waterfall(c, { theme: theme(), data: DATA.waterfall, totals: [0,6] } as any)],
         ['Waterfall (No Connectors)', 'connectors: false', c => Waterfall(c, { theme: theme(), data: { labels: ['Rev','COGS','Gross','SGA','R&D','EBIT'], series: [{ name: 'P&L', values: [500,-180,320,-90,-60,170] }] }, totals: [0,2,5], connectors: false } as any)],
       ]
-      for (const [title, desc, factory] of items) {
+      for (const [title, desc, factory] of wfItems) {
         const { card, container } = chartCard(title, desc)
-        g.appendChild(card)
+        wfGrid.appendChild(card)
         requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
       }
-      main.appendChild(g)
+      main.appendChild(wfGrid)
     },
   },
   {
@@ -688,6 +923,117 @@ const pages: Page[] = [
       const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
         ['Team Collaboration', 'Cross-team communication flows', c => Chord(c, { theme: theme(), data: DATA.chord })],
         ['Arrow Notation', 'Using \u2192 format', c => Chord(c, { theme: theme(), data: { series: [{ name: 'US \u2192 EU', values: [50] },{ name: 'EU \u2192 US', values: [40] },{ name: 'US \u2192 Asia', values: [30] },{ name: 'Asia \u2192 US', values: [35] },{ name: 'EU \u2192 Asia', values: [25] },{ name: 'Asia \u2192 EU', values: [20] }] } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+
+  {
+    id: 'geo', name: 'GEO/Map', icon: '\u{1F30D}', group: 'Charts',
+    render(main) {
+      main.appendChild(section('GEO / Map Chart', 'Choropleth maps with region-based data visualization.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['World GDP', 'Choropleth with GDP data', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE } as any)],
+        ['Without Labels', 'Clean map view', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, showLabels: false } as any)],
+        ['Scatter Overlay', 'Population as scatter size', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, scatterSeries: 1 } as any)],
+        ['Custom Colors', 'Red palette', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, colors: ['#ef4444','#3b82f6'] } as any)],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'lines-flow', name: 'Lines', icon: '\u27A1', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Lines / Flow Chart', 'Curved connection lines between named points.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Flight Routes', 'Auto-positioned circular layout', c => Lines(c, { theme: theme(), data: DATA.lines })],
+        ['Without Arrows', 'Flow lines only', c => Lines(c, { theme: theme(), data: DATA.lines, showArrows: false } as any)],
+        ['High Curvature', 'curvature: 0.6', c => Lines(c, { theme: theme(), data: DATA.lines, curvature: 0.6 } as any)],
+        ['Explicit Positions', 'Manual point placement', c => Lines(c, { theme: theme(), data: { labels: [], series: [{ name: 'A \u2192 B', values: [80] },{ name: 'B \u2192 C', values: [60] },{ name: 'C \u2192 A', values: [40] }] }, points: [{name:'A',x:0.2,y:0.3},{name:'B',x:0.8,y:0.2},{name:'C',x:0.5,y:0.8}] } as any)],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'matrix', name: 'Matrix', icon: '\u25A6', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Matrix Chart', 'Grid layout with color-coded cells for correlation and confusion matrices.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Correlation Matrix', 'Subject correlations', c => Matrix(c, { theme: theme(), data: DATA.matrix })],
+        ['Confusion Matrix', 'ML predictions', c => Matrix(c, { theme: theme(), data: {
+          labels: ['Cat','Dog','Bird'],
+          series: [
+            { name: 'Cat', values: [85,10,5] },
+            { name: 'Dog', values: [12,80,8] },
+            { name: 'Bird', values: [3,7,90] },
+          ],
+        } })],
+        ['Diverging Scale', 'Positive/negative', c => Matrix(c, { theme: theme(), data: {
+          labels: ['A','B','C','D'],
+          series: [
+            { name: 'A', values: [1,-0.5,0.3,-0.8] },
+            { name: 'B', values: [-0.5,1,0.6,-0.2] },
+            { name: 'C', values: [0.3,0.6,1,-0.4] },
+            { name: 'D', values: [-0.8,-0.2,-0.4,1] },
+          ],
+        }, colorScale: 'diverging' } as any)],
+        ['Large Matrix', '8\u00D78 grid', c => Matrix(c, { theme: theme(), data: {
+          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun','Avg'],
+          series: ['Q1','Q2','Q3','Q4','H1','H2','Annual','YoY'].map((name, i) => ({
+            name, values: Array.from({length:8}, (_,j) => Math.round((Math.sin(i*j+i)+1)*50))
+          })),
+        } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'custom', name: 'Custom', icon: '\u270E', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Custom Chart', 'User-defined rendering via options.renderFn callback.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Custom Bars', 'Hand-drawn rounded bars', c => Custom(c, { theme: theme(), data: DATA.custom, renderFn: (ctx: any) => {
+          const { area } = ctx; const vals = ctx.data.series[0]?.values ?? []; const max = Math.max(...vals, 1); const nodes: any[] = [];
+          for (let i = 0; i < vals.length; i++) {
+            const bw = 40; const gap = 15; const x = area.x + 30 + i * (bw + gap);
+            const h = (vals[i] / max) * (area.height - 40);
+            nodes.push({ type: 'rect', x, y: area.y + area.height - 20 - h, width: bw, height: h, attrs: { fill: ctx.options.colors[i % ctx.options.colors.length], rx: 8, ry: 8 } });
+          } return nodes;
+        } } as any)],
+        ['Custom Circles', 'Proportional circles', c => Custom(c, { theme: theme(), data: DATA.custom, renderFn: (ctx: any) => {
+          const { area } = ctx; const vals = ctx.data.series[0]?.values ?? []; const max = Math.max(...vals, 1); const nodes: any[] = [];
+          const cx = area.x + area.width / 2; const cy = area.y + area.height / 2;
+          for (let i = 0; i < vals.length; i++) {
+            const r = 10 + (vals[i] / max) * 50; const angle = (i / vals.length) * Math.PI * 2 - Math.PI / 2;
+            const px = cx + 80 * Math.cos(angle); const py = cy + 80 * Math.sin(angle);
+            nodes.push({ type: 'circle', cx: px, cy: py, r, attrs: { fill: ctx.options.colors[i % ctx.options.colors.length], fillOpacity: 0.7 } });
+          } return nodes;
+        } } as any)],
+        ['Placeholder', 'No renderFn — shows default', c => Custom(c, { theme: theme(), data: DATA.custom })],
       ]
       for (const [title, desc, factory] of items) {
         const { card, container } = chartCard(title, desc)
@@ -1079,6 +1425,173 @@ const pages: Page[] = [
       main.appendChild(g)
     },
   },
+
+  // -- GL Charts (3D / GPU-accelerated) --
+  {
+    id: 'gl-overview', name: 'GL Overview', icon: '\u25C6', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('WebGL 3D & GPU-Accelerated Charts', 'All 11 GL chart types — pure WebGL, no Three.js. Orbit with mouse drag, zoom with scroll.'))
+      const g = grid(3)
+
+      const allGL: [string, (el: HTMLElement) => GLChartInstance][] = [
+        ['Scatter 3D', el => Scatter3D(el, { data: GL_DATA.scatter3d, theme: isDark ? 'dark' : 'light' })],
+        ['Bar 3D', el => Bar3D(el, { data: GL_DATA.bar3d, theme: isDark ? 'dark' : 'light' })],
+        ['Surface 3D', el => Surface3D(el, { data: GL_DATA.surface3d, theme: isDark ? 'dark' : 'light' })],
+        ['Globe 3D', el => Globe3D(el, { data: GL_DATA.globe3d, theme: isDark ? 'dark' : 'light', orbit: { autoRotate: true, autoRotateSpeed: 0.5 } })],
+        ['Map 3D', el => Map3D(el, { data: GL_DATA.map3d, theme: isDark ? 'dark' : 'light' })],
+        ['Lines 3D', el => Lines3D(el, { data: GL_DATA.lines3d, theme: isDark ? 'dark' : 'light' })],
+        ['Line 3D (Tube)', el => Line3D(el, { data: GL_DATA.line3d, theme: isDark ? 'dark' : 'light' })],
+        ['Scatter GL (10K)', el => ScatterGL(el, { data: GL_DATA.scatterGL, theme: isDark ? 'dark' : 'light', pointSize: 3 })],
+        ['Lines GL', el => LinesGL(el, { data: GL_DATA.linesGL, theme: isDark ? 'dark' : 'light' })],
+        ['Flow GL', el => FlowGL(el, { data: { series: [] }, theme: isDark ? 'dark' : 'light' })],
+        ['Graph GL', el => GraphGL(el, { data: GL_DATA.graphGL, theme: isDark ? 'dark' : 'light' })],
+      ]
+
+      for (const [name, factory] of allGL) {
+        const { card, container } = chartCard(name, '', 'h-64')
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'scatter3d', name: 'Scatter 3D', icon: '\u25CF', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('3D Scatter Plot', 'GL_POINTS with SDF circles in 3D space. Drag to orbit, scroll to zoom.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['Multi-Cluster', '2 series, 50 points each', c => Scatter3D(c, { data: GL_DATA.scatter3d, theme: isDark ? 'dark' : 'light' })],
+        ['Large Points', 'pointSize: 12', c => Scatter3D(c, { data: GL_DATA.scatter3d, theme: isDark ? 'dark' : 'light', pointSize: 12 })],
+        ['Auto-Rotate', 'Continuous rotation', c => Scatter3D(c, { data: GL_DATA.scatter3d, theme: isDark ? 'dark' : 'light', orbit: { autoRotate: true, autoRotateSpeed: 2 } })],
+        ['Light Theme', 'Light background', c => Scatter3D(c, { data: GL_DATA.scatter3d, theme: 'light' })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'bar3d', name: 'Bar 3D', icon: '\u2587', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('3D Bar Chart', 'Phong-lit cuboid meshes with animated height. Drag to orbit.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['Default', '2 rows x 5 bars', c => Bar3D(c, { data: GL_DATA.bar3d, theme: isDark ? 'dark' : 'light' })],
+        ['Wide Bars', 'barWidth: 0.9', c => Bar3D(c, { data: GL_DATA.bar3d, theme: isDark ? 'dark' : 'light', barWidth: 0.9 })],
+        ['Auto-Rotate', 'Spinning view', c => Bar3D(c, { data: GL_DATA.bar3d, theme: isDark ? 'dark' : 'light', orbit: { autoRotate: true } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'surface3d', name: 'Surface 3D', icon: '\u2248', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('3D Surface Plot', 'Grid heightmap mesh with computed normals and height-based colormap.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['Sine Wave', 'sin(x) * cos(z)', c => Surface3D(c, { data: GL_DATA.surface3d, theme: isDark ? 'dark' : 'light' })],
+        ['Wireframe', 'wireframe: true', c => Surface3D(c, { data: GL_DATA.surface3d, theme: isDark ? 'dark' : 'light', wireframe: true })],
+        ['Ripple', 'Radial ripple function', c => Surface3D(c, { data: {
+          series: [], grid: Array.from({length: 40}, (_, r) =>
+            Array.from({length: 40}, (_, c) => {
+              const x = (c / 39) * 6 - 3, z = (r / 39) * 6 - 3
+              const d = Math.sqrt(x * x + z * z)
+              return Math.sin(d * 3) / (d + 0.5) * 5
+            })
+          ),
+        }, theme: isDark ? 'dark' : 'light' })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'globe3d', name: 'Globe 3D', icon: '\uD83C\uDF10', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('3D Globe', 'UV sphere with lat/lng data points. Auto-rotates.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['World Cities', '7 major cities', c => Globe3D(c, { data: GL_DATA.globe3d, theme: isDark ? 'dark' : 'light' })],
+        ['Static Globe', 'No auto-rotate', c => Globe3D(c, { data: GL_DATA.globe3d, theme: isDark ? 'dark' : 'light', orbit: { autoRotate: false } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'scatter-gl', name: 'Scatter GL', icon: '\u2022', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('GPU-Accelerated 2D Scatter', 'Renders thousands of points via WebGL GL_POINTS with spatial grid hit testing.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['10K Points', '2 overlapping series', c => ScatterGL(c, { data: GL_DATA.scatterGL, theme: isDark ? 'dark' : 'light' })],
+        ['Large Points', 'pointSize: 6', c => ScatterGL(c, { data: GL_DATA.scatterGL, theme: isDark ? 'dark' : 'light', pointSize: 6 })],
+        ['50K Points', 'Stress test', c => ScatterGL(c, { data: {
+          series: [{
+            name: 'Big', x: Array.from({length: 50000}, () => Math.random() * 100),
+            y: Array.from({length: 50000}, () => Math.random() * 100),
+          }],
+        }, theme: isDark ? 'dark' : 'light', pointSize: 2 })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'flow-gl', name: 'Flow GL', icon: '\u2248', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('Particle Flow Field', 'GPU-accelerated particle simulation. Always animating with age-based trail fade.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['Default Swirl', '5000 particles', c => FlowGL(c, { data: { series: [] }, theme: isDark ? 'dark' : 'light' })],
+        ['Dense Flow', '10000 particles', c => FlowGL(c, { data: { series: [] }, theme: isDark ? 'dark' : 'light', particleCount: 10000, pointSize: 2 })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'graph-gl', name: 'Graph GL', icon: '\u25CB', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('Force-Directed Graph (GL)', 'Barnes-Hut optimized force layout with WebGL rendering. Nodes settle over time.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['30 Nodes', 'Random connections', c => GraphGL(c, { data: GL_DATA.graphGL, theme: isDark ? 'dark' : 'light' })],
+        ['Large Points', 'pointSize: 10', c => GraphGL(c, { data: GL_DATA.graphGL, theme: isDark ? 'dark' : 'light', pointSize: 10 })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -1142,7 +1655,7 @@ function render() {
 
   // Stats footer
   const footer = h('div', 'px-4 py-3 border-t border-gray-200 dark:border-gray-800 text-[10px] text-gray-400')
-  footer.textContent = `@chartts/core v0.1.0 \u2022 ${pages.length} pages \u2022 27 chart types`
+  footer.textContent = `@chartts/core + @chartts/gl v0.1.0 \u2022 ${pages.length} pages \u2022 49 chart types`
   sidebar.appendChild(footer)
 
   app.appendChild(sidebar)

@@ -8,7 +8,8 @@ const chartEntries = [
   'polar', 'radialbar', 'lollipop', 'bullet', 'dumbbell',
   'calendar', 'combo', 'sankey',
   'sunburst', 'tree', 'graph', 'parallel', 'themeriver',
-  'pictorialbar', 'chord',
+  'pictorialbar', 'chord', 'geo', 'lines', 'matrix', 'custom',
+  'ohlc', 'step', 'volume', 'range', 'baseline', 'kagi', 'renko',
 ]
 
 const entry: Record<string, string> = {

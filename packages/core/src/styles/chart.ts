@@ -667,6 +667,167 @@ export const CHART_CSS = /* css */ `
   opacity: 0.6;
 }
 
+/* ---- GEO/Map ---- */
+@keyframes chartts-geo-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-geo-region {
+  animation: chartts-geo-in 0.4s ease calc(var(--chartts-i, 0) * 30ms) forwards;
+  opacity: 0;
+  transition: fill-opacity 0.2s ease, filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-geo-region:hover {
+  filter: brightness(1.1);
+  fill-opacity: 0.95 !important;
+}
+.chartts-geo-scatter {
+  transition: r 0.15s ease;
+  cursor: pointer;
+}
+
+/* ---- Lines (flow) ---- */
+@keyframes chartts-lines-flow-in {
+  from { stroke-dashoffset: 300; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+.chartts-lines-flow {
+  stroke-dasharray: 300;
+  animation: chartts-lines-flow-in 0.8s ease calc(var(--chartts-i, 0) * 80ms) forwards;
+  opacity: 0;
+  transition: stroke-width 0.2s ease, stroke-opacity 0.2s ease;
+  cursor: pointer;
+}
+.chartts-lines-flow:hover {
+  stroke-opacity: 0.9;
+  stroke-width: 4;
+}
+.chartts-lines-node {
+  transition: r 0.15s ease;
+  cursor: pointer;
+}
+
+/* ---- Matrix ---- */
+@keyframes chartts-matrix-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-matrix-cell {
+  animation: chartts-matrix-in 0.3s ease calc(var(--chartts-i, 0) * 15ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-matrix-cell:hover {
+  filter: brightness(1.15);
+}
+
+/* ---- OHLC ---- */
+@keyframes chartts-ohlc-in {
+  from { opacity: 0; transform: scaleY(0.5); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-ohlc-stem, .chartts-ohlc-tick {
+  animation: chartts-ohlc-in 0.3s ease calc(var(--chartts-i, 0) * 20ms) forwards;
+  opacity: 0;
+  transition: stroke-width 0.15s ease;
+}
+.chartts-ohlc-stem:hover, .chartts-ohlc-tick:hover {
+  stroke-width: 2.5;
+}
+
+/* ---- Volume ---- */
+@keyframes chartts-volume-in {
+  from { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-volume-bar {
+  animation: chartts-volume-in 0.3s ease calc(var(--chartts-i, 0) * 20ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-volume-bar:hover {
+  filter: brightness(1.1);
+  fill-opacity: 1 !important;
+}
+
+/* ---- Range / Band ---- */
+@keyframes chartts-range-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-range-band {
+  animation: chartts-range-in 0.5s ease forwards;
+  opacity: 0;
+}
+.chartts-range-center {
+  animation: chartts-range-in 0.6s ease 0.1s forwards;
+  opacity: 0;
+}
+.chartts-range-bound {
+  animation: chartts-range-in 0.5s ease 0.05s forwards;
+  opacity: 0;
+}
+
+/* ---- Baseline ---- */
+@keyframes chartts-baseline-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-baseline-pos, .chartts-baseline-neg {
+  animation: chartts-baseline-in 0.5s ease forwards;
+  opacity: 0;
+}
+.chartts-baseline-line {
+  animation: chartts-baseline-in 0.6s ease 0.1s forwards;
+  opacity: 0;
+}
+.chartts-baseline-ref {
+  animation: chartts-baseline-in 0.3s ease forwards;
+  opacity: 0;
+}
+
+/* ---- Kagi ---- */
+@keyframes chartts-kagi-in {
+  from { stroke-dashoffset: 200; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+.chartts-kagi-line {
+  stroke-dasharray: 200;
+  animation: chartts-kagi-in 0.6s ease calc(var(--chartts-i, 0) * 40ms) forwards;
+  opacity: 0;
+  transition: stroke-width 0.15s ease;
+}
+
+/* ---- Renko ---- */
+@keyframes chartts-renko-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-renko-brick {
+  animation: chartts-renko-in 0.3s ease calc(var(--chartts-i, 0) * 25ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-renko-brick:hover {
+  filter: brightness(1.15);
+}
+
+/* ---- DataZoom ---- */
+.chartts-datazoom-handle {
+  cursor: ew-resize;
+  transition: fill 0.15s ease;
+}
+.chartts-datazoom-handle:hover {
+  fill: #374151;
+}
+.chartts-datazoom-selected {
+  cursor: grab;
+}
+
 /* ---- Text ---- */
 .chartts-x-label, .chartts-y-label,
 .chartts-x-axis-label, .chartts-y-axis-label,
@@ -700,7 +861,14 @@ export const CHART_CSS = /* css */ `
   .chartts-sunburst-sector, .chartts-tree-node,
   .chartts-graph-node, .chartts-graph-edge,
   .chartts-themeriver-stream, .chartts-pictorialbar-symbol,
-  .chartts-chord-arc, .chartts-chord-ribbon {
+  .chartts-chord-arc, .chartts-chord-ribbon,
+  .chartts-geo-region, .chartts-lines-flow,
+  .chartts-lines-node, .chartts-matrix-cell,
+  .chartts-ohlc-stem, .chartts-ohlc-tick,
+  .chartts-volume-bar, .chartts-range-band,
+  .chartts-baseline-pos, .chartts-baseline-neg,
+  .chartts-baseline-line, .chartts-kagi-line,
+  .chartts-renko-brick {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

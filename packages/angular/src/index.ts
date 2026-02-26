@@ -13,6 +13,9 @@ import {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
   type ChartData, type ChartOptions, type ChartInstance, type ChartTypePlugin,
 } from '@chartts/core'
 
@@ -162,6 +165,39 @@ export class PictorialBarChartComponent extends BaseChart { protected readonly c
 @Component({ selector: 'chartts-chord', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
 export class ChordChartComponent extends BaseChart { protected readonly chartType = chordChartType }
 
+@Component({ selector: 'chartts-geo', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class GeoChartComponent extends BaseChart { protected readonly chartType = geoChartType }
+
+@Component({ selector: 'chartts-lines', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class LinesChartComponent extends BaseChart { protected readonly chartType = linesChartType }
+
+@Component({ selector: 'chartts-matrix', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class MatrixChartComponent extends BaseChart { protected readonly chartType = matrixChartType }
+
+@Component({ selector: 'chartts-custom', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class CustomChartComponent extends BaseChart { protected readonly chartType = customChartType }
+
+@Component({ selector: 'chartts-ohlc', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class OHLCChartComponent extends BaseChart { protected readonly chartType = ohlcChartType }
+
+@Component({ selector: 'chartts-step', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class StepChartComponent extends BaseChart { protected readonly chartType = stepChartType }
+
+@Component({ selector: 'chartts-volume', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class VolumeChartComponent extends BaseChart { protected readonly chartType = volumeChartType }
+
+@Component({ selector: 'chartts-range', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class RangeChartComponent extends BaseChart { protected readonly chartType = rangeChartType }
+
+@Component({ selector: 'chartts-baseline', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class BaselineChartComponent extends BaseChart { protected readonly chartType = baselineChartType }
+
+@Component({ selector: 'chartts-kagi', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class KagiChartComponent extends BaseChart { protected readonly chartType = kagiChartType }
+
+@Component({ selector: 'chartts-renko', standalone: true, template: BASE_TEMPLATE, styles: BASE_STYLES })
+export class RenkoChartComponent extends BaseChart { protected readonly chartType = renkoChartType }
+
 // ---------------------------------------------------------------------------
 // Re-exports
 // ---------------------------------------------------------------------------
@@ -176,5 +212,8 @@ export {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
 } from '@chartts/core'
 export type { ChartData, ChartOptions, ChartInstance, ChartTypePlugin } from '@chartts/core'

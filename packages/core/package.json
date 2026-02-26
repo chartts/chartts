@@ -181,6 +181,61 @@
       "types": "./dist/chord.d.ts",
       "import": "./dist/chord.js",
       "require": "./dist/chord.cjs"
+    },
+    "./geo": {
+      "types": "./dist/geo.d.ts",
+      "import": "./dist/geo.js",
+      "require": "./dist/geo.cjs"
+    },
+    "./lines": {
+      "types": "./dist/lines.d.ts",
+      "import": "./dist/lines.js",
+      "require": "./dist/lines.cjs"
+    },
+    "./matrix": {
+      "types": "./dist/matrix.d.ts",
+      "import": "./dist/matrix.js",
+      "require": "./dist/matrix.cjs"
+    },
+    "./custom": {
+      "types": "./dist/custom.d.ts",
+      "import": "./dist/custom.js",
+      "require": "./dist/custom.cjs"
+    },
+    "./ohlc": {
+      "types": "./dist/ohlc.d.ts",
+      "import": "./dist/ohlc.js",
+      "require": "./dist/ohlc.cjs"
+    },
+    "./step": {
+      "types": "./dist/step.d.ts",
+      "import": "./dist/step.js",
+      "require": "./dist/step.cjs"
+    },
+    "./volume": {
+      "types": "./dist/volume.d.ts",
+      "import": "./dist/volume.js",
+      "require": "./dist/volume.cjs"
+    },
+    "./range": {
+      "types": "./dist/range.d.ts",
+      "import": "./dist/range.js",
+      "require": "./dist/range.cjs"
+    },
+    "./baseline": {
+      "types": "./dist/baseline.d.ts",
+      "import": "./dist/baseline.js",
+      "require": "./dist/baseline.cjs"
+    },
+    "./kagi": {
+      "types": "./dist/kagi.d.ts",
+      "import": "./dist/kagi.js",
+      "require": "./dist/kagi.cjs"
+    },
+    "./renko": {
+      "types": "./dist/renko.d.ts",
+      "import": "./dist/renko.js",
+      "require": "./dist/renko.cjs"
     }
   },
   "files": ["dist"],

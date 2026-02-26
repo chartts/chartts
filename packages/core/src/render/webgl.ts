@@ -249,7 +249,7 @@ export function createWebGLRenderer(theme: ThemeConfig): Renderer {
 
       target.appendChild(container)
 
-      const root: WebGLRendererRoot = {
+      const webglRoot: WebGLRendererRoot = {
         container,
         glCanvas,
         gl,
@@ -264,6 +264,9 @@ export function createWebGLRenderer(theme: ThemeConfig): Renderer {
           rect: rectProgram,
         },
       }
+
+      // Store WebGL root data for retrieval in render/update/destroy
+      ;(container as unknown as Record<string, unknown>).__chartts_webgl = webglRoot
 
       return { element: container } as unknown as RendererRoot & { _webgl: WebGLRendererRoot }
     },
@@ -386,7 +389,7 @@ function collectGLNodes(
   lines: GLLine[],
   points: GLPoint[],
   rects: GLRect[],
-  parentAttrs?: RenderAttrs,
+  _parentAttrs?: RenderAttrs,
 ): void {
   for (const node of nodes) {
     switch (node.type) {

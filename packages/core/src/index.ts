@@ -1,5 +1,5 @@
 // Public API
-export { Line, Bar, StackedBar, HorizontalBar, Pie, Donut, Scatter, Sparkline, Area, Radar, Bubble, Candlestick, Gauge, Waterfall, Funnel, Heatmap, Boxplot, Histogram, Treemap, Polar, RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey, Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord } from './api/convenience'
+export { Line, Bar, StackedBar, HorizontalBar, Pie, Donut, Scatter, Sparkline, Area, Radar, Bubble, Candlestick, Gauge, Waterfall, Funnel, Heatmap, Boxplot, Histogram, Treemap, Polar, RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey, Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord, Geo, Lines, Matrix, Custom, OHLC, Step, Volume, Range, Baseline, Kagi, Renko } from './api/convenience'
 export { createChart } from './api/create'
 
 // SSR — render to SVG string without DOM
@@ -58,6 +58,28 @@ export { parallelChartType } from './charts/parallel/parallel-type'
 export { themeRiverChartType } from './charts/themeriver/themeriver-type'
 export { pictorialBarChartType } from './charts/pictorialbar/pictorialbar-type'
 export { chordChartType } from './charts/chord/chord-type'
+export { geoChartType } from './charts/geo/geo-type'
+export { WORLD_SIMPLE } from './charts/geo/geo-type'
+export { WORLD_REGIONS } from './charts/geo/world-regions'
+export { linesChartType } from './charts/lines/lines-type'
+export { matrixChartType } from './charts/matrix/matrix-type'
+export { customChartType } from './charts/custom/custom-type'
+export { ohlcChartType } from './charts/ohlc/ohlc-type'
+export { stepChartType } from './charts/step/step-type'
+export { volumeChartType } from './charts/volume/volume-type'
+export { rangeChartType } from './charts/range/range-type'
+export { baselineChartType } from './charts/baseline/baseline-type'
+export { kagiChartType } from './charts/kagi/kagi-type'
+export { renkoChartType } from './charts/renko/renko-type'
+
+// Features
+export { filterData, filterSeries, filterLabels, sortData, aggregateData, transformData, pivotData, sliceData } from './features/dataset'
+export { createDataZoomState, applyDataZoom, renderDataZoomSlider } from './features/datazoom'
+export type { DataZoomRange, DataZoomState, DataZoomSliderOptions } from './features/datazoom'
+export { createGraphicElements, horizontalLine, verticalLine, annotation } from './features/graphic'
+export type { GraphicElement, GraphicArea } from './features/graphic'
+export { parseRichText, richLabel } from './features/richtext'
+export type { RichTextStyle, RichTextOptions } from './features/richtext'
 
 // Registry
 export { registerChart, getChart, registerScale, getScaleFactory, clearRegistry } from './registry/registry'

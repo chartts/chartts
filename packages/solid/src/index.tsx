@@ -11,6 +11,9 @@ import {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
   type ChartData, type ChartOptions, type ChartInstance, type ChartTypePlugin,
 } from '@chartts/core'
 
@@ -95,6 +98,17 @@ export const ParallelChart = createChartComponent(parallelChartType)
 export const ThemeRiverChart = createChartComponent(themeRiverChartType)
 export const PictorialBarChart = createChartComponent(pictorialBarChartType)
 export const ChordChart = createChartComponent(chordChartType)
+export const GeoChart = createChartComponent(geoChartType)
+export const LinesChart = createChartComponent(linesChartType)
+export const MatrixChart = createChartComponent(matrixChartType)
+export const CustomChart = createChartComponent(customChartType)
+export const OHLCChart = createChartComponent(ohlcChartType)
+export const StepChart = createChartComponent(stepChartType)
+export const VolumeChart = createChartComponent(volumeChartType)
+export const RangeChart = createChartComponent(rangeChartType)
+export const BaselineChart = createChartComponent(baselineChartType)
+export const KagiChart = createChartComponent(kagiChartType)
+export const RenkoChart = createChartComponent(renkoChartType)
 
 // ---------------------------------------------------------------------------
 // Re-exports
@@ -110,5 +124,8 @@ export {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
 } from '@chartts/core'
 export type { ChartData, ChartOptions, ChartInstance, ChartTypePlugin } from '@chartts/core'

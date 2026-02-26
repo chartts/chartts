@@ -33,6 +33,17 @@ import { parallelChartType } from '../charts/parallel/parallel-type'
 import { themeRiverChartType } from '../charts/themeriver/themeriver-type'
 import { pictorialBarChartType } from '../charts/pictorialbar/pictorialbar-type'
 import { chordChartType } from '../charts/chord/chord-type'
+import { geoChartType } from '../charts/geo/geo-type'
+import { linesChartType } from '../charts/lines/lines-type'
+import { matrixChartType } from '../charts/matrix/matrix-type'
+import { customChartType } from '../charts/custom/custom-type'
+import { ohlcChartType } from '../charts/ohlc/ohlc-type'
+import { stepChartType } from '../charts/step/step-type'
+import { volumeChartType } from '../charts/volume/volume-type'
+import { rangeChartType } from '../charts/range/range-type'
+import { baselineChartType } from '../charts/baseline/baseline-type'
+import { kagiChartType } from '../charts/kagi/kagi-type'
+import { renkoChartType } from '../charts/renko/renko-type'
 
 interface ChartConfig extends ChartOptions {
   data: ChartData
@@ -207,4 +218,59 @@ export function PictorialBar(target: string | HTMLElement, config: ChartConfig):
 export function Chord(target: string | HTMLElement, config: ChartConfig): ChartInstance {
   const { data, ...options } = config
   return createChart(target, chordChartType, data, options)
+}
+
+export function Geo(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, geoChartType, data, options)
+}
+
+export function Lines(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, linesChartType, data, options)
+}
+
+export function Matrix(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, matrixChartType, data, options)
+}
+
+export function Custom(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, customChartType, data, options)
+}
+
+export function OHLC(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, ohlcChartType, data, options)
+}
+
+export function Step(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, stepChartType, data, options)
+}
+
+export function Volume(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, volumeChartType, data, options)
+}
+
+export function Range(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, rangeChartType, data, options)
+}
+
+export function Baseline(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, baselineChartType, data, options)
+}
+
+export function Kagi(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, kagiChartType, data, options)
+}
+
+export function Renko(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, renkoChartType, data, options)
 }

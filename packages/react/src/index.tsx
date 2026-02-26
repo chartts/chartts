@@ -13,6 +13,9 @@ import {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
   type ChartData, type ChartOptions, type ChartInstance, type ChartTypePlugin,
 } from '@chartts/core'
 
@@ -141,6 +144,17 @@ export const ParallelChart = createChartComponent(parallelChartType, 'ParallelCh
 export const ThemeRiverChart = createChartComponent(themeRiverChartType, 'ThemeRiverChart')
 export const PictorialBarChart = createChartComponent(pictorialBarChartType, 'PictorialBarChart')
 export const ChordChart = createChartComponent(chordChartType, 'ChordChart')
+export const GeoChart = createChartComponent(geoChartType, 'GeoChart')
+export const LinesChart = createChartComponent(linesChartType, 'LinesChart')
+export const MatrixChart = createChartComponent(matrixChartType, 'MatrixChart')
+export const CustomChart = createChartComponent(customChartType, 'CustomChart')
+export const OHLCChart = createChartComponent(ohlcChartType, 'OHLCChart')
+export const StepChart = createChartComponent(stepChartType, 'StepChart')
+export const VolumeChart = createChartComponent(volumeChartType, 'VolumeChart')
+export const RangeChart = createChartComponent(rangeChartType, 'RangeChart')
+export const BaselineChart = createChartComponent(baselineChartType, 'BaselineChart')
+export const KagiChart = createChartComponent(kagiChartType, 'KagiChart')
+export const RenkoChart = createChartComponent(renkoChartType, 'RenkoChart')
 
 // ---------------------------------------------------------------------------
 // Generic Chart — pass any ChartTypePlugin
@@ -198,6 +212,9 @@ export {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
   // Theme
   resolveTheme, applyTheme,
   LIGHT_THEME, DARK_THEME, PALETTE,

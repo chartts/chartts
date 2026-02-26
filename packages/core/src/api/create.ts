@@ -76,6 +76,10 @@ export function createChart(
 
   if (!useCanvas) {
     applyTheme(root.element, currentTheme)
+  } else {
+    // Canvas mode: container needs relative positioning for overlay, and background
+    container.style.position = 'relative'
+    container.style.background = currentTheme.background
   }
 
   // Interaction layer — attaches to SVG; for Canvas, attaches to the canvas element
@@ -130,8 +134,8 @@ export function createChart(
     if (useCanvas) {
       const canvas = root.element as HTMLCanvasElement
       const dpr = window.devicePixelRatio || 1
-      canvas.width = width * dpr
-      canvas.height = height * dpr
+      canvas.width = Math.round(width * dpr)
+      canvas.height = Math.round(height * dpr)
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
       const ctx2d = canvas.getContext('2d')!

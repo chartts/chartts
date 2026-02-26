@@ -13,6 +13,9 @@ import {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
   type ChartData, type ChartOptions, type ChartInstance, type ChartTypePlugin,
 } from '@chartts/core'
 
@@ -146,6 +149,17 @@ export const ParallelChart = createVueChart(parallelChartType, 'ParallelChart')
 export const ThemeRiverChart = createVueChart(themeRiverChartType, 'ThemeRiverChart')
 export const PictorialBarChart = createVueChart(pictorialBarChartType, 'PictorialBarChart')
 export const ChordChart = createVueChart(chordChartType, 'ChordChart')
+export const GeoChart = createVueChart(geoChartType, 'GeoChart')
+export const LinesChart = createVueChart(linesChartType, 'LinesChart')
+export const MatrixChart = createVueChart(matrixChartType, 'MatrixChart')
+export const CustomChart = createVueChart(customChartType, 'CustomChart')
+export const OHLCChart = createVueChart(ohlcChartType, 'OHLCChart')
+export const StepChart = createVueChart(stepChartType, 'StepChart')
+export const VolumeChart = createVueChart(volumeChartType, 'VolumeChart')
+export const RangeChart = createVueChart(rangeChartType, 'RangeChart')
+export const BaselineChart = createVueChart(baselineChartType, 'BaselineChart')
+export const KagiChart = createVueChart(kagiChartType, 'KagiChart')
+export const RenkoChart = createVueChart(renkoChartType, 'RenkoChart')
 
 // ---------------------------------------------------------------------------
 // Re-exports
@@ -161,5 +175,8 @@ export {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
 } from '@chartts/core'
 export type { ChartData, ChartOptions, ChartInstance, ChartTypePlugin } from '@chartts/core'

@@ -12,5 +12,8 @@ export {
   calendarChartType, comboChartType, sankeyChartType,
   sunburstChartType, treeChartType, graphChartType, parallelChartType,
   themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType,
 } from '@chartts/core'
 export type { ChartData, ChartOptions, ChartInstance, ChartTypePlugin } from '@chartts/core'
