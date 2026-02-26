@@ -268,5 +268,9 @@
     "type": "git",
     "url": "https://github.com/chartts/chartts"
   },
-  "homepage": "https://chartts.com"
+  "homepage": "https://chartts.com",
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
 }
