@@ -54,12 +54,12 @@ export function createMap3DPlugin(): GLChartTypePlugin {
           const w = 0.9, d = 0.9, topY = height
           const darker: [number, number, number] = [color[0] * 0.7, color[1] * 0.7, color[2] * 0.7]
 
-          // Top face
+          // Top face (CCW winding when viewed from above)
           verts.push(px, topY, pz, 0, 1, 0, ...color, px + w, topY, pz, 0, 1, 0, ...color, px + w, topY, pz + d, 0, 1, 0, ...color, px, topY, pz + d, 0, 1, 0, ...color)
-          indices.push(baseVertex, baseVertex + 1, baseVertex + 2, baseVertex, baseVertex + 2, baseVertex + 3)
+          indices.push(baseVertex, baseVertex + 2, baseVertex + 1, baseVertex, baseVertex + 3, baseVertex + 2)
           baseVertex += 4
 
-          // 4 side faces
+          // 4 side faces (CCW winding when viewed from outside)
           const sides: [number[], number[], number[], number[], number[]][] = [
             [[px, 0, pz], [px + w, 0, pz], [px + w, topY, pz], [px, topY, pz], [0, 0, -1]],
             [[px + w, 0, pz], [px + w, 0, pz + d], [px + w, topY, pz + d], [px + w, topY, pz], [1, 0, 0]],
@@ -71,7 +71,7 @@ export function createMap3DPlugin(): GLChartTypePlugin {
             verts.push(p1[0]!, p1[1]!, p1[2]!, n[0]!, n[1]!, n[2]!, ...darker)
             verts.push(p2[0]!, p2[1]!, p2[2]!, n[0]!, n[1]!, n[2]!, ...darker)
             verts.push(p3[0]!, p3[1]!, p3[2]!, n[0]!, n[1]!, n[2]!, ...darker)
-            indices.push(baseVertex, baseVertex + 1, baseVertex + 2, baseVertex, baseVertex + 2, baseVertex + 3)
+            indices.push(baseVertex, baseVertex + 2, baseVertex + 1, baseVertex, baseVertex + 3, baseVertex + 2)
             baseVertex += 4
           }
           regionData.push({ name: data.categories?.[di] ?? s.name, cx: px + w * 0.5, cy: topY, cz: pz + d * 0.5, value, si, di })
