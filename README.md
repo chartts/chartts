@@ -20,20 +20,45 @@
 
 A design-native charting library that renders real SVG, styles with Tailwind classes, and ships under 15kb gzipped. 40+ chart types. Native packages for React, Vue, Svelte, Solid, and Vanilla JS. Not wrappers - native implementations.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/line-dark.png" alt="Line Chart" width="48%" />
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/bar-dark.png" alt="Bar Chart" width="48%" />
-</p>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/area-dark.png" alt="Area Chart" width="48%" />
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/pie-dark.png" alt="Pie Chart" width="23%" />
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/donut-dark.png" alt="Donut Chart" width="23%" />
-</p>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/candlestick-dark.png" alt="Candlestick Chart" width="48%" />
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/radar-dark.png" alt="Radar Chart" width="23%" />
-  <img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/gauge-dark.png" alt="Gauge Chart" width="23%" />
-</p>
+<table>
+  <tr>
+    <td align="center"><a href="https://chartts.com/docs/charts/line"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/line-dark.png" width="280" alt="Line Chart" /><br /><b>Line</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/bar"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/bar-dark.png" width="280" alt="Bar Chart" /><br /><b>Bar</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/area"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/area-dark.png" width="280" alt="Area Chart" /><br /><b>Area</b></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://chartts.com/docs/charts/pie"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/pie-dark.png" width="280" alt="Pie Chart" /><br /><b>Pie</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/donut"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/donut-dark.png" width="280" alt="Donut Chart" /><br /><b>Donut</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/scatter"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/scatter-dark.png" width="280" alt="Scatter Chart" /><br /><b>Scatter</b></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://chartts.com/docs/charts/radar"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/radar-dark.png" width="280" alt="Radar Chart" /><br /><b>Radar</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/candlestick"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/candlestick-dark.png" width="280" alt="Candlestick Chart" /><br /><b>Candlestick</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/heatmap"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/heatmap-dark.png" width="280" alt="Heatmap" /><br /><b>Heatmap</b></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://chartts.com/docs/charts/treemap"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/treemap-dark.png" width="280" alt="Treemap" /><br /><b>Treemap</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/funnel"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/funnel-dark.png" width="280" alt="Funnel Chart" /><br /><b>Funnel</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/gauge"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/gauge-dark.png" width="280" alt="Gauge" /><br /><b>Gauge</b></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://chartts.com/docs/charts/waterfall"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/waterfall-dark.png" width="280" alt="Waterfall Chart" /><br /><b>Waterfall</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/polar"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/polar-dark.png" width="280" alt="Polar Chart" /><br /><b>Polar</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/boxplot"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/boxplot-dark.png" width="280" alt="Box Plot" /><br /><b>Box Plot</b></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://chartts.com/docs/charts/histogram"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/histogram-dark.png" width="280" alt="Histogram" /><br /><b>Histogram</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/lollipop"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/lollipop-dark.png" width="280" alt="Lollipop Chart" /><br /><b>Lollipop</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/radial-bar"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/radial-bar-dark.png" width="280" alt="Radial Bar" /><br /><b>Radial Bar</b></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://chartts.com/docs/charts/sankey"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/sankey-dark.png" width="280" alt="Sankey Diagram" /><br /><b>Sankey</b></a></td>
+    <td align="center"><a href="https://chartts.com/docs/charts/violin"><img src="https://raw.githubusercontent.com/chartts/chartts.com/main/public/demos/violin-dark.png" width="280" alt="Violin Plot" /><br /><b>Violin</b></a></td>
+    <td align="center"><em>+ 20 more chart types</em></td>
+  </tr>
+</table>
+
+<p align="center"><a href="https://chartts.com/docs/charts"><b>Browse all chart types →</b></a></p>
 
 ## Install
 
@@ -100,7 +125,7 @@ const svg = renderToString(lineChartType, data, { width: 600, height: 300 })
 ## Why Chart.ts?
 
 - **Beautiful by default** - zero config charts that look great out of the box
-- **Under 15kb gzipped** - the entire core library, not per chart
+- **Under 15kb gzipped** - the entire core, not per chart
 - **Real SVG** - actual DOM nodes. CSS works. Devtools work. Screen readers work.
 - **Tailwind native** - style with classes you already know. `dark:` variants just work.
 - **TypeScript-first** - strict mode, full type inference, autocomplete everywhere
@@ -109,9 +134,11 @@ const svg = renderToString(lineChartType, data, { width: 600, height: 300 })
 - **SSR ready** - renders to string for server-side use. No `ssr: false` hacks.
 - **Multi-renderer** - SVG default. Canvas at 10k+ points. WebGL at 100k+. Zero config.
 
-## 40+ chart types
+## 50+ chart types
 
-Line, bar, area, pie, donut, scatter, bubble, radar, sparkline, candlestick, OHLC, waterfall, funnel, gauge, heatmap, treemap, boxplot, histogram, polar, radial bar, lollipop, bullet, dumbbell, calendar, combo, sankey, sunburst, tree, graph, parallel coordinates, theme river, pictorial bar, chord, geo, matrix, step, volume, range, baseline, kagi, renko, stacked bar, horizontal bar.
+Line, bar, area, pie, donut, scatter, bubble, radar, sparkline, candlestick, OHLC, waterfall, funnel, gauge, heatmap, treemap, boxplot, histogram, polar, radial bar, lollipop, bullet, dumbbell, calendar, combo, sankey, sunburst, tree, graph, parallel coordinates, theme river, pictorial bar, chord, geo, matrix, step, volume, range, baseline, kagi, renko, violin, word cloud, circle packing, voronoi, stacked bar, horizontal bar.
+
+**3D / WebGL** (via `@chartts/gl`): Scatter 3D, Bar 3D, Surface 3D, Globe 3D, Map 3D, Lines 3D, Line 3D, Torus 3D, Scatter GL, Lines GL, Flow GL, Graph GL.
 
 Same flat API surface for all of them. Tree-shakeable - import only what you use:
 
@@ -161,7 +188,12 @@ Charts automatically adapt to light/dark mode via CSS custom properties:
 
 ```
 packages/
-  core/     # Rendering engine, 40+ chart types, themes, utilities
+  core/     # Rendering engine, 50+ chart types, themes, utilities
+  gl/       # 3D/WebGL chart types (scatter3d, surface3d, globe3d, ...)
+  react/    # React bindings
+  vue/      # Vue bindings
+  svelte/   # Svelte bindings
+  solid/    # Solid bindings
 ```
 
 ## Development
