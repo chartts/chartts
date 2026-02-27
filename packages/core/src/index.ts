@@ -1,5 +1,5 @@
 // Public API
-export { Line, Bar, StackedBar, HorizontalBar, Pie, Donut, Scatter, Sparkline, Area, Radar, Bubble, Candlestick, Gauge, Waterfall, Funnel, Heatmap, Boxplot, Histogram, Treemap, Polar, RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey, Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord, Geo, Lines, Matrix, Custom, OHLC, Step, Volume, Range, Baseline, Kagi, Renko, Violin, Pack, Voronoi, WordCloud, Pillar } from './api/convenience'
+export { Line, Bar, StackedBar, HorizontalBar, Pie, Donut, Scatter, Sparkline, Area, Radar, Bubble, Candlestick, Gauge, Waterfall, Funnel, Heatmap, Boxplot, Histogram, Treemap, Polar, RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey, Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord, Geo, Lines, Matrix, Custom, OHLC, Step, Volume, Range, Baseline, Kagi, Renko, Violin, Pack, Voronoi, WordCloud, Pillar, Gantt, Org, Flow, Pareto } from './api/convenience'
 export { createChart } from './api/create'
 export { defineChartType } from './api/define'
 
@@ -45,6 +45,7 @@ export {
   ohlcChartType, stepChartType, volumeChartType, rangeChartType,
   baselineChartType, kagiChartType, renkoChartType, violinChartType,
   packChartType, voronoiChartType, wordcloudChartType, pillarChartType,
+  ganttChartType, orgChartType, flowChartType, paretoChartType,
 } from './api/chart-types'
 export { WORLD_SIMPLE } from './charts/geo/geo-type'
 export { WORLD_REGIONS } from './charts/geo/world-regions'

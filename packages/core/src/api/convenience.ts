@@ -77,3 +77,7 @@ export const Pack = _fns.Pack!
 export const Voronoi = _fns.Voronoi!
 export const WordCloud = _fns.WordCloud!
 export const Pillar = _fns.Pillar!
+export const Gantt = _fns.Gantt!
+export const Org = _fns.Org!
+export const Flow = _fns.Flow!
+export const Pareto = _fns.Pareto!

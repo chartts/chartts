@@ -55,6 +55,10 @@ import { packChartType } from '../charts/pack/pack-type'
 import { voronoiChartType } from '../charts/voronoi/voronoi-type'
 import { wordcloudChartType } from '../charts/wordcloud/wordcloud-type'
 import { pillarChartType } from '../charts/pillar/pillar-type'
+import { ganttChartType } from '../charts/gantt/gantt-type'
+import { orgChartType } from '../charts/org/org-type'
+import { flowChartType } from '../charts/flow/flow-type'
+import { paretoChartType } from '../charts/pareto/pareto-type'
 
 /**
  * Map of convenience name -> chart type plugin.
@@ -111,6 +115,10 @@ export const CHART_TYPES: Record<string, ChartTypePlugin> = {
   Voronoi: voronoiChartType,
   WordCloud: wordcloudChartType,
   Pillar: pillarChartType,
+  Gantt: ganttChartType,
+  Org: orgChartType,
+  Flow: flowChartType,
+  Pareto: paretoChartType,
 }
 
 // Re-export individual chart types for direct import
@@ -128,4 +136,5 @@ export {
   ohlcChartType, stepChartType, volumeChartType, rangeChartType,
   baselineChartType, kagiChartType, renkoChartType, violinChartType,
   packChartType, voronoiChartType, wordcloudChartType, pillarChartType,
+  ganttChartType, orgChartType, flowChartType, paretoChartType,
 }
