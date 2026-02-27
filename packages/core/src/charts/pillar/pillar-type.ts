@@ -1,6 +1,6 @@
 /**
- * Torus chart — 2D side-view of stacked cylindrical rings.
- * Each data value = one ring. Width proportional to value.
+ * Pillar chart — stacked rounded-rectangle bars.
+ * Each data value = one segment. Width proportional to value.
  * Symmetric rounded rectangles stacked along an axis.
  */
 
@@ -11,7 +11,7 @@ import type {
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect, text } from '../../render/tree'
 
-export interface TorusOptions {
+export interface PillarOptions {
   /** Scale for ring width. Default 1. */
   intensity?: number
   /** Show value labels. Default true. */
@@ -20,8 +20,8 @@ export interface TorusOptions {
   orientation?: 'vertical' | 'horizontal'
 }
 
-export const torusChartType: ChartTypePlugin = {
-  type: 'torus',
+export const pillarChartType: ChartTypePlugin = {
+  type: 'pillar',
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -37,7 +37,7 @@ export const torusChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const opts = options as unknown as TorusOptions
+    const opts = options as unknown as PillarOptions
     const intensity = opts.intensity ?? 1
     const showLabels = opts.showLabels ?? true
     const horizontal = opts.orientation === 'horizontal'
@@ -158,7 +158,7 @@ export const torusChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return null
 
-    const opts = options as unknown as TorusOptions
+    const opts = options as unknown as PillarOptions
     const horizontal = opts.orientation === 'horizontal'
     const numRings = series.values.length
     const gap = 3

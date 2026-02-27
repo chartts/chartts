@@ -1,5 +1,5 @@
 // Public API
-export { Line, Bar, StackedBar, HorizontalBar, Pie, Donut, Scatter, Sparkline, Area, Radar, Bubble, Candlestick, Gauge, Waterfall, Funnel, Heatmap, Boxplot, Histogram, Treemap, Polar, RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey, Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord, Geo, Lines, Matrix, Custom, OHLC, Step, Volume, Range, Baseline, Kagi, Renko, Violin, Pack, Voronoi, WordCloud, Torus } from './api/convenience'
+export { Line, Bar, StackedBar, HorizontalBar, Pie, Donut, Scatter, Sparkline, Area, Radar, Bubble, Candlestick, Gauge, Waterfall, Funnel, Heatmap, Boxplot, Histogram, Treemap, Polar, RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey, Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord, Geo, Lines, Matrix, Custom, OHLC, Step, Volume, Range, Baseline, Kagi, Renko, Violin, Pack, Voronoi, WordCloud, Pillar } from './api/convenience'
 export { createChart } from './api/create'
 
 // SSR — render to SVG string without DOM
@@ -79,7 +79,7 @@ export { violinChartType } from './charts/violin/violin-type'
 export { packChartType } from './charts/pack/pack-type'
 export { voronoiChartType } from './charts/voronoi/voronoi-type'
 export { wordcloudChartType } from './charts/wordcloud/wordcloud-type'
-export { torusChartType } from './charts/torus/torus-type'
+export { pillarChartType } from './charts/pillar/pillar-type'
 
 // Features
 export { filterData, filterSeries, filterLabels, sortData, aggregateData, transformData, pivotData, sliceData } from './features/dataset'

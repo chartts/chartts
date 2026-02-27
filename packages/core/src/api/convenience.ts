@@ -48,7 +48,7 @@ import { violinChartType } from '../charts/violin/violin-type'
 import { packChartType } from '../charts/pack/pack-type'
 import { voronoiChartType } from '../charts/voronoi/voronoi-type'
 import { wordcloudChartType } from '../charts/wordcloud/wordcloud-type'
-import { torusChartType } from '../charts/torus/torus-type'
+import { pillarChartType } from '../charts/pillar/pillar-type'
 
 interface ChartConfig extends ChartOptions {
   data: ChartData
@@ -300,7 +300,7 @@ export function WordCloud(target: string | HTMLElement, config: ChartConfig): Ch
   return createChart(target, wordcloudChartType, data, options)
 }
 
-export function Torus(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+export function Pillar(target: string | HTMLElement, config: ChartConfig): ChartInstance {
   const { data, ...options } = config
-  return createChart(target, torusChartType, data, options)
+  return createChart(target, pillarChartType, data, options)
 }

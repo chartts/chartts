@@ -6,7 +6,7 @@ import {
   Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord,
   Geo, Lines, Matrix, Custom,
   OHLC, Step, Volume, Range, Baseline, Kagi, Renko,
-  Violin, Pack, Voronoi, WordCloud, Torus,
+  Violin, Pack, Voronoi, WordCloud, Pillar,
   WORLD_SIMPLE,
   createChart, lineChartType, barChartType, areaChartType, scatterChartType,
   pieChartType, radarChartType,
@@ -383,7 +383,7 @@ const DATA = {
     labels: ['React','TypeScript','JavaScript','Node','CSS','HTML','Vite','Rust','Python','GraphQL','Docker','Kubernetes','AWS','Tailwind','Next.js','Vue','Angular','Svelte','Deno','Bun'],
     series: [{ name: 'Mentions', values: [100, 92, 88, 75, 70, 65, 58, 55, 50, 45, 42, 38, 35, 48, 52, 40, 32, 30, 25, 28] }],
   } as ChartData,
-  torus: {
+  pillar: {
     labels: ['Apr', 'Jan', 'Mar', 'May', 'Feb'],
     series: [{ name: 'Revenue', values: [150, 120, 95, 72, 45] }],
   } as ChartData,
@@ -926,7 +926,7 @@ const pages: Page[] = [
         ['Pack', 'Circle packing', c => Pack(c, { theme: theme(), data: DATA.pack })],
         ['Voronoi', 'Tessellation', c => Voronoi(c, { theme: theme(), data: DATA.voronoi })],
         ['Word Cloud', 'Sized by frequency', c => WordCloud(c, { theme: theme(), data: DATA.wordcloud })],
-        ['Torus', 'Sine-wave cylinder', c => Torus(c, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 1 } as any)],
+        ['Pillar', 'Stacked bars', c => Pillar(c, { theme: theme(), data: DATA.pillar, intensity: 1 } as any)],
         ['Polar / Rose', 'Nightingale rose', c => Polar(c, { theme: theme(), data: DATA.polar })],
         ['Polar (Monthly)', '12-month activity', c => Polar(c, { theme: theme(), data: { labels: ['J','F','M','A','M','J','J','A','S','O','N','D'], series: [{ name: 'Activity', values: [20,25,40,55,70,85,90,80,65,45,30,22] }] } })],
       ]
@@ -1002,6 +1002,39 @@ const pages: Page[] = [
         const { card, container } = chartCard(title, desc)
         g.appendChild(card)
         requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'pillar', name: 'Pillar', icon: '\u25CE', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Pillar Chart', 'Stacked rounded-rectangle bars. Each segment sized by data value. Supports vertical and horizontal orientations.'))
+      const g = grid(2)
+      const items: [string, string, () => ChartInstance][] = [
+        ['Vertical', 'Default orientation', () => {
+          const { card, container } = chartCard('Vertical', 'intensity: 1')
+          g.appendChild(card)
+          return Pillar(container, { theme: theme(), data: DATA.pillar, intensity: 1 } as any)
+        }],
+        ['Horizontal', 'orientation: horizontal', () => {
+          const { card, container } = chartCard('Horizontal', 'orientation: horizontal')
+          g.appendChild(card)
+          return Pillar(container, { theme: theme(), data: DATA.pillar, intensity: 1, orientation: 'horizontal' } as any)
+        }],
+        ['High Intensity', 'intensity: 2', () => {
+          const { card, container } = chartCard('High Intensity', 'intensity: 2')
+          g.appendChild(card)
+          return Pillar(container, { theme: theme(), data: DATA.pillar, intensity: 2 } as any)
+        }],
+        ['More Data', '8 segments', () => {
+          const { card, container } = chartCard('More Data', '8 data points')
+          g.appendChild(card)
+          return Pillar(container, { theme: theme(), data: { labels: ['A','B','C','D','E','F','G','H'], series: [{ name: 'Values', values: [180,150,130,110,95,75,55,35] }] }, intensity: 1 } as any)
+        }],
+      ]
+      for (const [, , factory] of items) {
+        requestAnimationFrame(() => { try { mount(main, factory()) } catch (e) { console.error(e) } })
       }
       main.appendChild(g)
     },
@@ -2196,39 +2229,6 @@ const pages: Page[] = [
         const { card, container } = chartCard(title, desc)
         g.appendChild(card)
         requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
-      }
-      main.appendChild(g)
-    },
-  },
-  {
-    id: 'torus', name: 'Torus', icon: '\u25CE', group: 'Charts',
-    render(main) {
-      main.appendChild(section('Torus Chart (2D)', 'SVG silhouette of a sine-modulated cylinder. Each ring segment colored by data value. Supports vertical and horizontal orientations.'))
-      const g = grid(2)
-      const items: [string, string, () => ChartInstance][] = [
-        ['Vertical', 'Default orientation', () => {
-          const { card, container } = chartCard('Vertical', 'intensity: 1, frequency: 1')
-          g.appendChild(card)
-          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 1 } as any)
-        }],
-        ['Horizontal', 'orientation: horizontal', () => {
-          const { card, container } = chartCard('Horizontal', 'orientation: horizontal')
-          g.appendChild(card)
-          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 1, orientation: 'horizontal' } as any)
-        }],
-        ['High Frequency', 'frequency: 3', () => {
-          const { card, container } = chartCard('High Frequency', 'frequency: 3')
-          g.appendChild(card)
-          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 3 } as any)
-        }],
-        ['Intense', 'intensity: 2, freq: 2', () => {
-          const { card, container } = chartCard('Intense', 'intensity: 2, frequency: 2')
-          g.appendChild(card)
-          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 2, frequency: 2 } as any)
-        }],
-      ]
-      for (const [, , factory] of items) {
-        requestAnimationFrame(() => { try { mount(main, factory()) } catch (e) { console.error(e) } })
       }
       main.appendChild(g)
     },
