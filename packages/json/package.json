@@ -1,7 +1,7 @@
 {
   "name": "@chartts/json",
-  "version": "0.1.3",
-  "description": "JSON import and export for Chartts",
+  "version": "0.1.4",
+  "description": "JSON adapter for Chartts. Convert between JSON and chart data.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +14,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "sideEffects": false,
   "scripts": {

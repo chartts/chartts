@@ -31,6 +31,15 @@ export const graphChartType: ChartTypePlugin = {
   },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
+    const opts = options as unknown as GraphOptions
+    // Rich format: data lives in options.nodes/edges, not series
+    if ((opts.nodes || opts.edges) && (!data.series.length || data.series.every(s => s.values.length === 0))) {
+      return {
+        series: [],
+        labels: [],
+        bounds: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
+      }
+    }
     return prepareNoAxes(data, options)
   },
 

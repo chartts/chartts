@@ -119,6 +119,7 @@ export function createChart(
         wheel: currentOptions.zoom,
         drag: currentOptions.pan,
         pinch: currentOptions.zoom,
+        normalizedPan: !needs2DZoom,
       },
       () => {
         render()
@@ -213,8 +214,12 @@ export function createChart(
       return
     }
 
-    const isEmpty = !currentData.series.length ||
+    const hasRichGraphData = chartType.type === 'graph' &&
+      ((options as Record<string, unknown>).nodes || (options as Record<string, unknown>).edges)
+    const isEmpty = !hasRichGraphData && (
+      !currentData.series.length ||
       currentData.series.every(s => s.values.length === 0)
+    )
     if (chartState === 'empty' || isEmpty) {
       renderer.render(root, renderEmptyState(width, height, currentTheme, stateMessage))
       return

@@ -1,6 +1,6 @@
 {
   "name": "@chartts/core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Tiny, beautiful, SVG-based charting library. Tailwind-native. Every framework.",
   "type": "module",
   "main": "./dist/index.cjs",

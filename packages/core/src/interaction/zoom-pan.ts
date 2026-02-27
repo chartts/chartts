@@ -22,6 +22,10 @@ export interface ZoomPanConfig {
   minZoom?: number
   /** Maximum zoom level. Default 20. */
   maxZoom?: number
+  /** When false, drag uses pixel-proportional deltas without zoom normalization.
+   *  For chart types that apply pan directly to pixel transforms (geo, pie, etc).
+   *  Default true (axis-scale behavior). */
+  normalizedPan?: boolean
 }
 
 export interface ZoomPanState {
@@ -63,6 +67,7 @@ export function createZoomPan(
     pinch: config.pinch ?? true,
     minZoom: config.minZoom ?? 1,
     maxZoom: config.maxZoom ?? 20,
+    normalizedPan: config.normalizedPan ?? true,
   }
 
   const state: ZoomPanState = {
@@ -145,10 +150,10 @@ export function createZoomPan(
     const dy = e.clientY - dragStartY
 
     if (cfg.x) {
-      state.panX = dragStartPanX + dx / (area.width * state.zoomX)
+      state.panX = dragStartPanX + dx / (cfg.normalizedPan ? area.width * state.zoomX : area.width)
     }
     if (cfg.y) {
-      state.panY = dragStartPanY + dy / (area.height * state.zoomY)
+      state.panY = dragStartPanY + dy / (cfg.normalizedPan ? area.height * state.zoomY : area.height)
     }
 
     clampPan()
@@ -219,13 +224,15 @@ export function createZoomPan(
 
   function clampPan(): void {
     // Keep visible window within bounds.
-    // panX/panY represent the offset of the viewport origin as a fraction of the full area.
-    // At zoom=1, pan must be 0. At zoom=2, pan range is [-0.5, 0.5] (can shift half the view).
+    // With normalizedPan (axis charts): pan is fraction of content, range ±(1-1/zoom)/2
+    // Without normalizedPan (geo etc): pan is fraction of area pixels, range scaled by zoom
     const halfVisX = (1 - 1 / state.zoomX) / 2
-    state.panX = clamp(state.panX, -halfVisX, halfVisX)
+    const limitX = cfg.normalizedPan ? halfVisX : state.zoomX - 1
+    state.panX = clamp(state.panX, -limitX, limitX)
 
     const halfVisY = (1 - 1 / state.zoomY) / 2
-    state.panY = clamp(state.panY, -halfVisY, halfVisY)
+    const limitY = cfg.normalizedPan ? halfVisY : state.zoomY - 1
+    state.panY = clamp(state.panY, -limitY, limitY)
   }
 
   function pinchDistance(e: TouchEvent): number {

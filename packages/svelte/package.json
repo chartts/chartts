@@ -1,7 +1,7 @@
 {
   "name": "@chartts/svelte",
-  "version": "0.1.3",
-  "description": "Chartts Svelte components — native, not a wrapper.",
+  "version": "0.1.4",
+  "description": "Chartts for Svelte. 40+ chart types, beautiful defaults, Tailwind ready.",
   "type": "module",
   "svelte": "./src/index.ts",
   "types": "./dist/exports.d.ts",
@@ -17,7 +17,8 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "README.md"
   ],
   "sideEffects": false,
   "scripts": {

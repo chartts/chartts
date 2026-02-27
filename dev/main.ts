@@ -62,11 +62,17 @@ const GL_DATA = {
   } as GLChartData,
   globe3d: {
     series: [{
-      name: 'Cities',
-      values: [100, 80, 60, 90, 70, 50, 85],
-      x: [-74, -0.12, 139.7, -43.2, 37.6, 151.2, 28.9],   // longitude
-      y: [40.7, 51.5, 35.7, -22.9, 55.8, -33.9, 41.0],     // latitude
+      name: 'Population',
+      values: [85, 90, 95, 65, 75, 55, 80, 70, 60, 50, 45, 40],
+      x: [-74, -0.12, 139.7, -43.2, 37.6, 151.2, 28.9, 121.5, 77.2, -99.1, 2.35, 100.5],
+      y: [40.7, 51.5, 35.7, -22.9, 55.8, -33.9, 41.0, 31.2, 28.6, 19.4, 48.9, 13.8],
+    }, {
+      name: 'Growth',
+      values: [30, 25, 20, 55, 15, 35, 28, 60, 70, 45, 18, 65],
+      x: [-74, -0.12, 139.7, -43.2, 37.6, 151.2, 28.9, 121.5, 77.2, -99.1, 2.35, 100.5],
+      y: [40.7, 51.5, 35.7, -22.9, 55.8, -33.9, 41.0, 31.2, 28.6, 19.4, 48.9, 13.8],
     }],
+    categories: ['New York', 'London', 'Tokyo', 'Rio', 'Moscow', 'Sydney', 'Istanbul', 'Shanghai', 'Delhi', 'Mexico City', 'Paris', 'Bangkok'],
   } as GLChartData,
   lines3d: {
     series: [{
@@ -1947,11 +1953,17 @@ const pages: Page[] = [
   {
     id: 'globe3d', name: 'Globe 3D', icon: '\uD83C\uDF10', group: 'GL Charts',
     render(main) {
-      main.appendChild(section('3D Globe', 'UV sphere with lat/lng data points. Auto-rotates.'))
+      main.appendChild(section('3D Globe', 'Atmosphere glow, graticule grid, labeled data points. Orbit with mouse, zoom with scroll.'))
       const g = grid(2)
+      const t = isDark ? 'dark' as const : 'light' as const
       const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
-        ['World Cities', '7 major cities', c => Globe3D(c, { data: GL_DATA.globe3d, theme: isDark ? 'dark' : 'light' })],
-        ['Static Globe', 'No auto-rotate', c => Globe3D(c, { data: GL_DATA.globe3d, theme: isDark ? 'dark' : 'light', orbit: { autoRotate: false } })],
+        ['World Cities', '12 cities, 2 series with labels', c => Globe3D(c, { data: GL_DATA.globe3d, theme: t })],
+        ['Static View', 'No auto-rotate, orbit manually', c => Globe3D(c, { data: GL_DATA.globe3d, theme: t, orbit: { autoRotate: false } })],
+        ['Single Series', 'Population only', c => Globe3D(c, { data: {
+          series: [GL_DATA.globe3d.series[0]!],
+          categories: GL_DATA.globe3d.categories,
+        }, theme: t })],
+        ['Light Theme', 'Light background globe', c => Globe3D(c, { data: GL_DATA.globe3d, theme: 'light' })],
       ]
       for (const [title, desc, factory] of items) {
         const { card, container } = chartCard(title, desc)

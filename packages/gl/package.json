@@ -1,7 +1,7 @@
 {
   "name": "@chartts/gl",
-  "version": "0.1.3",
-  "description": "WebGL 3D and GPU-accelerated chart types for chartts",
+  "version": "0.1.4",
+  "description": "WebGL chart types for Chartts. 3D bar, scatter, surface, globe, and more.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -69,7 +69,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "sideEffects": false,
   "scripts": {
