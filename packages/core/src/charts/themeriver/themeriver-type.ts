@@ -205,7 +205,7 @@ export const themeRiverChartType: ChartTypePlugin = {
       const bottomY = mapY(cumBottom)
 
       if (my >= topY && my <= bottomY) {
-        return { seriesIndex: si, pointIndex: t, distance: 0 }
+        return { seriesIndex: si, pointIndex: t, distance: 0, x: area.x + t * xStep, y: mapY((cumBottom + cumTop) / 2) }
       }
       cumBottom = cumTop
     }

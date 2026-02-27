@@ -61,8 +61,8 @@ export function createGrid3D(renderer: GLRenderer): Grid3D {
       const normalized = rawStep / magnitude
       const step = normalized < 2 ? magnitude : normalized < 5 ? 2 * magnitude : 5 * magnitude
 
-      const gridColor: [number, number, number] = [0.3, 0.3, 0.35]
-      const axisColor: [number, number, number] = [0.5, 0.5, 0.55]
+      const gridColor: [number, number, number] = [0.18, 0.2, 0.28]
+      const axisColor: [number, number, number] = [0.3, 0.35, 0.5]
       const verts: number[] = []
 
       // Extend grid slightly beyond data bounds

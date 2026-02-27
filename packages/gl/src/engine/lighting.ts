@@ -15,11 +15,11 @@ export interface LightConfig {
 
 export function defaultLightConfig(): LightConfig {
   return {
-    ambient: [0.25, 0.25, 0.25],
-    diffuseDirection: [0.5, 1.0, 0.3],
-    diffuseColor: [1.0, 1.0, 1.0],
-    specularColor: [1.0, 1.0, 1.0],
-    shininess: 32,
+    ambient: [0.35, 0.33, 0.4],
+    diffuseDirection: [0.6, 0.9, 0.4],
+    diffuseColor: [1.0, 0.97, 0.95],
+    specularColor: [1.0, 0.98, 0.96],
+    shininess: 48,
   }
 }
 

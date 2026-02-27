@@ -136,7 +136,7 @@ export const calendarChartType: ChartTypePlugin = {
     const cellX = gridX + col * (cellW + gap)
     const cellY = area.y + row * (cellH + gap)
     if (mx >= cellX && mx <= cellX + cellW && my >= cellY && my <= cellY + cellH) {
-      return { seriesIndex: 0, pointIndex: idx, distance: 0 }
+      return { seriesIndex: 0, pointIndex: idx, distance: 0, x: cellX + cellW / 2, y: cellY + cellH / 2 }
     }
 
     return null

@@ -23,6 +23,6 @@
       "@chartts/*": ["./packages/*/src"]
     }
   },
-  "include": ["packages/core/src", "dev"],
+  "include": ["packages/core/src", "packages/csv/src", "packages/json/src", "packages/excel/src", "packages/parquet/src", "packages/arrow/src", "dev"],
   "exclude": ["**/node_modules", "**/dist"]
 }

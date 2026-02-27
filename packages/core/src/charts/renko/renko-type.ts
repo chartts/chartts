@@ -127,7 +127,7 @@ export const renkoChartType: ChartTypePlugin = {
     return nodes
   },
 
-  hitTest(ctx: RenderContext, mx: number, _my: number): HitResult | null {
+  hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     const { data, area } = ctx
     const series = data.series[0]
     if (!series) return null
@@ -135,7 +135,7 @@ export const renkoChartType: ChartTypePlugin = {
     const frac = (mx - area.x) / area.width
     const idx = Math.round(frac * (series.values.length - 1))
     if (idx >= 0 && idx < series.values.length) {
-      return { seriesIndex: 0, pointIndex: idx, distance: 10 }
+      return { seriesIndex: 0, pointIndex: idx, distance: 10, x: mx, y: my }
     }
     return null
   },

@@ -61,7 +61,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-point-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 30ms + 0.4s);
+  animation-delay: calc(var(--chartts-i, 0) * 10ms + 0.4s);
   opacity: 0;
   transition: opacity 0.15s ease, stroke-width 0.15s ease;
   cursor: pointer;
@@ -80,7 +80,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: bottom center;
   transform-box: fill-box;
   animation: chartts-bar-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 40ms);
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
   opacity: 0;
   transition: filter 0.15s ease, opacity 0.15s ease;
   cursor: pointer;
@@ -106,15 +106,15 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-slice-in 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 60ms);
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
   opacity: 0;
-  transition: filter 0.15s ease, opacity 0.15s ease;
+  transition: filter 0.2s ease, opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
   cursor: pointer;
   pointer-events: all;
 }
 .chartts-slice:hover {
-  filter: brightness(1.1) saturate(1.15);
-  opacity: 0.92;
+  filter: brightness(1.08) saturate(1.15) drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+  transform: scale(1.04);
 }
 
 /* ---- Sparkline ---- */
@@ -135,7 +135,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-radar-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--chartts-radar-i, 0) * 120ms);
+  animation-delay: calc(var(--chartts-radar-i, 0) * 35ms);
   opacity: 0;
   transition: opacity 0.2s ease, fill-opacity 0.2s ease;
 }
@@ -146,7 +146,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-point-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 30ms + 0.5s);
+  animation-delay: calc(var(--chartts-i, 0) * 10ms + 0.5s);
   opacity: 0;
   transition: r 0.15s ease, opacity 0.15s ease;
   cursor: pointer;
@@ -186,7 +186,7 @@ export const CHART_CSS = /* css */ `
 }
 .chartts-funnel-step {
   animation: chartts-funnel-slide 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 80ms);
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -202,7 +202,7 @@ export const CHART_CSS = /* css */ `
 }
 .chartts-waterfall-bar {
   animation: chartts-waterfall-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 50ms);
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -220,7 +220,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-candle-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 50ms);
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -242,7 +242,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-bubble-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 50ms);
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
   opacity: 0;
   transition: filter 0.15s ease, opacity 0.15s ease;
   cursor: pointer;
@@ -256,7 +256,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-point-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 30ms);
+  animation-delay: calc(var(--chartts-i, 0) * 10ms);
   opacity: 0;
   transition: filter 0.15s ease, opacity 0.15s ease;
   cursor: pointer;
@@ -293,7 +293,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-boxplot-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 60ms);
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -314,7 +314,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-cell-grow 0.4s ease forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 40ms);
+  animation-delay: calc(var(--chartts-i, 0) * 12ms);
   cursor: pointer;
   transition: filter 0.15s ease;
 }
@@ -334,7 +334,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-wedge-in 0.5s ease forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 50ms);
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
   cursor: pointer;
   transition: filter 0.15s ease;
 }
@@ -355,7 +355,7 @@ export const CHART_CSS = /* css */ `
 }
 .chartts-radialbar-arc {
   animation: chartts-radialbar-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 100ms);
+  animation-delay: calc(var(--chartts-i, 0) * 30ms);
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -376,7 +376,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: bottom center;
   transform-box: fill-box;
   animation: chartts-lollipop-in 0.4s ease forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 40ms);
+  animation-delay: calc(var(--chartts-i, 0) * 12ms);
 }
 .chartts-lollipop-dot {
   cursor: pointer;
@@ -395,7 +395,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: left center;
   transform-box: fill-box;
   animation: chartts-bullet-in 0.5s ease forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 80ms);
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
   cursor: pointer;
   transition: filter 0.15s ease;
 }
@@ -416,7 +416,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-dumbbell-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 60ms);
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
   opacity: 0;
   cursor: pointer;
   transition: filter 0.15s ease;
@@ -433,7 +433,7 @@ export const CHART_CSS = /* css */ `
   cursor: pointer;
   transition: filter 0.15s ease;
   animation: chartts-cell-in 0.3s ease forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 8ms);
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
 }
 .chartts-calendar-cell:hover {
   filter: brightness(1.2);
@@ -485,7 +485,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-sunburst-in 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 30ms);
+  animation-delay: calc(var(--chartts-i, 0) * 10ms);
   opacity: 0;
   transition: filter 0.15s ease, fill-opacity 0.15s ease;
   cursor: pointer;
@@ -508,7 +508,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-tree-node-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 50ms);
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
   opacity: 0;
   transition: filter 0.15s ease, r 0.15s ease;
   cursor: pointer;
@@ -534,7 +534,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-graph-node-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 40ms);
+  animation-delay: calc(var(--chartts-i, 0) * 12ms);
   opacity: 0;
   transition: filter 0.15s ease, r 0.15s ease;
   cursor: pointer;
@@ -580,7 +580,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-stream-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 80ms);
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
   opacity: 0;
   transition: fill-opacity 0.15s ease;
   cursor: pointer;
@@ -602,7 +602,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-pictorial-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 20ms);
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -623,7 +623,7 @@ export const CHART_CSS = /* css */ `
   transform-origin: center;
   transform-box: fill-box;
   animation: chartts-chord-arc-in 0.5s ease forwards;
-  animation-delay: calc(var(--chartts-i, 0) * 60ms);
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -659,7 +659,7 @@ export const CHART_CSS = /* css */ `
 }
 .chartts-skeleton-bar {
   animation: chartts-shimmer 1.5s ease-in-out infinite;
-  animation-delay: calc(var(--chartts-i, 0) * 150ms);
+  animation-delay: calc(var(--chartts-i, 0) * 40ms);
 }
 
 /* ---- Grid ---- */
@@ -673,18 +673,31 @@ export const CHART_CSS = /* css */ `
   to { opacity: 1; }
 }
 .chartts-geo-region {
-  animation: chartts-geo-in 0.4s ease calc(var(--chartts-i, 0) * 30ms) forwards;
+  animation: chartts-geo-in 0.4s ease calc(var(--chartts-i, 0) * 3ms) forwards;
   opacity: 0;
-  transition: fill-opacity 0.2s ease, filter 0.15s ease;
+  transition: fill-opacity 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease, stroke 0.15s ease;
   cursor: pointer;
 }
 .chartts-geo-region:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.15) drop-shadow(0 0 2px rgba(0,0,0,0.3));
   fill-opacity: 0.95 !important;
+  stroke: #fff !important;
+  stroke-width: 1.5px !important;
+}
+.chartts-geo-label {
+  pointer-events: none;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.3);
 }
 .chartts-geo-scatter {
-  transition: r 0.15s ease;
+  transition: r 0.15s ease, opacity 0.15s ease;
   cursor: pointer;
+}
+.chartts-geo-scatter:hover {
+  opacity: 0.9;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+.chartts-geo-legend text {
+  user-select: none;
 }
 
 /* ---- Lines (flow) ---- */
@@ -694,7 +707,7 @@ export const CHART_CSS = /* css */ `
 }
 .chartts-lines-flow {
   stroke-dasharray: 300;
-  animation: chartts-lines-flow-in 0.8s ease calc(var(--chartts-i, 0) * 80ms) forwards;
+  animation: chartts-lines-flow-in 0.8s ease calc(var(--chartts-i, 0) * 8ms) forwards;
   opacity: 0;
   transition: stroke-width 0.2s ease, stroke-opacity 0.2s ease;
   cursor: pointer;
@@ -714,7 +727,7 @@ export const CHART_CSS = /* css */ `
   to { opacity: 1; transform: scale(1); }
 }
 .chartts-matrix-cell {
-  animation: chartts-matrix-in 0.3s ease calc(var(--chartts-i, 0) * 15ms) forwards;
+  animation: chartts-matrix-in 0.3s ease calc(var(--chartts-i, 0) * 5ms) forwards;
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -729,7 +742,7 @@ export const CHART_CSS = /* css */ `
   to { opacity: 1; transform: scaleY(1); }
 }
 .chartts-ohlc-stem, .chartts-ohlc-tick {
-  animation: chartts-ohlc-in 0.3s ease calc(var(--chartts-i, 0) * 20ms) forwards;
+  animation: chartts-ohlc-in 0.3s ease calc(var(--chartts-i, 0) * 8ms) forwards;
   opacity: 0;
   transition: stroke-width 0.15s ease;
 }
@@ -743,7 +756,7 @@ export const CHART_CSS = /* css */ `
   to { opacity: 1; transform: scaleY(1); }
 }
 .chartts-volume-bar {
-  animation: chartts-volume-in 0.3s ease calc(var(--chartts-i, 0) * 20ms) forwards;
+  animation: chartts-volume-in 0.3s ease calc(var(--chartts-i, 0) * 8ms) forwards;
   opacity: 0;
   transition: filter 0.15s ease, fill-opacity 0.15s ease;
   cursor: pointer;
@@ -796,7 +809,7 @@ export const CHART_CSS = /* css */ `
 }
 .chartts-kagi-line {
   stroke-dasharray: 200;
-  animation: chartts-kagi-in 0.6s ease calc(var(--chartts-i, 0) * 40ms) forwards;
+  animation: chartts-kagi-in 0.6s ease calc(var(--chartts-i, 0) * 12ms) forwards;
   opacity: 0;
   transition: stroke-width 0.15s ease;
 }
@@ -807,7 +820,7 @@ export const CHART_CSS = /* css */ `
   to { opacity: 1; transform: scale(1); }
 }
 .chartts-renko-brick {
-  animation: chartts-renko-in 0.3s ease calc(var(--chartts-i, 0) * 25ms) forwards;
+  animation: chartts-renko-in 0.3s ease calc(var(--chartts-i, 0) * 8ms) forwards;
   opacity: 0;
   transition: filter 0.15s ease;
   cursor: pointer;
@@ -845,6 +858,38 @@ export const CHART_CSS = /* css */ `
   opacity: 0.7;
 }
 
+/* ---- Skip animations on data update ---- */
+.chartts-skip-anim .chartts-line, .chartts-skip-anim .chartts-area, .chartts-skip-anim .chartts-point,
+.chartts-skip-anim .chartts-bar, .chartts-skip-anim .chartts-slice, .chartts-skip-anim .chartts-bubble,
+.chartts-skip-anim .chartts-funnel-step, .chartts-skip-anim .chartts-waterfall-bar,
+.chartts-skip-anim .chartts-sparkline-line, .chartts-skip-anim .chartts-gauge-fill,
+.chartts-skip-anim .chartts-gauge-needle, .chartts-skip-anim .chartts-gauge-needle-cap,
+.chartts-skip-anim .chartts-radar-area, .chartts-skip-anim .chartts-radar-point,
+.chartts-skip-anim .chartts-treemap-cell, .chartts-skip-anim .chartts-polar-wedge,
+.chartts-skip-anim .chartts-lollipop-stem, .chartts-skip-anim .chartts-bullet-bar,
+.chartts-skip-anim .chartts-dumbbell-dot, .chartts-skip-anim .chartts-boxplot-box,
+.chartts-skip-anim .chartts-radialbar-arc, .chartts-skip-anim .chartts-sankey-link,
+.chartts-skip-anim .chartts-calendar-cell,
+.chartts-skip-anim .chartts-sunburst-sector, .chartts-skip-anim .chartts-tree-node,
+.chartts-skip-anim .chartts-graph-node, .chartts-skip-anim .chartts-graph-edge,
+.chartts-skip-anim .chartts-themeriver-stream, .chartts-skip-anim .chartts-pictorialbar-symbol,
+.chartts-skip-anim .chartts-chord-arc, .chartts-skip-anim .chartts-chord-ribbon,
+.chartts-skip-anim .chartts-geo-region, .chartts-skip-anim .chartts-lines-flow,
+.chartts-skip-anim .chartts-lines-node, .chartts-skip-anim .chartts-matrix-cell,
+.chartts-skip-anim .chartts-ohlc-stem, .chartts-skip-anim .chartts-ohlc-tick,
+.chartts-skip-anim .chartts-volume-bar, .chartts-skip-anim .chartts-range-band,
+.chartts-skip-anim .chartts-baseline-pos, .chartts-skip-anim .chartts-baseline-neg,
+.chartts-skip-anim .chartts-baseline-line, .chartts-skip-anim .chartts-kagi-line,
+.chartts-skip-anim .chartts-renko-brick {
+  animation: none !important;
+  opacity: 1 !important;
+}
+.chartts-skip-anim .chartts-line,
+.chartts-skip-anim .chartts-sparkline-line,
+.chartts-skip-anim .chartts-gauge-fill {
+  stroke-dashoffset: 0 !important;
+}
+
 /* ---- Reduced motion ---- */
 @media (prefers-reduced-motion: reduce) {
   .chartts-line, .chartts-area, .chartts-point,
@@ -871,8 +916,9 @@ export const CHART_CSS = /* css */ `
   .chartts-renko-brick {
     animation: none !important;
     opacity: 1 !important;
-    transform: none !important;
   }
+  .chartts-line,
+  .chartts-sparkline-line,
   .chartts-gauge-fill {
     stroke-dashoffset: 0 !important;
   }

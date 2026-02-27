@@ -5,12 +5,14 @@ import type {
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
+import { roundedSlicePath } from '../../utils/slice-path'
 
 /**
  * Polar / Radial bar chart (Nightingale rose diagram).
  *
  * Each category is a wedge whose radius is proportional to its value.
  * Uses the first series' values as wedge sizes.
+ * Wedges have uniform pixel gaps, rounded corners, and a small inner radius.
  */
 export const polarChartType: ChartTypePlugin = {
   type: 'polar',
@@ -40,16 +42,18 @@ export const polarChartType: ChartTypePlugin = {
 
     const cx = area.x + area.width / 2
     const cy = area.y + area.height / 2
-    const outerR = Math.min(area.width, area.height) / 2 - 16
+    const maxOuterR = Math.min(area.width, area.height) / 2 - 16
+    const innerR = maxOuterR * 0.08
     const angleStep = (Math.PI * 2) / count
-    const padAngle = 0.02 // radians gap between wedges
+    const gapPx = 4
+    const halfGap = gapPx / 2
+    const cornerRadius = 5
 
     // Draw concentric grid rings
     const ringCount = 3
     for (let r = 1; r <= ringCount; r++) {
-      const ringR = (outerR * r) / ringCount
+      const ringR = (maxOuterR * r) / ringCount
       const pb = new PathBuilder()
-      // Full circle as a path
       pb.moveTo(cx + ringR, cy)
       pb.arc(ringR, ringR, 0, false, true, cx - ringR, cy)
       pb.arc(ringR, ringR, 0, false, true, cx + ringR, cy)
@@ -66,34 +70,34 @@ export const polarChartType: ChartTypePlugin = {
     // Draw wedges
     for (let i = 0; i < count; i++) {
       const value = Math.abs(values[i]!)
-      const wedgeR = (value / maxVal) * outerR
-      const startAngle = -Math.PI / 2 + i * angleStep + padAngle / 2
-      const endAngle = -Math.PI / 2 + (i + 1) * angleStep - padAngle / 2
+      const wedgeR = (value / maxVal) * maxOuterR
+      const startAngle = -Math.PI / 2 + i * angleStep
+      const endAngle = -Math.PI / 2 + (i + 1) * angleStep
+      const sliceAngle = endAngle - startAngle
 
-      if (endAngle <= startAngle || wedgeR < 1) continue
+      if (wedgeR < innerR + 2) continue
+
+      // Uniform pixel gap: different angular offsets at different radii
+      const outerPadAngle = halfGap / wedgeR
+      const innerPadAngle = innerR > 0 ? halfGap / innerR : 0
+
+      if (sliceAngle < outerPadAngle * 2 + 0.01) continue
 
       const colorIndex = i % options.colors.length
       const color = options.colors[colorIndex]!
 
-      const pb = new PathBuilder()
-      const x1 = cx + wedgeR * Math.cos(startAngle)
-      const y1 = cy + wedgeR * Math.sin(startAngle)
-      const x2 = cx + wedgeR * Math.cos(endAngle)
-      const y2 = cy + wedgeR * Math.sin(endAngle)
-      const largeArc = angleStep - padAngle > Math.PI
-
-      pb.moveTo(cx, cy)
-      pb.lineTo(x1, y1)
-      pb.arc(wedgeR, wedgeR, 0, largeArc, true, x2, y2)
-      pb.close()
+      const d = roundedSlicePath(
+        cx, cy, wedgeR, innerR,
+        startAngle + outerPadAngle, endAngle - outerPadAngle,
+        startAngle + innerPadAngle, endAngle - innerPadAngle,
+        cornerRadius,
+      )
 
       const wedgeNodes: RenderNode[] = [
-        path(pb.build(), {
+        path(d, {
           class: 'chartts-polar-wedge',
           fill: color,
           fillOpacity: 0.75,
-          stroke: color,
-          strokeWidth: 1,
           'data-series': 0,
           'data-index': i,
           tabindex: 0,
@@ -104,7 +108,7 @@ export const polarChartType: ChartTypePlugin = {
 
       // Label at the outer edge
       const midAngle = (startAngle + endAngle) / 2
-      const labelR = outerR + 10
+      const labelR = maxOuterR + 10
       const lx = cx + labelR * Math.cos(midAngle)
       const ly = cy + labelR * Math.sin(midAngle)
       const anchor = Math.abs(Math.cos(midAngle)) < 0.01 ? 'middle' as const
@@ -143,16 +147,16 @@ export const polarChartType: ChartTypePlugin = {
 
     const cx = area.x + area.width / 2
     const cy = area.y + area.height / 2
-    const outerR = Math.min(area.width, area.height) / 2 - 16
+    const maxOuterR = Math.min(area.width, area.height) / 2 - 16
+    const innerR = maxOuterR * 0.08
     const angleStep = (Math.PI * 2) / count
 
     const dx = mx - cx
     const dy = my - cy
     const dist = Math.sqrt(dx * dx + dy * dy)
-    if (dist > outerR) return null
+    if (dist > maxOuterR || dist < innerR) return null
 
     let angle = Math.atan2(dy, dx)
-    // Normalize to start from -PI/2
     if (angle < -Math.PI / 2) angle += Math.PI * 2
 
     const offset = angle + Math.PI / 2
@@ -160,9 +164,11 @@ export const polarChartType: ChartTypePlugin = {
     const idx = Math.floor(normalizedAngle / angleStep)
 
     if (idx >= 0 && idx < count) {
-      const wedgeR = (Math.abs(values[idx]!) / maxVal) * outerR
-      if (dist <= wedgeR) {
-        return { seriesIndex: 0, pointIndex: idx, distance: dist }
+      const wedgeR = (Math.abs(values[idx]!) / maxVal) * maxOuterR
+      if (dist <= wedgeR && dist >= innerR) {
+        const midAngle = -Math.PI / 2 + (idx + 0.5) * angleStep
+        const midR = (innerR + wedgeR) / 2
+        return { seriesIndex: 0, pointIndex: idx, distance: dist, x: cx + midR * Math.cos(midAngle), y: cy + midR * Math.sin(midAngle) }
       }
     }
 

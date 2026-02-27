@@ -69,7 +69,7 @@ export const scatterChartType: ChartTypePlugin = {
         const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
         if (dist < bestDist && dist < hitRadius) {
           bestDist = dist
-          best = { seriesIndex: series.index, pointIndex: i, distance: dist }
+          best = { seriesIndex: series.index, pointIndex: i, distance: dist, x, y }
         }
       }
     }

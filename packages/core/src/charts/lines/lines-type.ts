@@ -238,7 +238,7 @@ export const linesChartType: ChartTypePlugin = {
       const dy = my - pos.y
       const dist = Math.sqrt(dx * dx + dy * dy)
       if (dist < 12) {
-        return { seriesIndex: idx, pointIndex: 0, distance: dist }
+        return { seriesIndex: idx, pointIndex: 0, distance: dist, x: pos.x, y: pos.y }
       }
       idx++
     }

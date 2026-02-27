@@ -4,16 +4,22 @@ import type {
 } from '../../types'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
-import { PathBuilder } from '../../render/tree'
+import { roundedSlicePath } from '../../utils/slice-path'
 
 export interface PieOptions {
-  /** Inner radius ratio (0 = pie, 0.5+ = donut). Default 0. */
+  /** Inner radius ratio (0 = pie, 0.5+ = donut). Default 0.08 (small center gap). */
   innerRadius?: number
-  /** Padding angle in degrees between slices. Default 1. */
-  padAngle?: number
+  /** Uniform pixel gap between slices. Default 4. */
+  gap?: number
+  /** Corner radius in px for rounded slice edges. Default 6. */
+  cornerRadius?: number
   /** Show value labels on slices. Default true. */
   showLabels?: boolean
 }
+
+// ---------------------------------------------------------------------------
+// Pie chart type
+// ---------------------------------------------------------------------------
 
 export const pieChartType: ChartTypePlugin = {
   type: 'pie',
@@ -30,7 +36,6 @@ export const pieChartType: ChartTypePlugin = {
     const { data, area, theme } = ctx
     const nodes: RenderNode[] = []
 
-    // Pie uses the first series' values as slice sizes
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
@@ -41,11 +46,22 @@ export const pieChartType: ChartTypePlugin = {
     const cx = area.x + area.width / 2
     const cy = area.y + area.height / 2
     const outerR = Math.min(area.width, area.height) / 2 - 2
-    const innerRatio = (ctx.options as unknown as PieOptions).innerRadius ?? 0
+    const opts = ctx.options as unknown as PieOptions
+    const innerRatio = opts.innerRadius ?? 0.08
     const innerR = outerR * Math.max(0, Math.min(0.9, innerRatio))
-    const padAngleDeg = (ctx.options as unknown as PieOptions).padAngle ?? 1
-    const padAngle = (padAngleDeg * Math.PI) / 180
-    const showLabels = (ctx.options as unknown as PieOptions).showLabels ?? true
+    const gapPx = opts.gap ?? 4
+    const halfGap = gapPx / 2
+    const cornerRadius = opts.cornerRadius ?? 6
+    const showLabels = opts.showLabels ?? true
+
+    // Angular gap offsets per radius.
+    // At the outer edge, uniform pixel gap is straightforward.
+    // At the inner edge, clamp the pad angle so it never eats more than 15%
+    // of the smallest slice — otherwise the inner path self-intersects.
+    // When innerR is tiny, use the same angle as outer (gap tapers to center).
+    const outerPadAngle = halfGap / outerR
+    const rawInnerPad = innerR > 0 ? halfGap / innerR : 0
+    const innerPadAngle = Math.min(rawInnerPad, outerPadAngle * 3)
 
     let startAngle = -Math.PI / 2
 
@@ -54,54 +70,27 @@ export const pieChartType: ChartTypePlugin = {
       const sliceAngle = (value / total) * Math.PI * 2
       const endAngle = startAngle + sliceAngle
 
-      // Apply pad angle
-      const actualStart = startAngle + padAngle / 2
-      const actualEnd = endAngle - padAngle / 2
-
-      if (actualEnd <= actualStart) {
+      // Check if slice is too small to render with gap
+      if (sliceAngle < outerPadAngle * 2 + 0.01) {
         startAngle = endAngle
         continue
       }
 
-      const color = data.series.length > 1
-        ? data.series[i % data.series.length]!.color
-        : ctx.options.colors[i % ctx.options.colors.length]!
+      // Per-slice clamp: inner pad must not exceed 15% of the slice angle
+      const sliceInnerPad = Math.min(innerPadAngle, sliceAngle * 0.15)
 
-      // Build slice path
-      const pb = new PathBuilder()
-      const x1o = cx + outerR * Math.cos(actualStart)
-      const y1o = cy + outerR * Math.sin(actualStart)
-      const x2o = cx + outerR * Math.cos(actualEnd)
-      const y2o = cy + outerR * Math.sin(actualEnd)
-      const largeArc = sliceAngle > Math.PI
-
-      if (innerR > 0) {
-        // Donut
-        const x1i = cx + innerR * Math.cos(actualEnd)
-        const y1i = cy + innerR * Math.sin(actualEnd)
-        const x2i = cx + innerR * Math.cos(actualStart)
-        const y2i = cy + innerR * Math.sin(actualStart)
-
-        pb.moveTo(x1o, y1o)
-        pb.arc(outerR, outerR, 0, largeArc, true, x2o, y2o)
-        pb.lineTo(x1i, y1i)
-        pb.arc(innerR, innerR, 0, largeArc, false, x2i, y2i)
-        pb.close()
-      } else {
-        // Pie
-        pb.moveTo(cx, cy)
-        pb.lineTo(x1o, y1o)
-        pb.arc(outerR, outerR, 0, largeArc, true, x2o, y2o)
-        pb.close()
-      }
+      const d = roundedSlicePath(
+        cx, cy, outerR, innerR,
+        startAngle + outerPadAngle, endAngle - outerPadAngle,
+        startAngle + sliceInnerPad, endAngle - sliceInnerPad,
+        cornerRadius,
+      )
 
       const colorIndex = i % ctx.options.colors.length
       const sliceNodes: RenderNode[] = [
-        path(pb.build(), {
+        path(d, {
           class: 'chartts-slice',
           fill: `url(#chartts-pie-${colorIndex})`,
-          stroke: color,
-          strokeWidth: 1,
           'data-series': 0,
           'data-index': i,
           tabindex: 0,
@@ -112,8 +101,8 @@ export const pieChartType: ChartTypePlugin = {
 
       // Label
       if (showLabels && sliceAngle > 0.3) {
-        const midAngle = (actualStart + actualEnd) / 2
-        const labelR = innerR > 0 ? (outerR + innerR) / 2 : outerR * 0.65
+        const midAngle = (startAngle + endAngle) / 2
+        const labelR = (outerR + innerR) / 2
         const lx = cx + labelR * Math.cos(midAngle)
         const ly = cy + labelR * Math.sin(midAngle)
         const pct = Math.round((value / total) * 100)
@@ -140,6 +129,45 @@ export const pieChartType: ChartTypePlugin = {
     return nodes
   },
 
+  getHighlightNodes(ctx: RenderContext, hit: HitResult): RenderNode[] {
+    const { data, area } = ctx
+    const series = data.series[0]
+    if (!series || series.values.length === 0) return []
+
+    const values = series.values
+    const total = values.reduce((sum, v) => sum + Math.abs(v), 0)
+    if (total === 0) return []
+
+    const cx = area.x + area.width / 2
+    const cy = area.y + area.height / 2
+    const outerR = Math.min(area.width, area.height) / 2 - 2
+    const opts = ctx.options as unknown as PieOptions
+    const innerRatio = opts.innerRadius ?? 0.08
+    const innerR = outerR * Math.max(0, Math.min(0.9, innerRatio))
+
+    // Find the hit slice angles
+    let startAngle = -Math.PI / 2
+    for (let i = 0; i < values.length; i++) {
+      const sliceAngle = (Math.abs(values[i]!) / total) * Math.PI * 2
+      const endAngle = startAngle + sliceAngle
+      if (i === hit.pointIndex) {
+        // Draw a bright outline around this slice
+        const d = roundedSlicePath(cx, cy, outerR + 3, innerR - 2, startAngle, endAngle, startAngle, endAngle, 0)
+        return [
+          path(d, {
+            class: 'chartts-highlight-slice',
+            fill: 'none',
+            stroke: series.color,
+            strokeWidth: 2,
+            strokeOpacity: 0.8,
+          }),
+        ]
+      }
+      startAngle = endAngle
+    }
+    return []
+  },
+
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     const { data, area } = ctx
     const series = data.series[0]
@@ -148,7 +176,7 @@ export const pieChartType: ChartTypePlugin = {
     const cx = area.x + area.width / 2
     const cy = area.y + area.height / 2
     const outerR = Math.min(area.width, area.height) / 2 - 2
-    const innerRatio = (ctx.options as unknown as PieOptions).innerRadius ?? 0
+    const innerRatio = (ctx.options as unknown as PieOptions).innerRadius ?? 0.08
     const innerR = outerR * Math.max(0, Math.min(0.9, innerRatio))
 
     const dx = mx - cx
@@ -158,7 +186,6 @@ export const pieChartType: ChartTypePlugin = {
     if (dist > outerR || dist < innerR) return null
 
     let angle = Math.atan2(dy, dx)
-    // Normalize to start from -PI/2
     if (angle < -Math.PI / 2) angle += Math.PI * 2
 
     const values = series.values
@@ -171,7 +198,9 @@ export const pieChartType: ChartTypePlugin = {
       const endAngle = startAngle + sliceAngle
 
       if (angle >= startAngle && angle < endAngle) {
-        return { seriesIndex: 0, pointIndex: i, distance: 0 }
+        const midAngle = (startAngle + endAngle) / 2
+        const midR = (innerR + outerR) / 2
+        return { seriesIndex: 0, pointIndex: i, distance: 0, x: cx + midR * Math.cos(midAngle), y: cy + midR * Math.sin(midAngle) }
       }
 
       startAngle = endAngle
@@ -186,9 +215,8 @@ export const donutChartType: ChartTypePlugin = {
   ...pieChartType,
   type: 'donut',
   render(ctx: RenderContext): RenderNode[] {
-    // Force innerRadius if not set
     const opts = ctx.options as unknown as PieOptions
-    if (!opts.innerRadius) {
+    if (!opts.innerRadius || opts.innerRadius < 0.3) {
       (opts as PieOptions).innerRadius = 0.55
     }
     return pieChartType.render(ctx)

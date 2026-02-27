@@ -338,6 +338,8 @@ export interface RenderContext {
   xScale: Scale
   yScale: Scale
   theme: ThemeConfig
+  /** Zoom/pan state if enabled. Charts can use this for custom positioning. */
+  zoomPan?: { zoomX: number; zoomY: number; panX: number; panY: number }
 }
 
 // ---------------------------------------------------------------------------
@@ -350,12 +352,18 @@ export interface ChartTypePlugin {
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData
   render(ctx: RenderContext): RenderNode[]
   hitTest(ctx: RenderContext, x: number, y: number): HitResult | null
+  /** Return RenderNodes for the hover highlight effect. Optional — default is glow ring + dot at hit.x/y. */
+  getHighlightNodes?(ctx: RenderContext, hit: HitResult): RenderNode[]
 }
 
 export interface HitResult {
   seriesIndex: number
   pointIndex: number
   distance: number
+  /** Pixel x in chart coordinate space */
+  x: number
+  /** Pixel y in chart coordinate space */
+  y: number
 }
 
 // ---------------------------------------------------------------------------
@@ -402,6 +410,7 @@ export interface ChartEvents {
   'zoom:reset': void
   'brush:end': { startIndex: number; endIndex: number; startLabel: string | number | Date; endLabel: string | number | Date }
   'destroy': void
+  'graph:drag': { nodeIndex: number; pin: { x: number; y: number } }
 }
 
 export type EventHandler<T> = (payload: T) => void

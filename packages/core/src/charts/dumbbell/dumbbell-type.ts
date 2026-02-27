@@ -136,7 +136,7 @@ export const dumbbellChartType: ChartTypePlugin = {
 
         if (dist < bestDist) {
           bestDist = dist
-          best = { seriesIndex: si, pointIndex: i, distance: dist }
+          best = { seriesIndex: si, pointIndex: i, distance: dist, x: vx, y: cy }
         }
       }
     }

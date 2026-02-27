@@ -46,7 +46,7 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
 
       const globeRadius = 3
       const segments = 64, rings = 32
-      const sphereColor: [number, number, number] = [0.15, 0.25, 0.45]
+      const sphereColor: [number, number, number] = [0.12, 0.22, 0.48]
 
       // Build UV sphere
       const sv: number[] = [], si: number[] = []

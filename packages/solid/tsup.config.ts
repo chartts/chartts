@@ -9,6 +9,7 @@ export default defineConfig({
   treeshake: true,
   external: ['solid-js', '@chartts/core'],
   esbuildOptions(options) {
-    options.jsx = 'preserve'
+    options.jsx = 'automatic'
+    options.jsxImportSource = 'solid-js'
   },
 })

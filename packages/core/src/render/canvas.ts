@@ -15,14 +15,51 @@ import type { Renderer, RenderNode, RenderAttrs, ThemeConfig } from '../types'
 // Color utilities
 // ---------------------------------------------------------------------------
 
-/** Extract hex fallback from 'var(--token, #hex)' or return as-is */
+/**
+ * Resolve a color value for Canvas 2D.
+ * Handles: hex, rgb(), var(--token, #fallback), var(--chartts-*) via theme lookup.
+ * Canvas can't interpret CSS variables, so we extract hex fallbacks or look up
+ * the --chartts-* token from the current theme's CSS variable map.
+ */
+let cssVarMap: Record<string, string> = {}
+
+function buildCssVarMap(theme: import('../types').ThemeConfig): void {
+  const p = '--chartts'
+  cssVarMap = {
+    [`${p}-bg`]: theme.background,
+    [`${p}-text`]: theme.textColor,
+    [`${p}-text-muted`]: theme.textMuted,
+    [`${p}-axis`]: theme.axisColor,
+    [`${p}-grid`]: theme.gridColor,
+    [`${p}-tooltip-bg`]: theme.tooltipBackground,
+    [`${p}-tooltip-text`]: theme.tooltipText,
+    [`${p}-tooltip-border`]: theme.tooltipBorder,
+  }
+  theme.colors.forEach((c, i) => {
+    cssVarMap[`${p}-color-${i + 1}`] = typeof c === 'string' ? c : String(c)
+  })
+}
+
 function resolveColor(value: string | undefined, fallback: string = '#000'): string {
   if (!value) return fallback
   if (value === 'none' || value === 'transparent') return 'transparent'
-  // url(#gradient-id) — handled separately
   if (value.startsWith('url(')) return value
-  const match = value.match(/var\([^,]+,\s*([^)]+)\)/)
-  return match ? match[1]!.trim() : value
+
+  // var(--token, #fallback) — try theme lookup first, then extract fallback
+  const varMatch = value.match(/var\(\s*([^,)]+)(?:,\s*([^)]+))?\)/)
+  if (varMatch) {
+    const token = varMatch[1]!.trim()
+    // Look up --chartts-* in our theme map
+    const mapped = cssVarMap[token]
+    if (mapped) {
+      // The mapped value might itself be var(--color-gray-800, #hex) — recurse once
+      return resolveColor(mapped, varMatch[2]?.trim() ?? fallback)
+    }
+    // No theme mapping — use the inline fallback if present
+    return varMatch[2]?.trim() ?? fallback
+  }
+
+  return value
 }
 
 /** Parse hex to rgba string */
@@ -124,11 +161,14 @@ export interface CanvasRendererRoot {
   dpr: number
 }
 
-export function createCanvasRenderer(theme: ThemeConfig): Renderer {
-  const colors = theme.colors
+export function createCanvasRenderer(getTheme: ThemeConfig | (() => ThemeConfig)): Renderer {
+  // Support both a static theme or a getter function for live theme switching
+  const resolveTheme = typeof getTheme === 'function' ? getTheme : () => getTheme
 
   // Clip path registry (id → Path2D)
   let clipPaths: Map<string, Path2D> = new Map()
+  // Current colors — refreshed each render from theme
+  let currentColors: string[] = []
 
   return {
     createRoot(target, width, height, attrs) {
@@ -144,7 +184,7 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
       if (attrs?.role) canvas.setAttribute('role', attrs.role)
       if (attrs?.ariaLabel) canvas.setAttribute('aria-label', attrs.ariaLabel)
 
-      const ctx2d = canvas.getContext('2d', { alpha: false })!
+      const ctx2d = canvas.getContext('2d')!
       ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0)
 
       target.appendChild(canvas)
@@ -162,6 +202,11 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
       const cr = root as unknown as CanvasRendererRoot
       const canvas = cr.element
       const dpr = window.devicePixelRatio || 1
+      const theme = resolveTheme()
+      const colors = theme.colors as unknown as string[]
+
+      // Rebuild CSS variable lookup so resolveColor can resolve var(--chartts-*) tokens
+      buildCssVarMap(theme)
 
       // Sync dimensions from actual canvas state
       cr.width = canvas.width / dpr
@@ -169,6 +214,7 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
       cr.dpr = dpr
 
       clipPaths = new Map()
+      currentColors = colors
 
       const ctx = cr.ctx
 
@@ -176,10 +222,15 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
       ctx.imageSmoothingEnabled = true
       ctx.imageSmoothingQuality = 'high'
 
-      // Paint background
+      // Paint background — 'transparent' means clear the canvas (let container bg show)
       ctx.save()
-      ctx.fillStyle = resolveColor(theme.background, '#ffffff')
-      ctx.fillRect(0, 0, cr.width, cr.height)
+      const bg = resolveColor(theme.background, '#ffffff')
+      if (bg === 'transparent') {
+        ctx.clearRect(0, 0, cr.width, cr.height)
+      } else {
+        ctx.fillStyle = bg
+        ctx.fillRect(0, 0, cr.width, cr.height)
+      }
       ctx.restore()
 
       // First pass: collect clip path defs
@@ -393,12 +444,13 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
       }
 
       case 'text': {
-        const fill = resolveColor(node.attrs?.fill, theme.textColor)
+        const t = resolveTheme()
+        const fill = resolveColor(node.attrs?.fill, t.textColor)
         const resolvedFill = resolveColor(fill)
         const opacity = node.attrs?.opacity ?? 1
         const extra = node.attrs as Record<string, unknown> | undefined
-        const fontSize = (extra?.fontSize as number) ?? theme.fontSize
-        const fontFamily = (extra?.fontFamily as string) ?? theme.fontFamily
+        const fontSize = (extra?.fontSize as number) ?? t.fontSize
+        const fontFamily = (extra?.fontFamily as string) ?? t.fontFamily
         const fontWeight = (extra?.fontWeight as string) ?? 'normal'
         const textAnchor = extra?.textAnchor as string | undefined
         const baseline = extra?.dominantBaseline as string | undefined
@@ -437,7 +489,7 @@ export function createCanvasRenderer(theme: ThemeConfig): Renderer {
     if (!fill) return 'transparent'
     const urlId = parseUrlRef(fill)
     if (urlId) {
-      const grad = resolveGradientRef(urlId, colors as unknown as string[], ctx, x, y, w, h)
+      const grad = resolveGradientRef(urlId, currentColors, ctx, x, y, w, h)
       return grad ?? resolveColor(fill)
     }
     return resolveColor(fill)

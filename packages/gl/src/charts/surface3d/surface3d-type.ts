@@ -12,10 +12,12 @@ import { projectToScreen } from '../../engine/camera'
 
 function heightToColor(v: number, min: number, range: number): [number, number, number] {
   const t = range > 0 ? (v - min) / range : 0.5
-  if (t < 0.25) return [0, t / 0.25, 1 - t / 0.25 * 0.5]
-  if (t < 0.5) { const s = (t - 0.25) / 0.25; return [s, 1, 0.5 - s * 0.5] }
-  if (t < 0.75) { const s = (t - 0.5) / 0.25; return [1, 1 - s * 0.5, 0] }
-  const s = (t - 0.75) / 0.25; return [1, 0.5 - s * 0.3, 0]
+  // Deep blue -> teal -> emerald -> gold -> coral
+  if (t < 0.2) { const s = t / 0.2; return [0.1 + s * 0.05, 0.15 + s * 0.35, 0.6 + s * 0.2] }
+  if (t < 0.4) { const s = (t - 0.2) / 0.2; return [0.15 - s * 0.05, 0.5 + s * 0.3, 0.8 - s * 0.25] }
+  if (t < 0.6) { const s = (t - 0.4) / 0.2; return [0.1 + s * 0.6, 0.8 - s * 0.1, 0.55 - s * 0.35] }
+  if (t < 0.8) { const s = (t - 0.6) / 0.2; return [0.7 + s * 0.28, 0.7 - s * 0.2, 0.2 - s * 0.05] }
+  const s = (t - 0.8) / 0.2; return [0.98, 0.5 - s * 0.15, 0.15 + s * 0.2]
 }
 
 export function createSurface3DPlugin(): GLChartTypePlugin {

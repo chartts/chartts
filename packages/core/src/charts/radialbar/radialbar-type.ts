@@ -59,7 +59,7 @@ export const radialBarChartType: ChartTypePlugin = {
       const color = options.colors[colorIndex]!
       const label = String(data.labels[i] ?? `Item ${i + 1}`)
 
-      // Track arc (full background ring)
+      // Track arc (full background ring) — rounded caps
       const trackPb = new PathBuilder()
       const trackEnd = startAngle + Math.PI * 2 * 0.95
       strokeArc(trackPb, cx, cy, (rOuter + rInner) / 2, startAngle, trackEnd)
@@ -67,11 +67,12 @@ export const radialBarChartType: ChartTypePlugin = {
         class: 'chartts-radialbar-track',
         stroke: theme.gridColor,
         strokeWidth: ringWidth,
+        strokeLinecap: 'round',
         fill: 'none',
         opacity: 0.15,
       }))
 
-      // Value arc
+      // Value arc — rounded caps for polished look
       if (sweepAngle > 0.01) {
         const arcPb = new PathBuilder()
         strokeArc(arcPb, cx, cy, (rOuter + rInner) / 2, startAngle, endAngle)
@@ -81,6 +82,7 @@ export const radialBarChartType: ChartTypePlugin = {
             class: 'chartts-radialbar-arc',
             stroke: color,
             strokeWidth: ringWidth,
+            strokeLinecap: 'round',
             fill: 'none',
             opacity: 0.85,
             'data-series': 0,
@@ -134,7 +136,9 @@ export const radialBarChartType: ChartTypePlugin = {
       const rInner = rOuter - ringWidth
 
       if (dist >= rInner && dist <= rOuter) {
-        return { seriesIndex: 0, pointIndex: i, distance: 0 }
+        const midR = (rInner + rOuter) / 2
+        const hitAngle = Math.atan2(dy, dx)
+        return { seriesIndex: 0, pointIndex: i, distance: 0, x: cx + midR * Math.cos(hitAngle), y: cy + midR * Math.sin(hitAngle) }
       }
     }
 

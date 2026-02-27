@@ -148,7 +148,7 @@ export const candlestickChartType: ChartTypePlugin = {
   },
 
   hitTest(ctx: RenderContext, mx: number, _my: number): HitResult | null {
-    const { xScale, options } = ctx
+    const { xScale, yScale, options } = ctx
     const cOpts = options as unknown as CandlestickOptions
     const ohlc = cOpts.ohlc
     if (!ohlc) return null
@@ -159,7 +159,7 @@ export const candlestickChartType: ChartTypePlugin = {
     for (let i = 0; i < ohlc.open.length; i++) {
       const cx = xScale.map(i)
       if (mx >= cx - candleWidth / 2 - 4 && mx <= cx + candleWidth / 2 + 4) {
-        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx) }
+        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx), x: cx, y: yScale.map(ohlc.close[i]!) }
       }
     }
 

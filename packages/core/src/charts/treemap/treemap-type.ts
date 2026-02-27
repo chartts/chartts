@@ -117,7 +117,7 @@ export const treemapChartType: ChartTypePlugin = {
     for (let k = 0; k < items.length; k++) {
       const r = rects[k]!
       if (mx >= r.x && mx <= r.x + r.w && my >= r.y && my <= r.y + r.h) {
-        return { seriesIndex: 0, pointIndex: items[k]!.index, distance: 0 }
+        return { seriesIndex: 0, pointIndex: items[k]!.index, distance: 0, x: r.x + r.w / 2, y: r.y + r.h / 2 }
       }
     }
 

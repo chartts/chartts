@@ -1,26 +1,76 @@
 {
   "name": "@chartts/gl",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "WebGL 3D and GPU-accelerated chart types for chartts",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js", "require": "./dist/index.cjs" },
-    "./bar3d": { "types": "./dist/bar3d.d.ts", "import": "./dist/bar3d.js", "require": "./dist/bar3d.cjs" },
-    "./scatter3d": { "types": "./dist/scatter3d.d.ts", "import": "./dist/scatter3d.js", "require": "./dist/scatter3d.cjs" },
-    "./surface3d": { "types": "./dist/surface3d.d.ts", "import": "./dist/surface3d.js", "require": "./dist/surface3d.cjs" },
-    "./globe3d": { "types": "./dist/globe3d.d.ts", "import": "./dist/globe3d.js", "require": "./dist/globe3d.cjs" },
-    "./map3d": { "types": "./dist/map3d.d.ts", "import": "./dist/map3d.js", "require": "./dist/map3d.cjs" },
-    "./lines3d": { "types": "./dist/lines3d.d.ts", "import": "./dist/lines3d.js", "require": "./dist/lines3d.cjs" },
-    "./line3d": { "types": "./dist/line3d.d.ts", "import": "./dist/line3d.js", "require": "./dist/line3d.cjs" },
-    "./scatter-gl": { "types": "./dist/scatter-gl.d.ts", "import": "./dist/scatter-gl.js", "require": "./dist/scatter-gl.cjs" },
-    "./lines-gl": { "types": "./dist/lines-gl.d.ts", "import": "./dist/lines-gl.js", "require": "./dist/lines-gl.cjs" },
-    "./flow-gl": { "types": "./dist/flow-gl.d.ts", "import": "./dist/flow-gl.js", "require": "./dist/flow-gl.cjs" },
-    "./graph-gl": { "types": "./dist/graph-gl.d.ts", "import": "./dist/graph-gl.js", "require": "./dist/graph-gl.cjs" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./bar3d": {
+      "types": "./dist/bar3d.d.ts",
+      "import": "./dist/bar3d.js",
+      "require": "./dist/bar3d.cjs"
+    },
+    "./scatter3d": {
+      "types": "./dist/scatter3d.d.ts",
+      "import": "./dist/scatter3d.js",
+      "require": "./dist/scatter3d.cjs"
+    },
+    "./surface3d": {
+      "types": "./dist/surface3d.d.ts",
+      "import": "./dist/surface3d.js",
+      "require": "./dist/surface3d.cjs"
+    },
+    "./globe3d": {
+      "types": "./dist/globe3d.d.ts",
+      "import": "./dist/globe3d.js",
+      "require": "./dist/globe3d.cjs"
+    },
+    "./map3d": {
+      "types": "./dist/map3d.d.ts",
+      "import": "./dist/map3d.js",
+      "require": "./dist/map3d.cjs"
+    },
+    "./lines3d": {
+      "types": "./dist/lines3d.d.ts",
+      "import": "./dist/lines3d.js",
+      "require": "./dist/lines3d.cjs"
+    },
+    "./line3d": {
+      "types": "./dist/line3d.d.ts",
+      "import": "./dist/line3d.js",
+      "require": "./dist/line3d.cjs"
+    },
+    "./scatter-gl": {
+      "types": "./dist/scatter-gl.d.ts",
+      "import": "./dist/scatter-gl.js",
+      "require": "./dist/scatter-gl.cjs"
+    },
+    "./lines-gl": {
+      "types": "./dist/lines-gl.d.ts",
+      "import": "./dist/lines-gl.js",
+      "require": "./dist/lines-gl.cjs"
+    },
+    "./flow-gl": {
+      "types": "./dist/flow-gl.d.ts",
+      "import": "./dist/flow-gl.js",
+      "require": "./dist/flow-gl.cjs"
+    },
+    "./graph-gl": {
+      "types": "./dist/graph-gl.d.ts",
+      "import": "./dist/graph-gl.js",
+      "require": "./dist/graph-gl.cjs"
+    }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
@@ -33,5 +83,10 @@
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chartts/chartts"
+  },
+  "homepage": "https://chartts.com"
 }

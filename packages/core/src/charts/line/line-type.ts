@@ -41,20 +41,8 @@ export const lineChartType: ChartTypePlugin = {
         }))
       }
 
-      // Line glow (soft blur behind the main line)
       const dash = series.style === 'dashed' ? '6,4'
         : series.style === 'dotted' ? '2,3' : undefined
-
-      if (!dash) {
-        seriesNodes.push(path(linePath, {
-          class: 'chartts-line-glow',
-          stroke: series.color,
-          strokeWidth: theme.lineWidth + 4,
-          opacity: 0.2,
-          'data-series': series.index,
-          style: 'filter:blur(4px)',
-        }))
-      }
 
       // Main line
       seriesNodes.push(path(linePath, {
@@ -114,7 +102,7 @@ export const lineChartType: ChartTypePlugin = {
         const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
         if (dist < bestDist) {
           bestDist = dist
-          best = { seriesIndex: series.index, pointIndex: i, distance: dist }
+          best = { seriesIndex: series.index, pointIndex: i, distance: dist, x, y }
         }
       }
     }

@@ -153,17 +153,28 @@ export const waterfallChartType: ChartTypePlugin = {
   },
 
   hitTest(ctx: RenderContext, mx: number, _my: number): HitResult | null {
-    const { data, xScale } = ctx
+    const { data, xScale, yScale, options } = ctx
     const series = data.series[0]
     if (!series) return null
 
+    const wOpts = options as unknown as WaterfallOptions
+    const totals = new Set(wOpts.totals ?? [series.values.length - 1])
     const bw = getBandwidth(xScale)
     const barWidth = bw * 0.6
 
+    let running = 0
     for (let i = 0; i < series.values.length; i++) {
+      const val = series.values[i]!
+      const isTotal = totals.has(i)
+      if (isTotal) {
+        running = val
+      } else {
+        running += val
+      }
+
       const cx = xScale.map(i)
       if (mx >= cx - barWidth / 2 - 4 && mx <= cx + barWidth / 2 + 4) {
-        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx) }
+        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx), x: cx, y: yScale.map(running) }
       }
     }
 

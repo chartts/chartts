@@ -13,10 +13,9 @@ import {
   resolveTheme, THEME_PRESETS,
   formatValue, formatPercent,
   // Financial analysis utilities
-  sma, ema, rsi, bollingerBands, macd,
+  sma, ema, rsi,
   cumulativeReturns, drawdown, simpleReturns, volatility,
   toBollingerData, toMACDData, volumeDirections,
-  obv,
   // Interaction utilities
   linkCharts, applyDataZoom, createDataZoomWidget,
 } from '@chartts/core'
@@ -99,17 +98,24 @@ const GL_DATA = {
     }],
     categories: ['Region A','B','C','D','E','F','G','H','I','J'],
   } as GLChartData,
-  scatterGL: {
-    series: [{
-      name: 'Points',
-      x: Array.from({length: 10000}, () => Math.random() * 100),
-      y: Array.from({length: 10000}, () => Math.random() * 100),
-    }, {
-      name: 'Cluster',
-      x: Array.from({length: 5000}, () => 30 + Math.random() * 40),
-      y: Array.from({length: 5000}, () => 30 + Math.random() * 40),
-    }],
-  } as GLChartData,
+  scatterGL: (() => {
+    // Gaussian cluster generator
+    const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) }
+    const cluster = (cx: number, cy: number, spread: number, n: number) => ({
+      x: Array.from({length: n}, () => cx + gauss() * spread),
+      y: Array.from({length: n}, () => cy + gauss() * spread),
+    })
+    const c1 = cluster(25, 70, 8, 4000)
+    const c2 = cluster(60, 40, 12, 5000)
+    const c3 = cluster(80, 75, 6, 3000)
+    return {
+      series: [
+        { name: 'Group A', x: c1.x, y: c1.y },
+        { name: 'Group B', x: c2.x, y: c2.y },
+        { name: 'Group C', x: c3.x, y: c3.y },
+      ],
+    } as GLChartData
+  })(),
   linesGL: {
     series: Array.from({length: 5}, (_, si) => ({
       name: `Series ${si + 1}`,
@@ -314,7 +320,7 @@ const DATA = {
     ],
   } as ChartData,
   geo: {
-    labels: ['USA','China','Russia','Brazil','India','Australia','UK','France','Germany','Japan','Canada','Mexico','South Africa','Egypt','Nigeria','Argentina'],
+    labels: ['United States','China','Russia','Brazil','India','Australia','United Kingdom','France','Germany','Japan','Canada','Mexico','South Africa','Egypt','Nigeria','Argentina'],
     series: [
       { name: 'GDP (T$)', values: [21,15,1.7,1.6,3.2,1.4,2.8,2.6,3.8,4.9,1.7,1.1,0.4,0.3,0.4,0.5] },
       { name: 'Population (M)', values: [330,1400,145,210,1380,25,67,67,83,125,38,128,60,100,220,45] },
@@ -656,7 +662,7 @@ const pages: Page[] = [
       const ema20 = ema(CLOSE, 20)
       const rsi14 = rsi(CLOSE, 14)
       const volDirs = volumeDirections(CLOSE)
-      const obvValues = obv(CLOSE, VOL)
+
 
       const s1Items: [string, string, (c: HTMLElement) => ChartInstance][] = [
         ['AAPL Candlestick + SMA(10) + EMA(20)', 'Price action with moving average overlays', c => Candlestick(c, { theme: theme(), data: { labels: DAY_LABELS, series: [
@@ -984,12 +990,86 @@ const pages: Page[] = [
   {
     id: 'graph', name: 'Graph / Network', icon: '\u25CB', group: 'Charts',
     render(main) {
-      main.appendChild(section('Graph / Network', 'Force-directed node-link diagrams showing relationships.'))
+      main.appendChild(section('Graph / Network', 'Rich node-link diagrams with shapes, layouts, edge styles, and arrows.'))
       const g = grid(2)
       const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['Framework Ecosystem', 'Libraries and their connections', c => Graph(c, { theme: theme(), data: DATA.graph })],
-        ['Simple Network', 'Three connected nodes', c => Graph(c, { theme: theme(), data: { series: [{ name: 'A \u2192 B', values: [5] },{ name: 'B \u2192 C', values: [3] },{ name: 'C \u2192 A', values: [4] }] } })],
-        ['Hub and Spoke', 'Central node connected to all', c => Graph(c, { theme: theme(), data: { series: [{ name: 'Hub \u2192 A', values: [5] },{ name: 'Hub \u2192 B', values: [4] },{ name: 'Hub \u2192 C', values: [6] },{ name: 'Hub \u2192 D', values: [3] },{ name: 'Hub \u2192 E', values: [7] }] } })],
+        // 1. Flowchart — hierarchical TB with rich nodes
+        ['Flowchart (Hierarchical)', 'Top-down flow with mixed shapes', c => Graph(c, {
+          theme: theme(), data: { series: [], labels: [] } as any,
+          layout: 'hierarchical', direction: 'TB', edgeStyle: 'curved',
+          nodes: [
+            { id: 'start', label: 'Start', shape: 'stadium', color: '#10b981' },
+            { id: 'input', label: 'User Input', shape: 'rect' },
+            { id: 'validate', label: 'Valid?', shape: 'diamond', color: '#f59e0b' },
+            { id: 'process', label: 'Process Data', shape: 'rect' },
+            { id: 'error', label: 'Show Error', shape: 'hexagon', color: '#ef4444' },
+            { id: 'save', label: 'Save to DB', shape: 'rect' },
+            { id: 'done', label: 'Done', shape: 'stadium', color: '#10b981' },
+          ],
+          edges: [
+            { source: 'start', target: 'input', label: 'begin' },
+            { source: 'input', target: 'validate' },
+            { source: 'validate', target: 'process', label: 'yes' },
+            { source: 'validate', target: 'error', label: 'no', style: 'dashed', color: '#ef4444' },
+            { source: 'error', target: 'input', style: 'dotted' },
+            { source: 'process', target: 'save' },
+            { source: 'save', target: 'done' },
+          ],
+        } as any)],
+        // 2. Dependency graph — circular layout
+        ['Dependency Graph (Circular)', 'Package dependencies in circular layout', c => Graph(c, {
+          theme: theme(), data: { series: [], labels: [] } as any,
+          layout: 'circular', nodeShape: 'rect',
+          nodes: [
+            { id: 'core', label: '@app/core', shape: 'hexagon', color: '#6366f1' },
+            { id: 'ui', label: '@app/ui', shape: 'rect' },
+            { id: 'api', label: '@app/api', shape: 'rect' },
+            { id: 'auth', label: '@app/auth', shape: 'diamond', color: '#f59e0b' },
+            { id: 'db', label: '@app/db', shape: 'rect' },
+            { id: 'utils', label: '@app/utils', shape: 'stadium' },
+            { id: 'config', label: '@app/config', shape: 'circle' },
+          ],
+          edges: [
+            { source: 'ui', target: 'core' },
+            { source: 'api', target: 'core' },
+            { source: 'api', target: 'db' },
+            { source: 'api', target: 'auth' },
+            { source: 'auth', target: 'core' },
+            { source: 'auth', target: 'db' },
+            { source: 'db', target: 'config' },
+            { source: 'core', target: 'utils' },
+            { source: 'core', target: 'config' },
+            { source: 'ui', target: 'utils' },
+          ],
+        } as any)],
+        // 3. Network — force layout with mixed shapes
+        ['Social Network (Force)', 'Mixed shapes with force layout', c => Graph(c, {
+          theme: theme(), data: { series: [], labels: [] } as any,
+          layout: 'force', iterations: 150,
+          nodes: [
+            { id: 'alice', label: 'Alice', shape: 'circle', color: '#ec4899' },
+            { id: 'bob', label: 'Bob', shape: 'circle', color: '#3b82f6' },
+            { id: 'charlie', label: 'Charlie', shape: 'circle', color: '#10b981' },
+            { id: 'diana', label: 'Diana', shape: 'circle', color: '#f59e0b' },
+            { id: 'eve', label: 'Eve', shape: 'circle', color: '#8b5cf6' },
+            { id: 'frank', label: 'Frank', shape: 'circle', color: '#06b6d4' },
+            { id: 'server', label: 'Server', shape: 'hexagon', color: '#6366f1' },
+          ],
+          edges: [
+            { source: 'alice', target: 'bob', label: 'friends' },
+            { source: 'alice', target: 'charlie' },
+            { source: 'bob', target: 'diana' },
+            { source: 'charlie', target: 'diana' },
+            { source: 'diana', target: 'eve' },
+            { source: 'eve', target: 'frank' },
+            { source: 'frank', target: 'alice' },
+            { source: 'alice', target: 'server', style: 'dashed' },
+            { source: 'bob', target: 'server', style: 'dashed' },
+            { source: 'eve', target: 'server', style: 'dashed' },
+          ],
+        } as any)],
+        // 4. Backward compat — arrow notation (existing format)
+        ['Arrow Notation (Legacy)', 'Backward-compatible arrow format', c => Graph(c, { theme: theme(), data: DATA.graph })],
       ]
       for (const [title, desc, factory] of items) {
         const { card, container } = chartCard(title, desc)
@@ -1075,10 +1155,10 @@ const pages: Page[] = [
       main.appendChild(section('GEO / Map Chart', 'Choropleth maps with region-based data visualization.'))
       const g = grid(2)
       const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
-        ['World GDP', 'Choropleth with GDP data', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE } as any)],
-        ['Without Labels', 'Clean map view', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, showLabels: false } as any)],
-        ['Scatter Overlay', 'Population as scatter size', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, scatterSeries: 1 } as any)],
-        ['Custom Colors', 'Red palette', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, colors: ['#ef4444','#3b82f6'] } as any)],
+        ['World GDP', 'Choropleth with data labels and color legend', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE } as any)],
+        ['Zoom & Pan', 'Scroll to zoom, drag to pan', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, zoom: true, pan: true } as any)],
+        ['Scatter Overlay', 'Population bubbles on choropleth', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, scatterSeries: 1 } as any)],
+        ['Red Palette', 'Custom color scheme', c => Geo(c, { theme: theme(), data: DATA.geo, regions: WORLD_SIMPLE, colors: ['#ef4444'] } as any)],
       ]
       for (const [title, desc, factory] of items) {
         const { card, container } = chartCard(title, desc)
@@ -1562,6 +1642,216 @@ const pages: Page[] = [
     },
   },
 
+  // -- Interactive Trading Dashboard --
+  {
+    id: 'interactive', name: 'Interactive', icon: '\u21D4', group: 'Features',
+    render(main) {
+      main.appendChild(section(
+        'Interactive Trading Dashboard',
+        'Linked candlestick, volume, and RSI charts with zoom (scroll), pan (drag), crosshair (both axes), data zoom slider, brush selection (Shift+drag), and keyboard reset.',
+      ))
+
+      // =================================================================
+      // Synthetic 90-day AAPL-like price data (~60 trading days)
+      // =================================================================
+      const DAYS = 90
+      const labels: string[] = []
+      const open: number[] = []
+      const high: number[] = []
+      const low: number[] = []
+      const close: number[] = []
+      const vol: number[] = []
+
+      let price = 185
+      for (let i = 0; i < DAYS; i++) {
+        const d = new Date(2025, 0, 6 + i)
+        // Skip weekends
+        if (d.getDay() === 0 || d.getDay() === 6) continue
+        labels.push(`${d.getMonth() + 1}/${d.getDate()}`)
+        const o = +(price + (Math.random() - 0.48) * 2).toFixed(2)
+        const c = +(o + (Math.random() - 0.45) * 4).toFixed(2)
+        const h2 = +(Math.max(o, c) + Math.random() * 3).toFixed(2)
+        const l2 = +(Math.min(o, c) - Math.random() * 3).toFixed(2)
+        open.push(o); close.push(c); high.push(h2); low.push(l2)
+        vol.push(Math.round(20 + Math.random() * 60))
+        price = c
+      }
+
+      // Compute indicators
+      const sma20 = sma(close, 20)
+      const ema10 = ema(close, 10)
+      const rsi14 = rsi(close, 14)
+      const volDirs = volumeDirections(close)
+
+      // Full data objects (for data zoom filtering)
+      const fullPriceData: ChartData = {
+        labels,
+        series: [
+          { name: 'AAPL', values: close },
+          { name: 'SMA(20)', values: sma20 },
+          { name: 'EMA(10)', values: ema10 },
+        ],
+      }
+      const fullVolData: ChartData = {
+        labels,
+        series: [{ name: 'Volume (M)', values: vol }],
+      }
+      const fullRsiData: ChartData = {
+        labels,
+        series: [{ name: 'RSI(14)', values: rsi14 }],
+      }
+
+      // =================================================================
+      // Layout: stacked panels in a single column
+      // =================================================================
+      const dashboard = h('div', 'space-y-2')
+
+      // --- Price Chart (Candlestick + SMA + EMA) ---
+      const priceWrap = h('div', 'bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden')
+      const priceHeader = h('div', 'px-4 pt-3 pb-1')
+      priceHeader.appendChild(Object.assign(h('h3', 'text-sm font-semibold'), { textContent: 'AAPL — Price + SMA(20) + EMA(10)' }))
+      priceHeader.appendChild(Object.assign(h('p', 'text-xs text-gray-400 mt-0.5'), { textContent: 'Scroll to zoom, drag to pan, Shift+drag to select range' }))
+      priceWrap.appendChild(priceHeader)
+      const priceContainer = h('div', 'px-2 pb-2')
+      priceContainer.style.height = '350px'
+      priceWrap.appendChild(priceContainer)
+      dashboard.appendChild(priceWrap)
+
+      // --- Volume Chart ---
+      const volWrap = h('div', 'bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden')
+      const volHeader = h('div', 'px-4 pt-2 pb-1')
+      volHeader.appendChild(Object.assign(h('h3', 'text-xs font-semibold text-gray-500'), { textContent: 'Volume' }))
+      volWrap.appendChild(volHeader)
+      const volContainer = h('div', 'px-2 pb-2')
+      volContainer.style.height = '120px'
+      volWrap.appendChild(volContainer)
+      dashboard.appendChild(volWrap)
+
+      // --- DataZoom Slider ---
+      const zoomWrap = h('div', 'bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3')
+      dashboard.appendChild(zoomWrap)
+
+      // --- RSI Chart ---
+      const rsiWrap = h('div', 'bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden')
+      const rsiHeader = h('div', 'px-4 pt-2 pb-1')
+      rsiHeader.appendChild(Object.assign(h('h3', 'text-xs font-semibold text-gray-500'), { textContent: 'RSI(14) — Overbought > 70, Oversold < 30' }))
+      rsiWrap.appendChild(rsiHeader)
+      const rsiContainer = h('div', 'px-2 pb-2')
+      rsiContainer.style.height = '150px'
+      rsiWrap.appendChild(rsiContainer)
+      dashboard.appendChild(rsiWrap)
+
+      main.appendChild(dashboard)
+
+      // =================================================================
+      // Create charts (deferred so containers have dimensions)
+      // =================================================================
+      requestAnimationFrame(() => {
+        let priceChart: ChartInstance | null = null
+        let volChart: ChartInstance | null = null
+        let rsiChart: ChartInstance | null = null
+        try {
+          priceChart = Candlestick(priceContainer, {
+            theme: theme(),
+            data: fullPriceData,
+            ohlc: { open, high, low, close },
+            legend: true,
+            zoom: true,
+            pan: true,
+            brush: true,
+            crosshair: { enabled: true, mode: 'both' },
+          } as any)
+          mount(main, priceChart)
+
+          volChart = Volume(volContainer, {
+            theme: theme(),
+            data: fullVolData,
+            directions: volDirs,
+            zoom: true,
+            pan: true,
+            crosshair: true,
+            xAxis: false,
+          } as any)
+          mount(main, volChart)
+
+          rsiChart = Line(rsiContainer, {
+            theme: theme(),
+            data: fullRsiData,
+            yMin: 0,
+            yMax: 100,
+            colors: ['#8b5cf6'],
+            zoom: true,
+            pan: true,
+            crosshair: true,
+          })
+          mount(main, rsiChart)
+
+          // Link crosshairs across all 3 charts
+          linkCharts(priceChart, volChart, rsiChart)
+
+          // DataZoom slider widget
+          const widget = createDataZoomWidget({
+            data: fullPriceData,
+            height: 44,
+            onChange: (range) => {
+              const pd = applyDataZoom(fullPriceData, range)
+              const vd = applyDataZoom(fullVolData, range)
+              const rd = applyDataZoom(fullRsiData, range)
+              priceChart?.setData(pd)
+              volChart?.setData(vd)
+              rsiChart?.setData(rd)
+            },
+          })
+          zoomWrap.appendChild(widget.element)
+
+          // --- Controls bar ---
+          const { el: logEl, log } = logBox()
+
+          const controls = controlBar(
+            btn('Reset Zoom', () => {
+              priceChart?.resetZoom()
+              volChart?.resetZoom()
+              rsiChart?.resetZoom()
+              widget.state.reset()
+              log('Zoom reset')
+            }),
+            btn('Zoom In', () => { widget.state.zoomIn(0.15); log('Zoomed in') }),
+            btn('Zoom Out', () => { widget.state.zoomOut(0.15); log('Zoomed out') }),
+          )
+          main.appendChild(controls)
+
+          // Event log
+          priceChart.on('brush:end', (payload: unknown) => {
+            const p = payload as { startLabel: string; endLabel: string; startIndex: number; endIndex: number }
+            log(`Brush: ${p.startLabel} → ${p.endLabel} (indices ${p.startIndex}–${p.endIndex})`)
+          })
+          priceChart.on('zoom:change', () => log('Zoom changed'))
+          priceChart.on('zoom:reset', () => log('Zoom reset'))
+
+          main.appendChild(logEl)
+
+          // Keyboard shortcuts legend
+          const legend = h('div', 'mt-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs text-gray-500 dark:text-gray-400')
+          legend.innerHTML = `
+            <div class="font-semibold mb-2 text-gray-700 dark:text-gray-300">Keyboard & Mouse Controls</div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div><kbd class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono">Scroll</kbd> Zoom in/out</div>
+              <div><kbd class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono">Drag</kbd> Pan left/right</div>
+              <div><kbd class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono">Shift+Drag</kbd> Brush select</div>
+              <div><kbd class="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono">Dbl-click slider</kbd> Reset range</div>
+            </div>
+          `
+          main.appendChild(legend)
+
+        } catch (e) {
+          const errEl = h('div', 'text-red-500 text-xs p-4')
+          errEl.textContent = `Error: ${(e as Error).message}`
+          main.appendChild(errEl)
+        }
+      })
+    },
+  },
+
   // -- GL Charts (3D / GPU-accelerated) --
   {
     id: 'gl-overview', name: 'GL Overview', icon: '\u25C6', group: 'GL Charts',
@@ -1579,7 +1869,7 @@ const pages: Page[] = [
         ['Line 3D (Tube)', el => Line3D(el, { data: GL_DATA.line3d, theme: isDark ? 'dark' : 'light' })],
         ['Scatter GL (10K)', el => ScatterGL(el, { data: GL_DATA.scatterGL, theme: isDark ? 'dark' : 'light', pointSize: 3 })],
         ['Lines GL', el => LinesGL(el, { data: GL_DATA.linesGL, theme: isDark ? 'dark' : 'light' })],
-        ['Flow GL', el => FlowGL(el, { data: { series: [] }, theme: isDark ? 'dark' : 'light' })],
+        ['Flow GL', el => FlowGL(el, { data: { series: [] }, theme: isDark ? 'dark' : 'light', fieldType: 'wind', showArrows: false } as any)],
         ['Graph GL', el => GraphGL(el, { data: GL_DATA.graphGL, theme: isDark ? 'dark' : 'light' })],
       ]
 
@@ -1674,17 +1964,40 @@ const pages: Page[] = [
   {
     id: 'scatter-gl', name: 'Scatter GL', icon: '\u2022', group: 'GL Charts',
     render(main) {
-      main.appendChild(section('GPU-Accelerated 2D Scatter', 'Renders thousands of points via WebGL GL_POINTS with spatial grid hit testing.'))
+      main.appendChild(section('GPU-Accelerated 2D Scatter', 'Axes, grid, legend, density glow. Spatial grid hit testing for millions of points.'))
       const g = grid(2)
+      const t = isDark ? 'dark' as const : 'light' as const
+      // Gaussian helper for demo data
+      const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) }
+      const cluster = (cx: number, cy: number, spread: number, n: number) => ({
+        x: Array.from({length: n}, () => cx + gauss() * spread),
+        y: Array.from({length: n}, () => cy + gauss() * spread),
+      })
       const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
-        ['10K Points', '2 overlapping series', c => ScatterGL(c, { data: GL_DATA.scatterGL, theme: isDark ? 'dark' : 'light' })],
-        ['Large Points', 'pointSize: 6', c => ScatterGL(c, { data: GL_DATA.scatterGL, theme: isDark ? 'dark' : 'light', pointSize: 6 })],
-        ['50K Points', 'Stress test', c => ScatterGL(c, { data: {
-          series: [{
-            name: 'Big', x: Array.from({length: 50000}, () => Math.random() * 100),
-            y: Array.from({length: 50000}, () => Math.random() * 100),
-          }],
-        }, theme: isDark ? 'dark' : 'light', pointSize: 2 })],
+        ['Gaussian Clusters', '3 groups, 12K points', c => ScatterGL(c, { data: GL_DATA.scatterGL, theme: t, pointSize: 3 })],
+        ['Density Glow', 'Overlapping clusters glow brighter', c => {
+          const c1 = cluster(50, 50, 15, 8000), c2 = cluster(50, 50, 5, 4000)
+          return ScatterGL(c, { data: { series: [
+            { name: 'Spread', ...c1 },
+            { name: 'Dense Core', ...c2 },
+          ] }, theme: t, pointSize: 4 })
+        }],
+        ['Correlation', 'Linear trend + noise', c => {
+          const n = 6000
+          return ScatterGL(c, { data: { series: [{
+            name: 'Measurement',
+            x: Array.from({length: n}, (_, i) => i / n * 100),
+            y: Array.from({length: n}, (_, i) => (i / n) * 80 + 10 + gauss() * 12),
+          }] }, theme: t, pointSize: 3 })
+        }],
+        ['50K Stress Test', 'Single series, tiny points', c => {
+          const n = 50000
+          return ScatterGL(c, { data: { series: [{
+            name: 'Random',
+            x: Array.from({length: n}, () => Math.random() * 200),
+            y: Array.from({length: n}, () => Math.random() * 200),
+          }] }, theme: t, pointSize: 2 })
+        }],
       ]
       for (const [title, desc, factory] of items) {
         const { card, container } = chartCard(title, desc)
@@ -1697,11 +2010,14 @@ const pages: Page[] = [
   {
     id: 'flow-gl', name: 'Flow GL', icon: '\u2248', group: 'GL Charts',
     render(main) {
-      main.appendChild(section('Particle Flow Field', 'GPU-accelerated particle simulation. Always animating with age-based trail fade.'))
+      main.appendChild(section('Particle Flow Field', 'GPU-accelerated vector field visualization. Particles colored by velocity, sized by speed, with direction arrows.'))
       const g = grid(2)
+      const t = isDark ? 'dark' as const : 'light' as const
       const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
-        ['Default Swirl', '5000 particles', c => FlowGL(c, { data: { series: [] }, theme: isDark ? 'dark' : 'light' })],
-        ['Dense Flow', '10000 particles', c => FlowGL(c, { data: { series: [] }, theme: isDark ? 'dark' : 'light', particleCount: 10000, pointSize: 2 })],
+        ['Wind Pattern', 'Directional flow with gusts', c => FlowGL(c, { data: { series: [] }, theme: t, fieldType: 'wind', particleCount: 6000, pointSize: 4 } as any)],
+        ['Vortex System', 'Spiraling inward pull', c => FlowGL(c, { data: { series: [] }, theme: t, fieldType: 'vortex', particleCount: 8000, pointSize: 3, colorSlow: '#6366f1', colorMid: '#a78bfa', colorFast: '#f472b6' } as any)],
+        ['Source & Sink', 'Two sources, one drain', c => FlowGL(c, { data: { series: [] }, theme: t, fieldType: 'source', particleCount: 6000, pointSize: 4, colorSlow: '#065f46', colorMid: '#10b981', colorFast: '#fbbf24' } as any)],
+        ['Turbulence', 'Chaotic multi-frequency field', c => FlowGL(c, { data: { series: [] }, theme: t, fieldType: 'turbulence', particleCount: 10000, pointSize: 3, ageSpeed: 0.004 } as any)],
       ]
       for (const [title, desc, factory] of items) {
         const { card, container } = chartCard(title, desc)

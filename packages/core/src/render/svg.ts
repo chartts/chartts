@@ -177,10 +177,16 @@ function applyAttrs(el: SVGElement, attrs: RenderAttrs): void {
     stroke: 'stroke',
     strokeWidth: 'stroke-width',
     strokeDasharray: 'stroke-dasharray',
+    strokeOpacity: 'stroke-opacity',
+    strokeLinecap: 'stroke-linecap',
+    strokeLinejoin: 'stroke-linejoin',
     fill: 'fill',
     fillOpacity: 'fill-opacity',
     opacity: 'opacity',
     transform: 'transform',
+    filter: 'filter',
+    cursor: 'cursor',
+    pointerEvents: 'pointer-events',
     role: 'role',
     ariaLabel: 'aria-label',
     tabindex: 'tabindex',
@@ -207,17 +213,22 @@ function applyAttrs(el: SVGElement, attrs: RenderAttrs): void {
  * - Staggered index CSS variable for bars/points/slices
  */
 function applyEntryAnimations(svg: Element): void {
+  // Skip entry animation setup entirely if animations are disabled (subsequent renders)
+  const skipAnim = svg.classList.contains('chartts-skip-anim')
+
   // Line draw animation — skip dashed/dotted lines (they already have a dasharray pattern)
-  svg.querySelectorAll<SVGPathElement>('.chartts-line, .chartts-sparkline-line').forEach((p) => {
-    try {
-      const existing = p.getAttribute('stroke-dasharray')
-      if (existing && existing.includes(',')) return // preserve dashed/dotted pattern
-      const len = p.getTotalLength()
-      p.style.setProperty('--chartts-path-len', String(len))
-      p.setAttribute('stroke-dasharray', String(len))
-      p.setAttribute('stroke-dashoffset', String(len))
-    } catch { /* ignore for non-path elements */ }
-  })
+  if (!skipAnim) {
+    svg.querySelectorAll<SVGPathElement>('.chartts-line, .chartts-sparkline-line').forEach((p) => {
+      try {
+        const existing = p.getAttribute('stroke-dasharray')
+        if (existing && existing.includes(',')) return // preserve dashed/dotted pattern
+        const len = p.getTotalLength()
+        p.style.setProperty('--chartts-path-len', String(len))
+        p.setAttribute('stroke-dasharray', String(len))
+        p.setAttribute('stroke-dashoffset', String(len))
+      } catch { /* ignore for non-path elements */ }
+    })
+  }
 
   // Stagger animations for all chart element types
   const STAGGER_SELECTORS = [
@@ -244,14 +255,16 @@ function applyEntryAnimations(svg: Element): void {
   }
 
   // Gauge fill draw animation (same technique as line draw)
-  svg.querySelectorAll<SVGPathElement>('.chartts-gauge-fill').forEach((p) => {
-    try {
-      const len = p.getTotalLength()
-      p.style.setProperty('--chartts-path-len', String(len))
-      p.setAttribute('stroke-dasharray', String(len))
-      p.setAttribute('stroke-dashoffset', String(len))
-    } catch { /* ignore */ }
-  })
+  if (!skipAnim) {
+    svg.querySelectorAll<SVGPathElement>('.chartts-gauge-fill').forEach((p) => {
+      try {
+        const len = p.getTotalLength()
+        p.style.setProperty('--chartts-path-len', String(len))
+        p.setAttribute('stroke-dasharray', String(len))
+        p.setAttribute('stroke-dashoffset', String(len))
+      } catch { /* ignore */ }
+    })
+  }
 
   // Stagger for radar areas (per series) — uses a different CSS variable
   svg.querySelectorAll('.chartts-radar-area').forEach((el, i) => {

@@ -56,6 +56,7 @@ export function createChart(
   let lastPrepared: PreparedData | null = null
   let chartState: 'ready' | 'loading' | 'error' | 'empty' = 'ready'
   let stateMessage: string | undefined
+  let lastRenderedNodes: RenderNode[] = []
 
   // Systems — resolve renderer
   let resolvedRenderer = currentOptions.renderer
@@ -68,7 +69,7 @@ export function createChart(
   const renderer: Renderer = resolvedRenderer === 'webgl'
     ? createWebGLRenderer(currentTheme)
     : resolvedRenderer === 'canvas'
-      ? createCanvasRenderer(currentTheme)
+      ? createCanvasRenderer(() => currentTheme)
       : createSVGRenderer()
   const root: RendererRoot = renderer.createRoot(container, width, height, {
     class: `chartts ${currentOptions.className}`.trim(),
@@ -98,6 +99,7 @@ export function createChart(
     currentOptions.onClick,
     currentOptions.onHover,
     interactionState,
+    useCanvas ? { renderer, root, getLastNodes: () => lastRenderedNodes } : undefined,
   )
   if (useCanvas) {
     interaction.attach(root.element as unknown as SVGElement, container)
@@ -108,10 +110,12 @@ export function createChart(
   // Zoom & Pan
   let zoomPan: ZoomPanInstance | null = null
   if (currentOptions.zoom || currentOptions.pan) {
+    // Geo/radial charts need 2D zoom; axis-based charts only zoom x
+    const needs2DZoom = NO_AXES_TYPES.has(chartType.type)
     zoomPan = createZoomPan(
       {
         x: true,
-        y: false,
+        y: needs2DZoom,
         wheel: currentOptions.zoom,
         drag: currentOptions.pan,
         pinch: currentOptions.zoom,
@@ -165,13 +169,23 @@ export function createChart(
   const stopThemeWatch = currentOptions.theme === 'auto'
     ? watchScheme(() => {
         currentTheme = resolveTheme('auto')
-        applyTheme(root.element, currentTheme)
+        if (useCanvas) {
+          container.style.background = currentTheme.background
+        } else {
+          applyTheme(root.element, currentTheme)
+        }
         render()
       })
     : () => {}
 
   // Initial render
   render()
+  // After first paint, mark root so subsequent renders skip entry animations.
+  // Must defer so the browser paints the first frame with animations running;
+  // adding synchronously would kill animations before they start.
+  requestAnimationFrame(() => {
+    root.element.classList.add('chartts-skip-anim')
+  })
 
   // -----------------------------------------------------------------------
   function render(): void {
@@ -250,6 +264,7 @@ export function createChart(
       xScale,
       yScale,
       theme: currentTheme,
+      zoomPan: zoomPan ? zoomPan.getState() : undefined,
     }
     lastCtx = ctx
 
@@ -275,6 +290,7 @@ export function createChart(
       if (legend) nodes.push(legend)
     }
 
+    lastRenderedNodes = nodes
     renderer.render(root, nodes)
 
     // SVG-only: inject effect gradient/filter defs

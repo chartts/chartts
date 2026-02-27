@@ -63,7 +63,10 @@ export const customChartType: ChartTypePlugin = {
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     const cOpts = ctx.options as unknown as CustomChartOptions
     if (cOpts.hitTestFn) {
-      return cOpts.hitTestFn(ctx, mx, my)
+      const result = cOpts.hitTestFn(ctx, mx, my)
+      if (result && result.x === undefined) result.x = mx
+      if (result && result.y === undefined) result.y = my
+      return result
     }
     return null
   },

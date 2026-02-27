@@ -171,7 +171,7 @@ export const comboChartType: ChartTypePlugin = {
       const h = Math.abs(vy - baseline)
 
       if (mx >= barX - 2 && mx <= barX + barWidth + 2 && my >= y - 2 && my <= y + h + 2) {
-        best = { seriesIndex: barSeries.index, pointIndex: i, distance: 0 }
+        best = { seriesIndex: barSeries.index, pointIndex: i, distance: 0, x: cx, y: vy }
         return best
       }
     }
@@ -189,7 +189,7 @@ export const comboChartType: ChartTypePlugin = {
 
         if (dist < bestDist && dist < 20) {
           bestDist = dist
-          best = { seriesIndex: series.index, pointIndex: i, distance: dist }
+          best = { seriesIndex: series.index, pointIndex: i, distance: dist, x: px, y: py }
         }
       }
     }

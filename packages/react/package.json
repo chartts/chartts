@@ -1,6 +1,6 @@
 {
   "name": "@chartts/react",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "description": "Chartts React components — native, not a wrapper.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,7 +13,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
@@ -24,5 +26,10 @@
     "react-dom": ">=18.0.0",
     "@chartts/core": "workspace:*"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chartts/chartts"
+  },
+  "homepage": "https://chartts.com"
 }

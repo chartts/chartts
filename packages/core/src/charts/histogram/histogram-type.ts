@@ -95,7 +95,7 @@ export const histogramChartType: ChartTypePlugin = {
       const h = Math.abs(vy - baseline)
 
       if (mx >= barX - 1 && mx <= barX + barWidth + 1 && my >= y - 2 && my <= y + h + 2) {
-        return { seriesIndex: 0, pointIndex: i, distance: 0 }
+        return { seriesIndex: 0, pointIndex: i, distance: 0, x: cx, y: vy }
       }
     }
 

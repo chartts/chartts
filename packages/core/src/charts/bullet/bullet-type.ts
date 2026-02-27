@@ -136,7 +136,7 @@ export const bulletChartType: ChartTypePlugin = {
       const rangeHeight = Math.min(rowHeight * 0.7, 32)
 
       if (my >= cy - rangeHeight / 2 && my <= cy + rangeHeight / 2) {
-        return { seriesIndex: 0, pointIndex: i, distance: 0 }
+        return { seriesIndex: 0, pointIndex: i, distance: 0, x: mx, y: cy }
       }
     }
 

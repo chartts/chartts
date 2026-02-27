@@ -154,7 +154,7 @@ export const horizontalBarChartType: ChartTypePlugin = {
         const w = Math.abs(vx - zeroX)
 
         if (mx >= x - 2 && mx <= x + w + 2 && my >= barY - 2 && my <= barY + barHeight + 2) {
-          return { seriesIndex: series.index, pointIndex: i, distance: 0 }
+          return { seriesIndex: series.index, pointIndex: i, distance: 0, x: vx, y: catCenter }
         }
       }
     }

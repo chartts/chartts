@@ -175,7 +175,7 @@ export const parallelChartType: ChartTypePlugin = {
         const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
         if (dist < bestDist) {
           bestDist = dist
-          best = { seriesIndex: si, pointIndex: d, distance: dist }
+          best = { seriesIndex: si, pointIndex: d, distance: dist, x, y }
         }
       }
     }

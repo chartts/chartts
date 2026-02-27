@@ -116,6 +116,35 @@ export const heatmapChartType: ChartTypePlugin = {
     return nodes
   },
 
+  getHighlightNodes(ctx: RenderContext, hit: HitResult): RenderNode[] {
+    const { data, area, options } = ctx
+    const rowCount = data.series.length
+    const colCount = data.labels.length
+    if (rowCount === 0 || colCount === 0) return []
+
+    const labelW = Math.min(60, area.width * 0.15)
+    const labelH = Math.min(24, area.height * 0.1)
+    const gridX = area.x + labelW
+    const gridY = area.y + labelH
+    const gridW = area.width - labelW
+    const gridH = area.height - labelH
+    const cellW = gridW / colCount
+    const cellH = gridH / rowCount
+
+    const col = hit.pointIndex
+    const row = hit.seriesIndex
+    const color = options.colors[0] ?? '#3b82f6'
+
+    return [
+      rect(gridX + cellW * col, gridY + cellH * row, cellW, cellH, {
+        class: 'chartts-highlight-cell',
+        fill: 'none',
+        stroke: color,
+        strokeWidth: 2,
+      }),
+    ]
+  },
+
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     const { data, area } = ctx
     const rowCount = data.series.length
@@ -137,7 +166,7 @@ export const heatmapChartType: ChartTypePlugin = {
     const row = Math.floor((my - gridY) / cellH)
 
     if (row >= 0 && row < rowCount && col >= 0 && col < colCount) {
-      return { seriesIndex: row, pointIndex: col, distance: 0 }
+      return { seriesIndex: row, pointIndex: col, distance: 0, x: gridX + col * cellW + cellW / 2, y: gridY + row * cellH + cellH / 2 }
     }
 
     return null

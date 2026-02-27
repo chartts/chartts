@@ -128,7 +128,7 @@ export const funnelChartType: ChartTypePlugin = {
     for (let i = 0; i < stepCount; i++) {
       const y = area.y + i * (stepHeight + stepGap)
       if (my >= y && my <= y + stepHeight) {
-        return { seriesIndex: 0, pointIndex: i, distance: 0 }
+        return { seriesIndex: 0, pointIndex: i, distance: 0, x: area.x + area.width / 2, y: y + stepHeight / 2 }
       }
     }
 

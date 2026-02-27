@@ -97,6 +97,36 @@ export const barChartType: ChartTypePlugin = {
     return nodes
   },
 
+  getHighlightNodes(ctx: RenderContext, hit: HitResult): RenderNode[] {
+    const { data, xScale, yScale, options } = ctx
+    const seriesCount = data.series.length
+    const bw = getBandwidth(xScale)
+    const groupWidth = bw * (1 - options.barGap)
+    const barWidth = groupWidth / seriesCount
+    const groupOffset = -groupWidth / 2
+    const baseline = yScale.map(Math.max(0, yScale.getDomain()[0] as number))
+
+    const series = data.series[hit.seriesIndex]
+    if (!series) return []
+    const i = hit.pointIndex
+    const cx = xScale.map(i)
+    const barX = cx + groupOffset + series.index * barWidth
+    const vy = yScale.map(series.values[i]!)
+    const y = series.values[i]! >= 0 ? vy : baseline
+    const h = Math.abs(vy - baseline)
+
+    // Bright outline around the hovered bar
+    return [
+      rect(barX - 1, y - 1, barWidth + 2, h + 2, {
+        class: 'chartts-highlight-bar',
+        fill: 'none',
+        stroke: series.color,
+        strokeWidth: 2,
+        strokeOpacity: 0.8,
+      }),
+    ]
+  },
+
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     const { data, xScale, yScale, options } = ctx
     const seriesCount = data.series.length
@@ -125,7 +155,7 @@ export const barChartType: ChartTypePlugin = {
           const dist = 0
           if (dist < bestDist) {
             bestDist = dist
-            best = { seriesIndex: series.index, pointIndex: i, distance: dist }
+            best = { seriesIndex: series.index, pointIndex: i, distance: dist, x: cx, y: vy }
           }
         }
       }

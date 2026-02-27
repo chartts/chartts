@@ -144,7 +144,7 @@ export const stackedBarChartType: ChartTypePlugin = {
         else { y = negY; negY = y + h }
 
         if (my >= y - 2 && my <= y + h + 2) {
-          return { seriesIndex: series.index, pointIndex: i, distance: 0 }
+          return { seriesIndex: series.index, pointIndex: i, distance: 0, x: cx, y }
         }
       }
     }

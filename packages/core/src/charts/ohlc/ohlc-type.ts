@@ -133,7 +133,7 @@ export const ohlcChartType: ChartTypePlugin = {
   },
 
   hitTest(ctx: RenderContext, mx: number, _my: number): HitResult | null {
-    const { xScale, options } = ctx
+    const { xScale, yScale, options } = ctx
     const opts = options as unknown as OHLCOptions
     const ohlc = opts.ohlc
     if (!ohlc) return null
@@ -144,7 +144,7 @@ export const ohlcChartType: ChartTypePlugin = {
     for (let i = 0; i < ohlc.open.length; i++) {
       const cx = xScale.map(i)
       if (mx >= cx - half && mx <= cx + half) {
-        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx) }
+        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx), x: cx, y: yScale.map(ohlc.close[i]!) }
       }
     }
 

@@ -171,7 +171,7 @@ export const matrixChartType: ChartTypePlugin = {
     const row = Math.floor((my - gridY) / (cellH + gap))
 
     if (row >= 0 && row < rows && col >= 0 && col < cols) {
-      return { seriesIndex: row, pointIndex: col, distance: 0 }
+      return { seriesIndex: row, pointIndex: col, distance: 0, x: gridX + col * (cellW + gap) + cellW / 2, y: gridY + row * (cellH + gap) + cellH / 2 }
     }
     return null
   },

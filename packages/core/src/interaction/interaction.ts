@@ -1,9 +1,17 @@
 import type {
   ChartTypePlugin, RenderContext, EventBus, DataPoint,
   PreparedData, TooltipConfig, ThemeConfig, CrosshairConfig,
+  Renderer, RendererRoot, RenderNode, HitResult,
 } from '../types'
 import { createTooltip, type TooltipInstance } from '../tooltip/tooltip'
 import { CSS_PREFIX } from '../constants'
+import { defaultHighlightNodes, applyDimming } from './highlight'
+
+export interface CanvasHighlightConfig {
+  renderer: Renderer
+  root: RendererRoot
+  getLastNodes: () => RenderNode[]
+}
 
 export interface InteractionLayer {
   attach(svg: SVGElement | HTMLCanvasElement, container: HTMLElement): void
@@ -31,6 +39,7 @@ export function createInteractionLayer(
   onClick?: (point: DataPoint, event: MouseEvent) => void,
   onHover?: (point: DataPoint | null, event: MouseEvent) => void,
   interactionState?: { isPanning: boolean },
+  canvasHighlight?: CanvasHighlightConfig,
 ): InteractionLayer {
   let targetEl: SVGElement | HTMLCanvasElement | null = null
   let container: HTMLElement | null = null
@@ -62,14 +71,16 @@ export function createInteractionLayer(
     return targetEl as SVGElement | null
   }
 
-  /** Sync overlay SVG dimensions with the canvas */
+  /** Sync overlay SVG to match the canvas CSS pixel dimensions exactly */
   function syncOverlay(): void {
     if (!overlayEl || !targetEl) return
-    const w = (targetEl as HTMLCanvasElement).clientWidth || parseInt((targetEl as HTMLCanvasElement).style.width) || 400
-    const h = (targetEl as HTMLCanvasElement).clientHeight || parseInt((targetEl as HTMLCanvasElement).style.height) || 300
+    const canvas = targetEl as HTMLCanvasElement
+    // CSS pixel width/height = chart coordinate system
+    const w = canvas.offsetWidth || canvas.clientWidth || parseInt(canvas.style.width) || 400
+    const h = canvas.offsetHeight || canvas.clientHeight || parseInt(canvas.style.height) || 300
     overlayEl.setAttribute('viewBox', `0 0 ${w} ${h}`)
-    overlayEl.setAttribute('width', String(w))
-    overlayEl.setAttribute('height', String(h))
+    overlayEl.style.width = `${w}px`
+    overlayEl.style.height = `${h}px`
   }
 
   function getCrosshairConfig(): false | CrosshairConfig {
@@ -391,7 +402,7 @@ export function createInteractionLayer(
       // Update hover highlights
       if (!activePoint || activePoint.seriesIndex !== hit.seriesIndex || activePoint.pointIndex !== hit.pointIndex) {
         clearHighlights()
-        highlightPoint(hit.seriesIndex, hit.pointIndex, svgX, svgY)
+        highlightPoint(hit)
         activePoint = { seriesIndex: hit.seriesIndex, pointIndex: hit.pointIndex }
 
         bus.emit('point:enter', { point, event: e })
@@ -478,47 +489,30 @@ export function createInteractionLayer(
   // Highlight / dim
   // -----------------------------------------------------------------------
 
-  function highlightPoint(seriesIndex: number, pointIndex: number, hitX?: number, hitY?: number): void {
-    const overlay = getOverlay()
-    if (!overlay) return
+  let highlightRafId = 0
 
-    if (isCanvas) {
-      if (hitX == null || hitY == null) return
-      syncOverlay()
-      const data = getData()
-      const series = data.series[seriesIndex]
-      if (!series) return
-
-      const glow = document.createElementNS(SVG_NS, 'circle')
-      glow.setAttribute('cx', String(hitX))
-      glow.setAttribute('cy', String(hitY))
-      glow.setAttribute('r', '12')
-      glow.setAttribute('fill', 'none')
-      glow.setAttribute('stroke', series.color)
-      glow.setAttribute('stroke-width', '2')
-      glow.setAttribute('opacity', '0.3')
-      glow.setAttribute('class', 'chartts-canvas-highlight')
-      glow.style.pointerEvents = 'none'
-      overlay.appendChild(glow)
-
-      const dot = document.createElementNS(SVG_NS, 'circle')
-      dot.setAttribute('cx', String(hitX))
-      dot.setAttribute('cy', String(hitY))
-      dot.setAttribute('r', '5')
-      dot.setAttribute('fill', series.color)
-      dot.setAttribute('stroke', '#fff')
-      dot.setAttribute('stroke-width', '2')
-      dot.setAttribute('class', 'chartts-canvas-highlight')
-      dot.style.pointerEvents = 'none'
-      overlay.appendChild(dot)
-
+  function highlightPoint(hit: HitResult): void {
+    if (isCanvas && canvasHighlight) {
+      // Canvas: re-render with dimmed series + highlight nodes
+      if (highlightRafId) return // already scheduled
+      highlightRafId = requestAnimationFrame(() => {
+        highlightRafId = 0
+        const ctx = getContext()
+        const baseNodes = canvasHighlight!.getLastNodes()
+        const dimmed = applyDimming(baseNodes, hit)
+        const highlight = chartType.getHighlightNodes
+          ? chartType.getHighlightNodes(ctx, hit)
+          : defaultHighlightNodes(hit, ctx)
+        canvasHighlight!.renderer.render(canvasHighlight!.root, [...dimmed, ...highlight])
+      })
       return
     }
 
     // SVG mode: manipulate DOM elements directly
     const svg = targetEl as SVGElement
+    if (!svg) return
     const target = svg.querySelector(
-      `[data-series="${seriesIndex}"][data-index="${pointIndex}"]`,
+      `[data-series="${hit.seriesIndex}"][data-index="${hit.pointIndex}"]`,
     ) as SVGElement | null
 
     if (target?.classList.contains('chartts-point')) {
@@ -537,8 +531,14 @@ export function createInteractionLayer(
   }
 
   function clearHighlights(): void {
-    if (isCanvas) {
-      overlayEl?.querySelectorAll('.chartts-canvas-highlight').forEach(el => el.remove())
+    if (isCanvas && canvasHighlight) {
+      // Cancel pending highlight RAF
+      if (highlightRafId) {
+        cancelAnimationFrame(highlightRafId)
+        highlightRafId = 0
+      }
+      // Re-render without dimming/highlight
+      canvasHighlight.renderer.render(canvasHighlight.root, canvasHighlight.getLastNodes())
       return
     }
 
@@ -569,12 +569,11 @@ export function createInteractionLayer(
       if (isCanvas) {
         containerEl.style.position = 'relative'
         overlayEl = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement
-        const w = svgEl.clientWidth || parseInt((svgEl as HTMLCanvasElement).style.width) || 400
-        const h = svgEl.clientHeight || parseInt((svgEl as HTMLCanvasElement).style.height) || 300
+        const canvas = svgEl as unknown as HTMLCanvasElement
+        const w = canvas.offsetWidth || canvas.clientWidth || parseInt(canvas.style.width) || 400
+        const h = canvas.offsetHeight || canvas.clientHeight || parseInt(canvas.style.height) || 300
         overlayEl.setAttribute('viewBox', `0 0 ${w} ${h}`)
-        overlayEl.setAttribute('width', String(w))
-        overlayEl.setAttribute('height', String(h))
-        overlayEl.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;overflow:visible;'
+        overlayEl.style.cssText = `position:absolute;top:0;left:0;width:${w}px;height:${h}px;pointer-events:none;overflow:visible;`
         containerEl.appendChild(overlayEl)
       }
 

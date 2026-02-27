@@ -161,7 +161,7 @@ export const baselineChartType: ChartTypePlugin = {
         const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
         if (dist < bestDist) {
           bestDist = dist
-          best = { seriesIndex: series.index, pointIndex: i, distance: dist }
+          best = { seriesIndex: series.index, pointIndex: i, distance: dist, x, y }
         }
       }
     }

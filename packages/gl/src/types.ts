@@ -75,25 +75,25 @@ export interface GLTheme {
 }
 
 export const DEFAULT_GL_THEME: GLTheme = {
-  background: [0.08, 0.08, 0.12],
+  background: [0.06, 0.065, 0.1],
   colors: [
-    '#5470c6', '#91cc75', '#fac858', '#ee6666',
-    '#73c0de', '#3ba272', '#fc8452', '#9a60b4',
+    '#6c9eff', '#5eead4', '#fbbf24', '#f472b6',
+    '#a78bfa', '#34d399', '#fb923c', '#38bdf8',
   ],
-  textColor: '#ccc',
-  gridColor: '#333',
+  textColor: '#b8c4d0',
+  gridColor: '#1e2536',
   fontFamily: 'system-ui, -apple-system, sans-serif',
   fontSize: 12,
 }
 
 export const LIGHT_GL_THEME: GLTheme = {
-  background: [0.97, 0.97, 0.97],
+  background: [0.95, 0.96, 0.98],
   colors: [
-    '#5470c6', '#91cc75', '#fac858', '#ee6666',
-    '#73c0de', '#3ba272', '#fc8452', '#9a60b4',
+    '#4f7df5', '#10b981', '#f59e0b', '#ec4899',
+    '#8b5cf6', '#14b8a6', '#f97316', '#0ea5e9',
   ],
-  textColor: '#333',
-  gridColor: '#ddd',
+  textColor: '#374151',
+  gridColor: '#d1d9e6',
   fontFamily: 'system-ui, -apple-system, sans-serif',
   fontSize: 12,
 }

@@ -108,7 +108,12 @@ export function createZoomPan(
     }
 
     if (cfg.y) {
-      state.zoomY = clamp(state.zoomY * delta, cfg.minZoom, cfg.maxZoom)
+      const mouseY = e.clientY - rect.top
+      const relY = (mouseY - area.y) / area.height
+      const newZoomY = clamp(state.zoomY * delta, cfg.minZoom, cfg.maxZoom)
+      const zoomRatioY = newZoomY / state.zoomY
+      state.panY = relY - (relY - state.panY) * zoomRatioY
+      state.zoomY = newZoomY
     }
 
     clampPan()
@@ -162,24 +167,46 @@ export function createZoomPan(
   // Touch pinch
   // -----------------------------------------------------------------------
 
+  let lastPinchCenterX = 0
+  let lastPinchCenterY = 0
+
   function onTouchStart(e: TouchEvent): void {
     if (!cfg.pinch || e.touches.length !== 2) return
     lastPinchDist = pinchDistance(e)
+    lastPinchCenterX = (e.touches[0]!.clientX + e.touches[1]!.clientX) / 2
+    lastPinchCenterY = (e.touches[0]!.clientY + e.touches[1]!.clientY) / 2
   }
 
   function onTouchMove(e: TouchEvent): void {
-    if (!cfg.pinch || e.touches.length !== 2) return
+    if (!cfg.pinch || e.touches.length !== 2 || !getArea) return
     e.preventDefault()
 
+    const area = getArea()
+    const rect = el!.getBoundingClientRect()
     const dist = pinchDistance(e)
-    const scale = dist / lastPinchDist
+    const scaleFactor = dist / lastPinchDist
     lastPinchDist = dist
 
+    // Pinch center in chart-relative coords
+    const cx = (lastPinchCenterX - rect.left - area.x) / area.width
+    const cy = (lastPinchCenterY - rect.top - area.y) / area.height
+
+    // Update pinch center for next frame
+    lastPinchCenterX = (e.touches[0]!.clientX + e.touches[1]!.clientX) / 2
+    lastPinchCenterY = (e.touches[0]!.clientY + e.touches[1]!.clientY) / 2
+
+    // Zoom toward pinch center (same formula as wheel zoom)
     if (cfg.x) {
-      state.zoomX = clamp(state.zoomX * scale, cfg.minZoom, cfg.maxZoom)
+      const newZoom = clamp(state.zoomX * scaleFactor, cfg.minZoom, cfg.maxZoom)
+      const ratio = newZoom / state.zoomX
+      state.panX = cx - (cx - state.panX) * ratio
+      state.zoomX = newZoom
     }
     if (cfg.y) {
-      state.zoomY = clamp(state.zoomY * scale, cfg.minZoom, cfg.maxZoom)
+      const newZoom = clamp(state.zoomY * scaleFactor, cfg.minZoom, cfg.maxZoom)
+      const ratio = newZoom / state.zoomY
+      state.panY = cy - (cy - state.panY) * ratio
+      state.zoomY = newZoom
     }
 
     clampPan()
@@ -191,12 +218,14 @@ export function createZoomPan(
   // -----------------------------------------------------------------------
 
   function clampPan(): void {
-    // Keep visible window within [0, 1] normalized range
-    const visibleX = 1 / state.zoomX
-    state.panX = clamp(state.panX, -(1 - visibleX), 0)
+    // Keep visible window within bounds.
+    // panX/panY represent the offset of the viewport origin as a fraction of the full area.
+    // At zoom=1, pan must be 0. At zoom=2, pan range is [-0.5, 0.5] (can shift half the view).
+    const halfVisX = (1 - 1 / state.zoomX) / 2
+    state.panX = clamp(state.panX, -halfVisX, halfVisX)
 
-    const visibleY = 1 / state.zoomY
-    state.panY = clamp(state.panY, -(1 - visibleY), 0)
+    const halfVisY = (1 - 1 / state.zoomY) / 2
+    state.panY = clamp(state.panY, -halfVisY, halfVisY)
   }
 
   function pinchDistance(e: TouchEvent): number {

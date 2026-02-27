@@ -177,7 +177,7 @@ export const boxplotChartType: ChartTypePlugin = {
       if (mx >= cx - boxWidth / 2 - 4 && mx <= cx + boxWidth / 2 + 4 &&
           my >= top - 4 && my <= bottom + 4) {
         const seriesIdx = Math.min(i, data.series.length - 1)
-        return { seriesIndex: seriesIdx, pointIndex: i, distance: 0 }
+        return { seriesIndex: seriesIdx, pointIndex: i, distance: 0, x: cx, y: yScale.map(vals[2]!) }
       }
     }
 

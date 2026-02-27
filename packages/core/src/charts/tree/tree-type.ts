@@ -182,7 +182,7 @@ export const treeChartType: ChartTypePlugin = {
       const dist = Math.sqrt((mx - node.x) ** 2 + (my - node.y) ** 2)
       if (dist < bestDist && dist < hitRadius) {
         bestDist = dist
-        best = { seriesIndex: 0, pointIndex: idx, distance: dist }
+        best = { seriesIndex: 0, pointIndex: idx, distance: dist, x: node.x, y: node.y }
       }
       idx++
       for (const child of node.children) {

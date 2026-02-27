@@ -104,7 +104,7 @@ export const volumeChartType: ChartTypePlugin = {
       const cx = xScale.map(i)
       const yTop = yScale.map(series.values[i]!)
       if (mx >= cx - barWidth / 2 && mx <= cx + barWidth / 2 && my >= yTop && my <= baseline) {
-        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx) }
+        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx), x: cx, y: yTop }
       }
     }
 

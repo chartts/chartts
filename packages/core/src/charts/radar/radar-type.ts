@@ -186,7 +186,7 @@ export const radarChartType: ChartTypePlugin = {
         const dist = Math.sqrt((mx - px) ** 2 + (my - py) ** 2)
         if (dist < bestDist && dist < hitRadius) {
           bestDist = dist
-          best = { seriesIndex: series.index, pointIndex: i, distance: dist }
+          best = { seriesIndex: series.index, pointIndex: i, distance: dist, x: px, y: py }
         }
       }
     }

@@ -25,15 +25,42 @@ vec3 phongLighting(vec3 normal, vec3 fragPos, vec3 baseColor) {
   vec3 N = normalize(normal);
   vec3 L = normalize(u_lightDir);
   vec3 V = normalize(u_cameraPos - fragPos);
-  vec3 R = reflect(-L, N);
+  vec3 H = normalize(L + V);
 
-  vec3 ambient = u_ambientColor * baseColor;
-  float diff = max(dot(N, L), 0.0);
+  // Hemisphere ambient - warm sky, cool ground
+  float hemi = dot(N, vec3(0.0, 1.0, 0.0)) * 0.5 + 0.5;
+  vec3 skyAmbient = u_ambientColor * vec3(1.1, 1.05, 1.2);
+  vec3 groundAmbient = u_ambientColor * vec3(0.6, 0.55, 0.7);
+  vec3 ambient = mix(groundAmbient, skyAmbient, hemi) * baseColor;
+
+  // Smooth wrapped diffuse for softer light falloff
+  float NdotL = dot(N, L);
+  float diff = max(NdotL * 0.5 + 0.5, 0.0);
+  diff = diff * diff;
   vec3 diffuse = u_diffuseColor * diff * baseColor;
-  float spec = pow(max(dot(V, R), 0.0), u_shininess);
-  vec3 specular = u_specularColor * spec;
 
-  return ambient + diffuse + specular;
+  // Fill light from below-side for depth
+  vec3 fillDir = normalize(vec3(-0.4, -0.3, -0.6));
+  float fillDiff = max(dot(N, fillDir) * 0.5 + 0.5, 0.0);
+  vec3 fill = baseColor * fillDiff * 0.15;
+
+  // Blinn-Phong specular with smooth falloff
+  float spec = pow(max(dot(N, H), 0.0), u_shininess);
+  vec3 specular = u_specularColor * spec * 0.7;
+
+  // Rim/fresnel glow - bright edges like subsurface scatter
+  float rim = 1.0 - max(dot(V, N), 0.0);
+  rim = pow(rim, 3.0);
+  vec3 rimColor = mix(baseColor, vec3(1.0), 0.5);
+  vec3 rimLight = rimColor * rim * 0.35;
+
+  vec3 result = ambient + diffuse + fill + specular + rimLight;
+
+  // Slight saturation boost
+  float lum = dot(result, vec3(0.299, 0.587, 0.114));
+  result = mix(vec3(lum), result, 1.12);
+
+  return clamp(result, 0.0, 1.0);
 }
 `
 

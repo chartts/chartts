@@ -38,7 +38,7 @@ export const lollipopChartType: ChartTypePlugin = {
     const bw = getBandwidth(xScale)
     const groupWidth = bw * 0.8
     const stemGap = groupWidth / seriesCount
-    const dotR = Math.min(6, stemGap * 0.35)
+    const dotR = Math.min(8, stemGap * 0.4)
     const baselineY = yScale.map(0)
 
     for (const series of data.series) {
@@ -49,19 +49,28 @@ export const lollipopChartType: ChartTypePlugin = {
         const vy = yScale.map(series.values[i]!)
         const color = options.colors[series.index % options.colors.length]!
 
-        // Stem line
+        // Stem line — rounded cap, slightly thicker
         seriesNodes.push(line(cx, baselineY, cx, vy, {
           class: 'chartts-lollipop-stem',
           stroke: color,
-          strokeWidth: 2,
+          strokeWidth: 2.5,
+          strokeLinecap: 'round',
+          strokeOpacity: 0.6,
         }))
 
-        // Dot
+        // Ambient glow behind dot
+        seriesNodes.push(circle(cx, vy, dotR * 2, {
+          class: 'chartts-lollipop-glow',
+          fill: color,
+          fillOpacity: 0.12,
+        }))
+
+        // Dot — bigger, with theme-aware stroke
         seriesNodes.push(circle(cx, vy, dotR, {
           class: 'chartts-lollipop-dot',
           fill: color,
-          stroke: '#fff',
-          strokeWidth: 1.5,
+          stroke: `var(--chartts-bg, #fff)`,
+          strokeWidth: 2.5,
           'data-series': series.index,
           'data-index': i,
           tabindex: 0,
@@ -102,7 +111,7 @@ export const lollipopChartType: ChartTypePlugin = {
 
         if (dist < bestDist) {
           bestDist = dist
-          best = { seriesIndex: series.index, pointIndex: i, distance: dist }
+          best = { seriesIndex: series.index, pointIndex: i, distance: dist, x: cx, y: vy }
         }
       }
     }

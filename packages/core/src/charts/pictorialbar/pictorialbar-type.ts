@@ -30,7 +30,7 @@ export interface PictorialBarOptions {
 // SVG path data for symbols (centered at 0,0, size 1x1)
 const SYMBOL_PATHS: Record<string, string> = {
   circle: 'M0.5,0A0.5,0.5,0,1,1,-0.5,0A0.5,0.5,0,1,1,0.5,0Z',
-  diamond: 'M0,-0.5L0.5,0L0,-0.5L-0.5,0Z',
+  diamond: 'M0,-0.5L0.5,0L0,0.5L-0.5,0Z',
   square: 'M-0.4,-0.4L0.4,-0.4L0.4,0.4L-0.4,0.4Z',
   triangle: 'M0,-0.5L0.5,0.4L-0.5,0.4Z',
   star: 'M0,-0.5L0.15,-0.15L0.5,-0.15L0.22,0.07L0.31,0.45L0,0.22L-0.31,0.45L-0.22,0.07L-0.5,-0.15L-0.15,-0.15Z',
@@ -167,7 +167,7 @@ export const pictorialBarChartType: ChartTypePlugin = {
     for (let i = 0; i < barCount; i++) {
       const cx = startX + i * (barWidth + barGap) + barWidth / 2
       if (Math.abs(mx - cx) < barWidth / 2 + 5) {
-        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx) }
+        return { seriesIndex: 0, pointIndex: i, distance: Math.abs(mx - cx), x: cx, y: area.y + area.height / 2 }
       }
     }
 

@@ -179,7 +179,7 @@ export const rangeChartType: ChartTypePlugin = {
       const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
       if (dist < bestDist) {
         bestDist = dist
-        best = { seriesIndex: 0, pointIndex: i, distance: dist }
+        best = { seriesIndex: 0, pointIndex: i, distance: dist, x, y }
       }
     }
 

@@ -180,7 +180,9 @@ export const chordChartType: ChartTypePlugin = {
 
       for (const arc of arcs) {
         if (angle >= arc.startAngle && angle <= arc.endAngle) {
-          return { seriesIndex: arc.index, pointIndex: 0, distance: 0 }
+          const midAngle = (arc.startAngle + arc.endAngle) / 2
+          const midR = (innerR + outerR) / 2
+          return { seriesIndex: arc.index, pointIndex: 0, distance: 0, x: cx + midR * Math.cos(midAngle), y: cy + midR * Math.sin(midAngle) }
         }
       }
     }

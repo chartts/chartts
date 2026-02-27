@@ -4,7 +4,7 @@ import type {
 } from '../../types'
 import { prepareNoAxes } from '../../utils/prepare'
 import { path, text } from '../../render/tree'
-import { PathBuilder } from '../../render/tree'
+import { roundedSlicePath } from '../../utils/slice-path'
 
 /**
  * Sunburst chart — hierarchical radial visualization.
@@ -83,38 +83,29 @@ export const sunburstChartType: ChartTypePlugin = {
       const sliceAngle = node.endAngle - node.startAngle
       if (sliceAngle < 0.005) return // Skip tiny slices
 
-      const padAngle = 0.01
-      const actualStart = node.startAngle + padAngle / 2
-      const actualEnd = node.endAngle - padAngle / 2
-      if (actualEnd <= actualStart) return
+      // Uniform pixel gap: different angular offsets at different radii
+      const gapPx = 3
+      const halfGap = gapPx / 2
+      const outerPadAngle = halfGap / r1
+      const innerPadAngle = r0 > 0 ? halfGap / r0 : 0
 
-      // Build annular sector path
-      const pb = new PathBuilder()
-      const largeArc = sliceAngle > Math.PI
+      if (sliceAngle < outerPadAngle * 2 + 0.005) return
 
-      const x1o = cx + r1 * Math.cos(actualStart)
-      const y1o = cy + r1 * Math.sin(actualStart)
-      const x2o = cx + r1 * Math.cos(actualEnd)
-      const y2o = cy + r1 * Math.sin(actualEnd)
-      const x1i = cx + r0 * Math.cos(actualEnd)
-      const y1i = cy + r0 * Math.sin(actualEnd)
-      const x2i = cx + r0 * Math.cos(actualStart)
-      const y2i = cy + r0 * Math.sin(actualStart)
+      const cr = Math.min(4, ringWidth * 0.2)
 
-      pb.moveTo(x1o, y1o)
-      pb.arc(r1, r1, 0, largeArc, true, x2o, y2o)
-      pb.lineTo(x1i, y1i)
-      pb.arc(r0, r0, 0, largeArc, false, x2i, y2i)
-      pb.close()
+      const d = roundedSlicePath(
+        cx, cy, r1, r0,
+        node.startAngle + outerPadAngle, node.endAngle - outerPadAngle,
+        node.startAngle + innerPadAngle, node.endAngle - innerPadAngle,
+        cr,
+      )
 
       const opacity = 1 - (node.depth - 1) * 0.15
 
-      nodes.push(path(pb.build(), {
+      nodes.push(path(d, {
         class: 'chartts-sunburst-sector',
         fill: color,
         fillOpacity: Math.max(0.4, opacity),
-        stroke: theme.background === 'transparent' ? '#fff' : theme.background,
-        strokeWidth: 0.5,
         'data-series': 0,
         'data-index': colorIdx,
         tabindex: 0,
@@ -124,7 +115,7 @@ export const sunburstChartType: ChartTypePlugin = {
 
       // Label for larger sectors
       if (sliceAngle > 0.3 && ringWidth > 20) {
-        const midAngle = (actualStart + actualEnd) / 2
+        const midAngle = (node.startAngle + node.endAngle) / 2
         const labelR = (r0 + r1) / 2
         const lx = cx + labelR * Math.cos(midAngle)
         const ly = cy + labelR * Math.sin(midAngle)
@@ -186,7 +177,7 @@ export const sunburstChartType: ChartTypePlugin = {
     // Find sector at this depth and angle
     const hit = findSector(root, depth, angle)
     if (hit) {
-      return { seriesIndex: 0, pointIndex: hit, distance: 0 }
+      return { seriesIndex: 0, pointIndex: hit, distance: 0, x: mx, y: my }
     }
 
     return null

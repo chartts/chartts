@@ -185,7 +185,7 @@ export const sankeyChartType: ChartTypePlugin = {
       const node = sankeyNodes[ni]!
       const x = getNodeX(node, columns, area, nodeWidth)
       if (mx >= x && mx <= x + nodeWidth && my >= node.y && my <= node.y + node.height) {
-        return { seriesIndex: ni, pointIndex: 0, distance: 0 }
+        return { seriesIndex: ni, pointIndex: 0, distance: 0, x: x + nodeWidth / 2, y: node.y + node.height / 2 }
       }
     }
 
