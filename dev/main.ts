@@ -6,6 +6,7 @@ import {
   Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord,
   Geo, Lines, Matrix, Custom,
   OHLC, Step, Volume, Range, Baseline, Kagi, Renko,
+  Violin, Pack, Voronoi, WordCloud, Torus,
   WORLD_SIMPLE,
   createChart, lineChartType, barChartType, areaChartType, scatterChartType,
   pieChartType, radarChartType,
@@ -22,9 +23,9 @@ import {
 import type { ChartInstance, ChartData } from '@chartts/core'
 import {
   Scatter3D, Bar3D, Surface3D, Globe3D, Map3D,
-  Lines3D, Line3D, ScatterGL, LinesGL, FlowGL, GraphGL,
+  Lines3D, Line3D, ScatterGL, LinesGL, FlowGL, GraphGL, Torus3D,
 } from '@chartts/gl'
-import type { GLChartData, GLChartInstance } from '@chartts/gl'
+import type { GLChartData, GLChartInstance, GLSeries3D } from '@chartts/gl'
 
 // ---------------------------------------------------------------------------
 // Sample data
@@ -136,6 +137,10 @@ const GL_DATA = {
       y: Array.from({length: 30}, () => 1 + Math.random() * 5),
     }],
     categories: Array.from({length: 30}, (_, i) => `N${i}`),
+  } as GLChartData,
+  torus3d: {
+    series: [{ name: 'Metrics', values: [160, 130, 95, 55, 38] }],
+    categories: ['Retention', 'Revenue', 'Growth', 'Engagement', 'Users'],
   } as GLChartData,
 }
 
@@ -357,6 +362,31 @@ const DATA = {
     labels: ['A','B','C','D','E'],
     series: [{ name: 'Values', values: [40, 80, 60, 95, 50] }],
   } as ChartData,
+  violin: {
+    labels: ['Setosa','Versicolor','Virginica','Hybrid'],
+    series: [{ name: 'Petal Length', values: [
+      1.0, 1.3, 1.5, 1.7, 1.9,
+      3.0, 3.8, 4.3, 4.7, 5.1,
+      4.5, 5.2, 5.6, 6.1, 6.9,
+      2.5, 3.1, 3.8, 4.2, 5.0,
+    ] }],
+  } as ChartData,
+  pack: {
+    labels: ['JavaScript','Python','TypeScript','Java','Rust','Go','C++','Ruby','Swift','Kotlin'],
+    series: [{ name: 'Popularity', values: [98, 85, 72, 68, 45, 42, 38, 25, 22, 18] }],
+  } as ChartData,
+  voronoi: {
+    labels: ['Alpha','Beta','Gamma','Delta','Epsilon','Zeta','Eta','Theta','Iota','Kappa','Lambda','Mu'],
+    series: [{ name: 'Weight', values: [85, 72, 60, 55, 48, 42, 38, 35, 28, 22, 18, 12] }],
+  } as ChartData,
+  wordcloud: {
+    labels: ['React','TypeScript','JavaScript','Node','CSS','HTML','Vite','Rust','Python','GraphQL','Docker','Kubernetes','AWS','Tailwind','Next.js','Vue','Angular','Svelte','Deno','Bun'],
+    series: [{ name: 'Mentions', values: [100, 92, 88, 75, 70, 65, 58, 55, 50, 45, 42, 38, 35, 48, 52, 40, 32, 30, 25, 28] }],
+  } as ChartData,
+  torus: {
+    labels: ['Apr', 'Jan', 'Mar', 'May', 'Feb'],
+    series: [{ name: 'Revenue', values: [150, 120, 95, 72, 45] }],
+  } as ChartData,
 }
 
 // ---------------------------------------------------------------------------
@@ -516,6 +546,10 @@ const pages: Page[] = [
         ['Baseline', el => Baseline(el, { theme: theme(), data: { labels: ['Q1','Q2','Q3','Q4','Q1','Q2','Q3','Q4'], series: [{ name: 'P&L', values: [5.2,-3.1,8.4,-1.5,6.8,2.1,-4.3,9.2] }] }, baseline: 0 } as any)],
         ['Kagi', el => Kagi(el, { theme: theme(), data: { labels: Array.from({length:30}, (_,i) => `D${i+1}`), series: [{ name: 'Price', values: [100,102,101,105,103,108,106,110,107,112,109,114,111,108,105,109,113,110,115,112,118,115,120,117,122,119,125,121,128,124] }] } } as any)],
         ['Renko', el => Renko(el, { theme: theme(), data: { labels: Array.from({length:30}, (_,i) => `D${i+1}`), series: [{ name: 'Price', values: [100,102,105,103,108,106,112,109,115,111,118,114,120,116,122,118,125,121,128,124,130,126,132,128,135,131,138,134,140,136] }] } } as any)],
+        ['Violin', el => Violin(el, { theme: theme(), data: DATA.violin })],
+        ['Pack', el => Pack(el, { theme: theme(), data: DATA.pack })],
+        ['Voronoi', el => Voronoi(el, { theme: theme(), data: DATA.voronoi })],
+        ['Word Cloud', el => WordCloud(el, { theme: theme(), data: DATA.wordcloud })],
       ]
 
       for (const [name, factory] of all) {
@@ -871,6 +905,7 @@ const pages: Page[] = [
         ['Heatmap', 'Time vs day matrix', c => Heatmap(c, { theme: theme(), data: DATA.heatmap })],
         ['Boxplot', 'Statistical distribution', c => Boxplot(c, { theme: theme(), data: DATA.boxplot })],
         ['Histogram', 'Frequency distribution', c => Histogram(c, { theme: theme(), data: DATA.histogram })],
+        ['Violin', 'Distribution shape', c => Violin(c, { theme: theme(), data: DATA.violin })],
         ['Large Heatmap', '7x6 weekly grid', c => Heatmap(c, { theme: theme(), data: { labels: ['W1','W2','W3','W4','W5','W6'], series: [{ name: 'Mon', values: [4,7,2,8,5,3] },{ name: 'Tue', values: [6,3,9,4,7,8] },{ name: 'Wed', values: [8,5,1,6,9,2] },{ name: 'Thu', values: [3,8,7,2,4,6] },{ name: 'Fri', values: [5,2,6,9,3,7] },{ name: 'Sat', values: [1,4,3,5,8,9] },{ name: 'Sun', values: [2,6,8,1,2,4] }] }, colors: ['#10b981'] } as any)],
       ]
       for (const [title, desc, factory] of items) {
@@ -888,8 +923,80 @@ const pages: Page[] = [
       const g = grid(2)
       const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
         ['Treemap', 'Sized by popularity', c => Treemap(c, { theme: theme(), data: DATA.treemap })],
+        ['Pack', 'Circle packing', c => Pack(c, { theme: theme(), data: DATA.pack })],
+        ['Voronoi', 'Tessellation', c => Voronoi(c, { theme: theme(), data: DATA.voronoi })],
+        ['Word Cloud', 'Sized by frequency', c => WordCloud(c, { theme: theme(), data: DATA.wordcloud })],
+        ['Torus', 'Sine-wave cylinder', c => Torus(c, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 1 } as any)],
         ['Polar / Rose', 'Nightingale rose', c => Polar(c, { theme: theme(), data: DATA.polar })],
         ['Polar (Monthly)', '12-month activity', c => Polar(c, { theme: theme(), data: { labels: ['J','F','M','A','M','J','J','A','S','O','N','D'], series: [{ name: 'Activity', values: [20,25,40,55,70,85,90,80,65,45,30,22] }] } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'violin', name: 'Violin Plot', icon: '\u{1F3BB}', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Violin Plot', 'Mirrored kernel density estimation showing distribution shape per category.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Basic Violin', '4 groups', c => Violin(c, { theme: theme(), data: DATA.violin })],
+        ['Wide Spread', 'Varied distributions', c => Violin(c, { theme: theme(), data: { labels: ['Low Var', 'High Var', 'Skewed'], series: [{ name: 'Min', values: [30, 5, 20] }, { name: 'Q1', values: [38, 20, 28] }, { name: 'Median', values: [42, 50, 35] }, { name: 'Q3', values: [46, 80, 60] }, { name: 'Max', values: [54, 95, 85] }] } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'pack', name: 'Circle Packing', icon: '\u25CB', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Circle Packing', 'Circles sized proportionally to value. Area encodes magnitude.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Framework Stars', '8 circles', c => Pack(c, { theme: theme(), data: DATA.pack })],
+        ['Market Share', 'Tech companies', c => Pack(c, { theme: theme(), data: { labels: ['Apple', 'Microsoft', 'Google', 'Amazon', 'Meta', 'Tesla'], series: [{ name: 'Cap ($T)', values: [3.4, 3.1, 2.1, 1.9, 1.3, 0.8] }] } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'voronoi', name: 'Voronoi', icon: '\u2B21', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Voronoi Tessellation', 'Nearest-neighbor partitioning of a plane. Color intensity encodes value.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Basic Voronoi', '8 regions', c => Voronoi(c, { theme: theme(), data: DATA.voronoi })],
+        ['Dense Voronoi', '12 regions', c => Voronoi(c, { theme: theme(), data: { labels: ['A','B','C','D','E','F','G','H','I','J','K','L'], series: [{ name: 'Val', values: [90,45,70,30,85,55,65,40,75,50,60,35] }] } })],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mount(main, factory(container)) } catch {} })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'wordcloud', name: 'Word Cloud', icon: '\u2601', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Word Cloud', 'Words sized by frequency. Spiral placement with collision detection.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => ChartInstance][] = [
+        ['Tech Stack', '12 words', c => WordCloud(c, { theme: theme(), data: DATA.wordcloud })],
+        ['Buzz Words', 'Marketing terms', c => WordCloud(c, { theme: theme(), data: { labels: ['AI', 'Cloud', 'DevOps', 'Agile', 'Blockchain', 'IoT', 'SaaS', 'API', 'Microservices', 'Kubernetes'], series: [{ name: 'Frequency', values: [95, 80, 70, 65, 40, 55, 75, 60, 50, 45] }] } })],
       ]
       for (const [title, desc, factory] of items) {
         const { card, container } = chartCard(title, desc)
@@ -1862,7 +1969,7 @@ const pages: Page[] = [
   {
     id: 'gl-overview', name: 'GL Overview', icon: '\u25C6', group: 'GL Charts',
     render(main) {
-      main.appendChild(section('WebGL 3D & GPU-Accelerated Charts', 'All 11 GL chart types — pure WebGL, no Three.js. Orbit with mouse drag, zoom with scroll.'))
+      main.appendChild(section('WebGL 3D & GPU-Accelerated Charts', 'All 12 GL chart types — pure WebGL, no Three.js. Orbit with mouse drag, zoom with scroll.'))
       const g = grid(3)
 
       const allGL: [string, (el: HTMLElement) => GLChartInstance][] = [
@@ -1877,6 +1984,7 @@ const pages: Page[] = [
         ['Lines GL', el => LinesGL(el, { data: GL_DATA.linesGL, theme: isDark ? 'dark' : 'light' })],
         ['Flow GL', el => FlowGL(el, { data: { series: [] }, theme: isDark ? 'dark' : 'light', fieldType: 'wind', showArrows: false } as any)],
         ['Graph GL', el => GraphGL(el, { data: GL_DATA.graphGL, theme: isDark ? 'dark' : 'light' })],
+        ['Torus 3D', el => Torus3D(el, { data: GL_DATA.torus3d, theme: isDark ? 'dark' : 'light', orbit: { autoRotate: true, autoRotateSpeed: 0.8 } })],
       ]
 
       for (const [name, factory] of allGL) {
@@ -1960,7 +2068,7 @@ const pages: Page[] = [
         ['World Cities', '12 cities, 2 series with labels', c => Globe3D(c, { data: GL_DATA.globe3d, theme: t })],
         ['Static View', 'No auto-rotate, orbit manually', c => Globe3D(c, { data: GL_DATA.globe3d, theme: t, orbit: { autoRotate: false } })],
         ['Single Series', 'Population only', c => Globe3D(c, { data: {
-          series: [GL_DATA.globe3d.series[0]!],
+          series: [GL_DATA.globe3d.series[0]!] as GLSeries3D[],
           categories: GL_DATA.globe3d.categories,
         }, theme: t })],
         ['Light Theme', 'Light background globe', c => Globe3D(c, { data: GL_DATA.globe3d, theme: 'light' })],
@@ -2052,6 +2160,75 @@ const pages: Page[] = [
         const { card, container } = chartCard(title, desc)
         g.appendChild(card)
         requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'torus3d', name: 'Torus 3D', icon: '\u25CE', group: 'GL Charts',
+    render(main) {
+      main.appendChild(section('Torus 3D', 'Sine-modulated cylinder creating stacked-torus appearance. Each ring represents a data value. Configurable intensity and frequency.'))
+      const g = grid(2)
+      const items: [string, string, (c: HTMLElement) => GLChartInstance][] = [
+        ['Default', 'intensity: 1, frequency: 1', c => Torus3D(c, {
+          data: GL_DATA.torus3d, theme: isDark ? 'dark' : 'light',
+          orbit: { autoRotate: true, autoRotateSpeed: 0.8 },
+          intensity: 1, frequency: 1,
+        } as any)],
+        ['High Frequency', 'frequency: 3', c => Torus3D(c, {
+          data: GL_DATA.torus3d, theme: isDark ? 'dark' : 'light',
+          orbit: { autoRotate: true, autoRotateSpeed: 0.5 },
+          intensity: 1, frequency: 3,
+        } as any)],
+        ['High Intensity', 'intensity: 2', c => Torus3D(c, {
+          data: GL_DATA.torus3d, theme: isDark ? 'dark' : 'light',
+          orbit: { autoRotate: true, autoRotateSpeed: 0.5 },
+          intensity: 2, frequency: 1,
+        } as any)],
+        ['Dense Rings', '10 data points, freq: 2', c => Torus3D(c, {
+          data: { series: [{ name: 'KPI', values: [90, 35, 68, 80, 45, 72, 55, 88, 40, 65] }], categories: ['A','B','C','D','E','F','G','H','I','J'] },
+          theme: isDark ? 'dark' : 'light',
+          orbit: { autoRotate: true, autoRotateSpeed: 0.6 },
+          intensity: 0.8, frequency: 2,
+        } as any)],
+      ]
+      for (const [title, desc, factory] of items) {
+        const { card, container } = chartCard(title, desc)
+        g.appendChild(card)
+        requestAnimationFrame(() => { try { mountGL(main, factory(container)) } catch (e) { container.innerHTML = `<div class="text-red-500 text-xs p-2">${(e as Error).message}</div>` } })
+      }
+      main.appendChild(g)
+    },
+  },
+  {
+    id: 'torus', name: 'Torus', icon: '\u25CE', group: 'Charts',
+    render(main) {
+      main.appendChild(section('Torus Chart (2D)', 'SVG silhouette of a sine-modulated cylinder. Each ring segment colored by data value. Supports vertical and horizontal orientations.'))
+      const g = grid(2)
+      const items: [string, string, () => ChartInstance][] = [
+        ['Vertical', 'Default orientation', () => {
+          const { card, container } = chartCard('Vertical', 'intensity: 1, frequency: 1')
+          g.appendChild(card)
+          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 1 } as any)
+        }],
+        ['Horizontal', 'orientation: horizontal', () => {
+          const { card, container } = chartCard('Horizontal', 'orientation: horizontal')
+          g.appendChild(card)
+          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 1, orientation: 'horizontal' } as any)
+        }],
+        ['High Frequency', 'frequency: 3', () => {
+          const { card, container } = chartCard('High Frequency', 'frequency: 3')
+          g.appendChild(card)
+          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 1, frequency: 3 } as any)
+        }],
+        ['Intense', 'intensity: 2, freq: 2', () => {
+          const { card, container } = chartCard('Intense', 'intensity: 2, frequency: 2')
+          g.appendChild(card)
+          return Torus(container, { theme: theme(), data: DATA.torus, intensity: 2, frequency: 2 } as any)
+        }],
+      ]
+      for (const [, , factory] of items) {
+        requestAnimationFrame(() => { try { mount(main, factory()) } catch (e) { console.error(e) } })
       }
       main.appendChild(g)
     },

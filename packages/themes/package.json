@@ -1,6 +1,6 @@
 {
   "name": "@chartts/themes",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Extra theme presets for Chartts. Neon, pastel, monochrome, luxury, retro, and more.",
   "type": "module",
   "main": "./dist/index.cjs",

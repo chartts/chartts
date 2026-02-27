@@ -24,13 +24,6 @@ export function circularLayout(
   const cx = area.x + area.width / 2
   const cy = area.y + area.height / 2
 
-  // Leave room for node shapes
-  const maxNodeSize = Math.max(
-    ...nodes.map(nd => Math.max(nd.width, nd.height)),
-    40,
-  )
-  const radius = Math.min(area.width, area.height) / 2 - maxNodeSize / 2 - 10
-
   // Order nodes to reduce crossings (BFS from most-connected node)
   const order = connectivityOrder(nodes, edges)
 
@@ -40,14 +33,47 @@ export function circularLayout(
     if (!nodes[idx]!.pin) unpinned.push(idx)
   }
 
-  const angleStep = (2 * Math.PI) / Math.max(unpinned.length, 1)
+  const count = Math.max(unpinned.length, 1)
+  const angleStep = (2 * Math.PI) / count
+
+  // Use elliptical layout to fill non-square areas better
+  const maxNodeW = Math.max(...nodes.map(nd => nd.width), 40)
+  const maxNodeH = Math.max(...nodes.map(nd => nd.height), 40)
+  const margin = 10
+
+  // Radii: fill the area minus room for the largest node
+  let rx = area.width / 2 - maxNodeW / 2 - margin
+  let ry = area.height / 2 - maxNodeH / 2 - margin
+
+  // Ensure nodes don't overlap along the ellipse:
+  // minimum arc spacing ≈ max(node diagonal) + gap
+  if (count > 1) {
+    const maxDiag = Math.max(
+      ...nodes.map(nd => Math.sqrt(nd.width * nd.width + nd.height * nd.height)),
+      40,
+    )
+    const minSpacing = maxDiag + 16
+    // Approximate ellipse perimeter ≈ π * (3(a+b) - √((3a+b)(a+3b)))
+    const perimApprox = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)))
+    const spacingPerNode = perimApprox / count
+    if (spacingPerNode < minSpacing) {
+      const scale = minSpacing / spacingPerNode
+      rx *= scale
+      ry *= scale
+    }
+  }
+
+  // Clamp so nodes stay within area
+  rx = Math.max(20, Math.min(rx, area.width / 2 - margin))
+  ry = Math.max(20, Math.min(ry, area.height / 2 - margin))
+
   const startAngle = -Math.PI / 2 // 12 o'clock
 
   for (let i = 0; i < unpinned.length; i++) {
     const node = nodes[unpinned[i]!]!
     const angle = startAngle + angleStep * i
-    node.x = cx + radius * Math.cos(angle)
-    node.y = cy + radius * Math.sin(angle)
+    node.x = cx + rx * Math.cos(angle)
+    node.y = cy + ry * Math.sin(angle)
   }
 
   // Apply pinned positions

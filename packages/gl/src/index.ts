@@ -37,7 +37,7 @@ export { createGLChart } from './api/create-gl'
 // Convenience factories
 export {
   Scatter3D, Bar3D, Surface3D, Globe3D, Map3D,
-  Lines3D, Line3D, ScatterGL, LinesGL, FlowGL, GraphGL,
+  Lines3D, Line3D, ScatterGL, LinesGL, FlowGL, GraphGL, Torus3D,
 } from './api/factory'
 
 // Chart type plugins
@@ -52,3 +52,5 @@ export { createScatterGLPlugin } from './charts/scatter-gl/scatter-gl-type'
 export { createLinesGLPlugin } from './charts/lines-gl/lines-gl-type'
 export { createFlowGLPlugin } from './charts/flow-gl/flow-gl-type'
 export { createGraphGLPlugin } from './charts/graph-gl/graph-gl-type'
+export { createTorus3DPlugin } from './charts/torus3d/torus3d-type'
+export type { Torus3DOptions } from './charts/torus3d/torus3d-type'

@@ -44,6 +44,11 @@ import { rangeChartType } from '../charts/range/range-type'
 import { baselineChartType } from '../charts/baseline/baseline-type'
 import { kagiChartType } from '../charts/kagi/kagi-type'
 import { renkoChartType } from '../charts/renko/renko-type'
+import { violinChartType } from '../charts/violin/violin-type'
+import { packChartType } from '../charts/pack/pack-type'
+import { voronoiChartType } from '../charts/voronoi/voronoi-type'
+import { wordcloudChartType } from '../charts/wordcloud/wordcloud-type'
+import { torusChartType } from '../charts/torus/torus-type'
 
 interface ChartConfig extends ChartOptions {
   data: ChartData
@@ -273,4 +278,29 @@ export function Kagi(target: string | HTMLElement, config: ChartConfig): ChartIn
 export function Renko(target: string | HTMLElement, config: ChartConfig): ChartInstance {
   const { data, ...options } = config
   return createChart(target, renkoChartType, data, options)
+}
+
+export function Violin(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, violinChartType, data, options)
+}
+
+export function Pack(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, packChartType, data, options)
+}
+
+export function Voronoi(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, voronoiChartType, data, options)
+}
+
+export function WordCloud(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, wordcloudChartType, data, options)
+}
+
+export function Torus(target: string | HTMLElement, config: ChartConfig): ChartInstance {
+  const { data, ...options } = config
+  return createChart(target, torusChartType, data, options)
 }

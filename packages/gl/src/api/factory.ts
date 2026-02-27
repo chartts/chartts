@@ -16,6 +16,7 @@ import { createScatterGLPlugin } from '../charts/scatter-gl/scatter-gl-type'
 import { createLinesGLPlugin } from '../charts/lines-gl/lines-gl-type'
 import { createFlowGLPlugin } from '../charts/flow-gl/flow-gl-type'
 import { createGraphGLPlugin } from '../charts/graph-gl/graph-gl-type'
+import { createTorus3DPlugin } from '../charts/torus3d/torus3d-type'
 
 export function Scatter3D(container: HTMLElement | string, opts: GLChartOptions & { data: GLChartData }): GLChartInstance {
   const { data, ...options } = opts
@@ -90,4 +91,10 @@ export function FlowGL(container: HTMLElement | string, opts: GLChartOptions & {
 export function GraphGL(container: HTMLElement | string, opts: GLChartOptions & { data: GLChartData }): GLChartInstance {
   const { data, ...options } = opts
   return createGLChart(container, createGraphGLPlugin(), data, options)
+}
+
+export function Torus3D(container: HTMLElement | string, opts: GLChartOptions & { data: GLChartData }): GLChartInstance {
+  const { data, ...options } = opts
+  if (!options.camera) options.camera = { position: [4, 2, 6], target: [0, 0, 0] }
+  return createGLChart(container, createTorus3DPlugin(), data, options)
 }

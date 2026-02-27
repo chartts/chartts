@@ -284,6 +284,7 @@ export function createInteractionLayer(
   }
 
   function hideCrosshair(): void {
+    if (activeCrosshairIndex === -1) return
     if (crosshairVLineEl) crosshairVLineEl.style.opacity = '0'
     if (crosshairHLineEl) crosshairHLineEl.style.opacity = '0'
     if (crosshairTipEl) {

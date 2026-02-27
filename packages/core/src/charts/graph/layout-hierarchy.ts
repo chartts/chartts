@@ -47,29 +47,52 @@ export function hierarchyLayout(
   const layerGroups = groupByLayer(layers, n)
   orderLayers(layerGroups, outgoing, incoming, 3)
 
-  // 3. Coordinate assignment
-  const isHorizontal = direction === 'LR' || direction === 'RL'
+  // 3. Node-size-aware coordinate assignment
   const maxLayer = Math.max(...layers, 0)
-
-  const availW = area.width
-  const availH = area.height
-
-  // Layer spacing
   const layerCount = maxLayer + 1
-  const layerGap = isHorizontal
-    ? availW / (layerCount + 1)
-    : availH / (layerCount + 1)
+  const isVertical = direction === 'TB' || direction === 'BT'
+
+  // Compute the max "thickness" per layer (height for TB/BT, width for LR/RL)
+  const layerThickness: number[] = new Array(layerCount).fill(0)
+  for (let layer = 0; layer < layerCount; layer++) {
+    const grp = layerGroups[layer] ?? []
+    for (const idx of grp) {
+      const nd = nodes[idx]!
+      const thick = isVertical ? nd.height : nd.width
+      if (thick > layerThickness[layer]!) layerThickness[layer] = thick
+    }
+  }
+
+  // Total thickness of all layers + gaps between them
+  const gap = 24 // min gap between layer edges
+  const totalThickness = layerThickness.reduce((s, t) => s + t, 0) + gap * (layerCount - 1)
+  const availableThickness = isVertical ? area.height : area.width
+  // Scale factor if nodes are too tightly packed
+  const scale = totalThickness > availableThickness ? availableThickness / totalThickness : 1
+
+  // Compute cumulative layer center positions
+  const layerCenter: number[] = new Array(layerCount).fill(0)
+  // Center the layout within the available space
+  const usedThickness = totalThickness * scale
+  const offset = (availableThickness - usedThickness) / 2
+  let cursor = offset + (layerThickness[0]! * scale) / 2
+  layerCenter[0] = cursor
+  for (let layer = 1; layer < layerCount; layer++) {
+    cursor += (layerThickness[layer - 1]! * scale) / 2 + gap * scale + (layerThickness[layer]! * scale) / 2
+    layerCenter[layer] = cursor
+  }
+
+  // Reverse order for BT/RL
+  if (direction === 'BT' || direction === 'RL') {
+    layerCenter.reverse()
+  }
 
   for (let layer = 0; layer <= maxLayer; layer++) {
-    const group = layerGroups[layer] ?? []
-    if (group.length === 0) continue
+    const grp = layerGroups[layer] ?? []
+    if (grp.length === 0) continue
 
-    const nodeGap = isHorizontal
-      ? availH / (group.length + 1)
-      : availW / (group.length + 1)
-
-    for (let pos = 0; pos < group.length; pos++) {
-      const node = nodes[group[pos]!]!
+    for (let pos = 0; pos < grp.length; pos++) {
+      const node = nodes[grp[pos]!]!
 
       // Pinned nodes override layout
       if (node.pin) {
@@ -78,36 +101,19 @@ export function hierarchyLayout(
         continue
       }
 
-      let layerCoord = area.x + layerGap * (layer + 1)
-      let posCoord = area.y + nodeGap * (pos + 1)
+      const posFrac = (pos + 1) / (grp.length + 1)
+      const layerPos = layerCenter[layer]!
 
-      if (isHorizontal) {
-        // layerCoord = x, posCoord = y
-        // already correct
-      } else {
-        // layerCoord = y, posCoord = x
-        const tmp = layerCoord
-        layerCoord = posCoord
-        posCoord = tmp
-      }
-
-      // Direction flipping
       switch (direction) {
         case 'TB':
-          node.x = layerCoord
-          node.y = posCoord
-          break
         case 'BT':
-          node.x = layerCoord
-          node.y = area.y + area.height - (posCoord - area.y)
+          node.x = area.x + posFrac * area.width
+          node.y = area.y + layerPos
           break
         case 'LR':
-          node.x = layerCoord
-          node.y = posCoord
-          break
         case 'RL':
-          node.x = area.x + area.width - (layerCoord - area.x)
-          node.y = posCoord
+          node.x = area.x + layerPos
+          node.y = area.y + posFrac * area.height
           break
       }
     }

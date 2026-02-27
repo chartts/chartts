@@ -1,28 +1,16 @@
 import type { GraphNode, GraphEdge } from './types'
 
 /**
- * Improved force-directed layout (Fruchterman-Reingold style).
+ * Force-directed layout (Fruchterman-Reingold style).
  *
- * Features over the old layout:
  * - Node-size-aware repulsion (prevents shape overlap)
  * - Pin support (pinned nodes keep position, still repel)
  * - Velocity damping (0.8x per iteration)
- * - Layout caching for warm-start during drag
  */
 
 export interface ForceLayoutOpts {
   iterations: number
   area: { x: number; y: number; width: number; height: number }
-}
-
-/** Module-scoped layout cache for warm-start (drag reflows). */
-const layoutCache = new Map<string, Array<{ x: number; y: number }>>()
-
-/** Build a cache key from node IDs + edge connectivity. */
-function cacheKey(nodes: GraphNode[], edges: GraphEdge[]): string {
-  const nk = nodes.map(n => n.id).join(',')
-  const ek = edges.map(e => `${e.source}-${e.target}`).join(',')
-  return nk + '|' + ek
 }
 
 export function forceLayout(
@@ -37,39 +25,30 @@ export function forceLayout(
   const cx = area.x + area.width / 2
   const cy = area.y + area.height / 2
 
-  // Try warm-start from cache
-  const key = cacheKey(nodes, edges)
-  const cached = layoutCache.get(key)
-
-  if (cached && cached.length === n) {
-    for (let i = 0; i < n; i++) {
-      const node = nodes[i]!
-      if (!node.pin) {
-        node.x = cached[i]!.x
-        node.y = cached[i]!.y
-      }
+  // Initialize positions: pinned nodes get their pin, others in a circle
+  // Use large initial spread so force simulation pushes nodes apart, not together
+  for (let i = 0; i < n; i++) {
+    const node = nodes[i]!
+    if (node.pin) {
+      node.x = area.x + node.pin.x * area.width
+      node.y = area.y + node.pin.y * area.height
+    } else {
+      const angle = (2 * Math.PI * i) / n
+      const r = Math.min(area.width, area.height) * 0.4
+      node.x = cx + r * Math.cos(angle)
+      node.y = cy + r * Math.sin(angle)
     }
-  } else {
-    // Initialize positions: pinned nodes get their pin, others in a circle
-    for (let i = 0; i < n; i++) {
-      const node = nodes[i]!
-      if (node.pin) {
-        // Pin coordinates are 0-1 normalized — map to area
-        node.x = area.x + node.pin.x * area.width
-        node.y = area.y + node.pin.y * area.height
-      } else {
-        const angle = (2 * Math.PI * i) / n
-        const r = Math.min(area.width, area.height) * 0.3
-        node.x = cx + r * Math.cos(angle)
-        node.y = cy + r * Math.sin(angle)
-      }
-      node.vx = 0
-      node.vy = 0
-    }
+    node.vx = 0
+    node.vy = 0
   }
 
-  const k = Math.sqrt((area.width * area.height) / Math.max(n, 1))
-  const repulsion = k * k
+  // k = ideal edge length, scaled up for node sizes
+  const avgNodeSize = nodes.reduce((s, nd) => s + Math.max(nd.width, nd.height), 0) / n
+  const k = Math.max(
+    Math.sqrt((area.width * area.height) / Math.max(n, 1)),
+    avgNodeSize * 2,
+  )
+  const repulsion = k * k * 1.5
 
   for (let iter = 0; iter < iterations; iter++) {
     const temp = 0.1 * (1 - iter / iterations) * Math.min(area.width, area.height) * 0.5
@@ -89,9 +68,11 @@ export function forceLayout(
         const dy = ni.y - nj.y
         const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1)
 
-        // Extra repulsion for overlapping shapes
-        const minDist = (Math.max(ni.width, ni.height) + Math.max(nj.width, nj.height)) / 2
-        const effectiveDist = Math.max(dist - minDist * 0.6, 1)
+        // Minimum separation = sum of half-diagonals + gap
+        const ri = Math.sqrt(ni.width * ni.width + ni.height * ni.height) / 2
+        const rj = Math.sqrt(nj.width * nj.width + nj.height * nj.height) / 2
+        const minDist = ri + rj + 12
+        const effectiveDist = Math.max(dist - minDist * 0.5, 1)
 
         const force = repulsion / (effectiveDist * effectiveDist)
         const fx = (dx / dist) * force
@@ -104,7 +85,7 @@ export function forceLayout(
       }
     }
 
-    // Attraction along edges
+    // Attraction along edges (weaker to let repulsion separate nodes)
     for (const edge of edges) {
       const src = nodes[edge.source]!
       const tgt = nodes[edge.target]!
@@ -112,8 +93,8 @@ export function forceLayout(
       const dy = tgt.y - src.y
       const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1)
       const force = (dist * dist) / k
-      const fx = (dx / dist) * force * 0.1
-      const fy = (dy / dist) * force * 0.1
+      const fx = (dx / dist) * force * 0.08
+      const fy = (dy / dist) * force * 0.08
 
       src.vx += fx
       src.vy += fy
@@ -131,10 +112,8 @@ export function forceLayout(
 
     // Apply velocities with temperature damping
     for (const node of nodes) {
-      // Pinned nodes don't move
       if (node.pin) continue
 
-      // Damping
       node.vx *= 0.8
       node.vy *= 0.8
 
@@ -153,11 +132,45 @@ export function forceLayout(
     }
   }
 
-  // Store in cache for warm-start
-  layoutCache.set(key, nodes.map(nd => ({ x: nd.x, y: nd.y })))
-}
+  // Post-layout overlap resolution: push apart any nodes that still overlap
+  for (let pass = 0; pass < 10; pass++) {
+    let moved = false
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const ni = nodes[i]!
+        const nj = nodes[j]!
+        if (ni.pin && nj.pin) continue
 
-/** Clear the layout cache (call when data changes). */
-export function clearForceCache(): void {
-  layoutCache.clear()
+        // Axis-aligned overlap check
+        const overlapX = (ni.width + nj.width) / 2 + 8 - Math.abs(ni.x - nj.x)
+        const overlapY = (ni.height + nj.height) / 2 + 8 - Math.abs(ni.y - nj.y)
+        if (overlapX <= 0 || overlapY <= 0) continue
+
+        // Push apart along the axis with less overlap
+        const pushX = overlapX < overlapY
+        const push = (pushX ? overlapX : overlapY) / 2 + 1
+
+        if (pushX) {
+          const dir = ni.x >= nj.x ? 1 : -1
+          if (!ni.pin) ni.x += dir * push
+          if (!nj.pin) nj.x -= dir * push
+        } else {
+          const dir = ni.y >= nj.y ? 1 : -1
+          if (!ni.pin) ni.y += dir * push
+          if (!nj.pin) nj.y -= dir * push
+        }
+        moved = true
+      }
+    }
+    if (!moved) break
+
+    // Re-constrain
+    for (const node of nodes) {
+      if (node.pin) continue
+      const mx = Math.max(20, node.width / 2 + 5)
+      const my = Math.max(20, node.height / 2 + 5)
+      node.x = Math.max(area.x + mx, Math.min(area.x + area.width - mx, node.x))
+      node.y = Math.max(area.y + my, Math.min(area.y + area.height - my, node.y))
+    }
+  }
 }

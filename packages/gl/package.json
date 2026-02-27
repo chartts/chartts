@@ -1,6 +1,6 @@
 {
   "name": "@chartts/gl",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "WebGL chart types for Chartts. 3D bar, scatter, surface, globe, and more.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -66,6 +66,11 @@
       "types": "./dist/graph-gl.d.ts",
       "import": "./dist/graph-gl.js",
       "require": "./dist/graph-gl.cjs"
+    },
+    "./torus3d": {
+      "types": "./dist/torus3d.d.ts",
+      "import": "./dist/torus3d.js",
+      "require": "./dist/torus3d.cjs"
     }
   },
   "files": [

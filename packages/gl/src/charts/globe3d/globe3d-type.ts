@@ -54,6 +54,7 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
   let sphereIBO: GLBuffer | null = null
   let sphereIndexCount = 0
   const modelMatrix = mat4()
+  let locationColors: Map<string, string> = new Map()
   const normalMatrix = new Float32Array(9)
   let screenPoints: ScreenPoint[] = []
   let seriesInfo: { name: string; color: string }[] = []
@@ -69,27 +70,44 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
       renderer.registerProgram('mesh', MESH_VERT, MESH_FRAG,
         [...MESH_VERT_UNIFORMS, ...MESH_FRAG_UNIFORMS], MESH_VERT_ATTRIBUTES)
 
-      // Collect all data patches
-      const patches: DataPatch[] = []
-      let maxVal = 0
-      for (const s of series) for (const v of s.values) if (Math.abs(v) > maxVal) maxVal = Math.abs(v)
-      if (maxVal === 0) maxVal = 1
-
+      // Collect unique locations and merge series values per location
+      // Each location gets its own distinct color from the palette
+      const locationMap = new Map<string, { lat: number; lng: number; totalValue: number; label: string; entries: { si: number; di: number; value: number }[] }>()
       seriesInfo = []
       screenPoints = []
 
       for (let sIdx = 0; sIdx < series.length; sIdx++) {
         const s = series[sIdx]!
         const colorHex = s.color ?? theme.colors[sIdx % theme.colors.length]!
-        const color = hexToRGB(colorHex)
         seriesInfo.push({ name: s.name, color: colorHex })
         for (let di = 0; di < s.values.length; di++) {
           const lat = s.y?.[di] ?? 0, lng = s.x?.[di] ?? 0, value = s.values[di]!
-          const normValue = Math.abs(value) / maxVal
-          patches.push({ lat, lng, value, normValue, color, si: sIdx, di, name: s.name, label: data.categories?.[di] ?? '' })
+          const label = data.categories?.[di] ?? ''
+          const key = `${lat.toFixed(1)}_${lng.toFixed(1)}`
+          let loc = locationMap.get(key)
+          if (!loc) { loc = { lat, lng, totalValue: 0, label, entries: [] }; locationMap.set(key, loc) }
+          loc.totalValue += Math.abs(value)
+          loc.entries.push({ si: sIdx, di, value })
           const [wx, wy, wz] = latLngToXYZ(lat, lng, GLOBE_RADIUS)
-          screenPoints.push({ si: sIdx, di, lat, lng, wx, wy, wz, value, name: s.name, label: data.categories?.[di] ?? '' })
+          screenPoints.push({ si: sIdx, di, lat, lng, wx, wy, wz, value, name: s.name, label })
         }
+      }
+
+      // Build patches: one per unique location, each with its own color
+      const patches: DataPatch[] = []
+      locationColors = new Map()
+      let maxVal = 0
+      for (const loc of locationMap.values()) if (loc.totalValue > maxVal) maxVal = loc.totalValue
+      if (maxVal === 0) maxVal = 1
+
+      let locIdx = 0
+      for (const loc of locationMap.values()) {
+        const colorHex = theme.colors[locIdx % theme.colors.length]!
+        locationColors.set(loc.label, colorHex)
+        const color = hexToRGB(colorHex)
+        const normValue = loc.totalValue / maxVal
+        patches.push({ lat: loc.lat, lng: loc.lng, value: loc.totalValue, normValue, color, si: 0, di: locIdx, name: loc.label, label: loc.label })
+        locIdx++
       }
 
       // Build sphere with data baked into vertex colors
@@ -101,7 +119,6 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
       const gratWidth = 0.015
       const gratColor: [number, number, number] = [0.08, 0.12, 0.22]
 
-      console.log(`[Globe3D] Building sphere ${SEGMENTS}x${RINGS}, ${patches.length} data patches`)
 
       const verts: number[] = []
       const indices: number[] = []
@@ -162,14 +179,13 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
         }
       }
 
-      console.log(`[Globe3D] ${patchedVerts} / ${(RINGS + 1) * (SEGMENTS + 1)} vertices colored by data`)
 
-      // Triangulate
+      // Triangulate (CCW winding for correct front-face)
       for (let ring = 0; ring < RINGS; ring++) {
         for (let seg = 0; seg < SEGMENTS; seg++) {
           const a = ring * (SEGMENTS + 1) + seg
           const b = a + SEGMENTS + 1
-          indices.push(a, b, a + 1, a + 1, b, b + 1)
+          indices.push(a, a + 1, b, a + 1, b + 1, b)
         }
       }
 
@@ -198,6 +214,7 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
       prog.setFloat('u_opacity', progress)
 
       if (sphereVBO && sphereIBO) {
+        gl.disable(gl.CULL_FACE)
         sphereVBO.bind()
         const layout = createVertexLayout([
           { location: prog.attributes['a_position']!, size: 3 },
@@ -209,6 +226,7 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
         const indexType = (RINGS + 1) * (SEGMENTS + 1) > 65535 ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT
         gl.drawElements(gl.TRIANGLES, sphereIndexCount, indexType, 0)
         disableVertexLayout(gl, layout)
+        gl.enable(gl.CULL_FACE)
       }
     },
 
@@ -233,11 +251,13 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
         if (!screen || screen.z < -1 || screen.z > 1 || screen.z > 0.97) continue
         seenLabels.add(sp.label)
 
-        // Small dot at location
-        ctx2d.fillStyle = theme.textColor
-        ctx2d.globalAlpha = 0.7
+        const locColor = locationColors.get(sp.label) ?? theme.textColor
+
+        // Colored dot at location matching the surface patch
+        ctx2d.fillStyle = locColor
+        ctx2d.globalAlpha = 0.9
         ctx2d.beginPath()
-        ctx2d.arc(screen.x, screen.y, 2.5, 0, Math.PI * 2)
+        ctx2d.arc(screen.x, screen.y, 3, 0, Math.PI * 2)
         ctx2d.fill()
 
         // Label
@@ -245,32 +265,6 @@ export function createGlobe3DPlugin(): GLChartTypePlugin {
         ctx2d.globalAlpha = 0.85
         ctx2d.textAlign = 'left'
         ctx2d.fillText(sp.label, screen.x + 8, screen.y)
-      }
-
-      // -- Legend --
-      if (seriesInfo.length > 1) {
-        const lx = 12, ly = height - 14 - seriesInfo.length * 18
-
-        ctx2d.fillStyle = 'rgba(0,0,0,0.45)'
-        ctx2d.globalAlpha = 1
-        ctx2d.beginPath()
-        ctx2d.roundRect(lx - 6, ly - 8, 120, seriesInfo.length * 18 + 12, 6)
-        ctx2d.fill()
-
-        ctx2d.textAlign = 'left'
-        ctx2d.textBaseline = 'top'
-        ctx2d.font = `${theme.fontSize - 1}px ${theme.fontFamily}`
-        for (let i = 0; i < seriesInfo.length; i++) {
-          const s = seriesInfo[i]!
-          const y = ly + i * 18
-          ctx2d.fillStyle = s.color
-          ctx2d.globalAlpha = 0.9
-          ctx2d.beginPath()
-          ctx2d.arc(lx + 4, y + 6, 4, 0, Math.PI * 2)
-          ctx2d.fill()
-          ctx2d.fillStyle = 'rgba(255,255,255,0.8)'
-          ctx2d.fillText(s.name, lx + 14, y)
-        }
       }
 
       ctx2d.restore()

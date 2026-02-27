@@ -829,6 +829,91 @@ export const CHART_CSS = /* css */ `
   filter: brightness(1.15);
 }
 
+/* ---- Violin ---- */
+@keyframes chartts-violin-in {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+.chartts-violin-shape {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-violin-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 30ms);
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-violin-shape:hover {
+  filter: brightness(1.15);
+  fill-opacity: 0.45 !important;
+}
+.chartts-violin-box, .chartts-violin-median {
+  pointer-events: none;
+}
+
+/* ---- Pack (Circle Packing) ---- */
+@keyframes chartts-pack-in {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-pack-circle {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-pack-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 20ms);
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-pack-circle:hover {
+  filter: brightness(1.15) saturate(1.1);
+}
+.chartts-pack-label {
+  pointer-events: none;
+}
+
+/* ---- Voronoi ---- */
+@keyframes chartts-voronoi-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-voronoi-cell {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-voronoi-in 0.4s ease calc(var(--chartts-i, 0) * 20ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-voronoi-cell:hover {
+  filter: brightness(1.2) saturate(1.2);
+  fill-opacity: 0.9 !important;
+}
+.chartts-voronoi-seed, .chartts-voronoi-label {
+  pointer-events: none;
+}
+
+/* ---- Word Cloud ---- */
+@keyframes chartts-wordcloud-in {
+  0% { opacity: 0; transform: scale(0.3) rotate(-8deg); }
+  70% { transform: scale(1.05) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.chartts-wordcloud-word {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-wordcloud-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 40ms);
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-wordcloud-word:hover {
+  filter: brightness(1.2) saturate(1.3);
+  fill-opacity: 1 !important;
+}
+
 /* ---- DataZoom ---- */
 .chartts-datazoom-handle {
   cursor: ew-resize;
@@ -880,7 +965,9 @@ export const CHART_CSS = /* css */ `
 .chartts-skip-anim .chartts-volume-bar, .chartts-skip-anim .chartts-range-band,
 .chartts-skip-anim .chartts-baseline-pos, .chartts-skip-anim .chartts-baseline-neg,
 .chartts-skip-anim .chartts-baseline-line, .chartts-skip-anim .chartts-kagi-line,
-.chartts-skip-anim .chartts-renko-brick {
+.chartts-skip-anim .chartts-renko-brick,
+.chartts-skip-anim .chartts-violin-shape, .chartts-skip-anim .chartts-pack-circle,
+.chartts-skip-anim .chartts-voronoi-cell, .chartts-skip-anim .chartts-wordcloud-word {
   animation: none !important;
   opacity: 1 !important;
 }
@@ -913,7 +1000,9 @@ export const CHART_CSS = /* css */ `
   .chartts-volume-bar, .chartts-range-band,
   .chartts-baseline-pos, .chartts-baseline-neg,
   .chartts-baseline-line, .chartts-kagi-line,
-  .chartts-renko-brick {
+  .chartts-renko-brick,
+  .chartts-violin-shape, .chartts-pack-circle,
+  .chartts-voronoi-cell, .chartts-wordcloud-word {
     animation: none !important;
     opacity: 1 !important;
   }

@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup'
 
 const chartEntries = [
   'bar3d', 'scatter3d', 'surface3d', 'globe3d', 'map3d',
-  'lines3d', 'line3d', 'scatter-gl', 'lines-gl', 'flow-gl', 'graph-gl',
+  'lines3d', 'line3d', 'scatter-gl', 'lines-gl', 'flow-gl', 'graph-gl', 'torus3d',
 ]
 
 const entry: Record<string, string> = {

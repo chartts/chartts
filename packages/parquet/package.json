@@ -1,6 +1,6 @@
 {
   "name": "@chartts/parquet",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Parquet adapter for Chartts. Import Parquet files as chart data.",
   "type": "module",
   "main": "./dist/index.cjs",

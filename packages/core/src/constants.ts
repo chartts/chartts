@@ -103,14 +103,14 @@ export const NO_AXES_TYPES = new Set([
   'radial-bar', 'bullet', 'dumbbell', 'calendar', 'sankey',
   'sunburst', 'tree', 'graph', 'parallel', 'themeriver',
   'pictorialbar', 'chord', 'geo', 'lines', 'matrix', 'custom',
-  'kagi', 'renko',
+  'kagi', 'renko', 'pack', 'voronoi', 'wordcloud',
 ])
 
 /** Chart types that use band mode for the x-scale. */
 export const BAND_SCALE_TYPES = new Set([
   'bar', 'stacked-bar', 'horizontal-bar', 'candlestick',
   'waterfall', 'histogram', 'boxplot', 'lollipop', 'combo',
-  'ohlc', 'volume',
+  'ohlc', 'volume', 'violin',
 ])
 
 // ---------------------------------------------------------------------------
