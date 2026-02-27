@@ -14,6 +14,7 @@ import { group, rect, text } from '../../render/tree'
  */
 export const heatmapChartType: ChartTypePlugin = {
   type: 'heatmap',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

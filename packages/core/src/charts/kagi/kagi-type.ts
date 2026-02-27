@@ -6,7 +6,7 @@ import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
 
-export interface KagiOptions {
+export interface KagiOptions extends ResolvedOptions {
   /** Reversal amount. If < 1, treated as percentage of range. Default 0.04 (4%). */
   reversalAmount?: number
   /** Yang (up-trend) color. Default green. */
@@ -39,6 +39,7 @@ interface KagiSegment {
  */
 export const kagiChartType: ChartTypePlugin = {
   type: 'kagi',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -55,7 +56,7 @@ export const kagiChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length < 2) return nodes
 
-    const opts = options as unknown as KagiOptions
+    const opts = options as KagiOptions
     const yangColor = opts.yangColor ?? 'var(--color-emerald-500, #10b981)'
     const yinColor = opts.yinColor ?? 'var(--color-red-500, #ef4444)'
     const yangWidth = opts.yangWidth ?? 3

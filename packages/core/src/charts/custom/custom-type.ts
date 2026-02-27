@@ -16,7 +16,7 @@ import { text } from '../../render/tree'
  * If no renderFn is provided, renders a placeholder message.
  */
 
-export interface CustomChartOptions {
+export interface CustomChartOptions extends ResolvedOptions {
   renderFn?: (ctx: RenderContext) => RenderNode[]
   hitTestFn?: (ctx: RenderContext, mx: number, my: number) => HitResult | null
   scaleTypes?: { x: ScaleType; y: ScaleType }
@@ -24,9 +24,10 @@ export interface CustomChartOptions {
 
 export const customChartType: ChartTypePlugin = {
   type: 'custom',
+  suppressAxes: true,
 
   getScaleTypes(_data?: ChartData, options?: ResolvedOptions): { x: ScaleType; y: ScaleType } {
-    const cOpts = options as unknown as CustomChartOptions | undefined
+    const cOpts = options as CustomChartOptions | undefined
     return cOpts?.scaleTypes ?? { x: 'categorical', y: 'linear' }
   },
 
@@ -35,7 +36,7 @@ export const customChartType: ChartTypePlugin = {
   },
 
   render(ctx: RenderContext): RenderNode[] {
-    const cOpts = ctx.options as unknown as CustomChartOptions
+    const cOpts = ctx.options as CustomChartOptions
 
     if (cOpts.renderFn) {
       return cOpts.renderFn(ctx)
@@ -61,7 +62,7 @@ export const customChartType: ChartTypePlugin = {
   },
 
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
-    const cOpts = ctx.options as unknown as CustomChartOptions
+    const cOpts = ctx.options as CustomChartOptions
     if (cOpts.hitTestFn) {
       const result = cOpts.hitTestFn(ctx, mx, my)
       if (result && result.x === undefined) result.x = mx

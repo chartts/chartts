@@ -32,6 +32,7 @@ interface SunburstNode {
 
 export const sunburstChartType: ChartTypePlugin = {
   type: 'sunburst',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

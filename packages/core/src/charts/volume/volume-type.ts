@@ -6,7 +6,7 @@ import { prepareData } from '../../data/prepare'
 import { group, rect } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
 
-export interface VolumeOptions {
+export interface VolumeOptions extends ResolvedOptions {
   /** Explicit direction per bar: 'up' or 'down'. Auto-detected if omitted. */
   directions?: ('up' | 'down')[]
   /** Up color (volume on up-price day). Default green. */
@@ -25,6 +25,7 @@ export interface VolumeOptions {
  */
 export const volumeChartType: ChartTypePlugin = {
   type: 'volume',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -44,7 +45,7 @@ export const volumeChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series) return nodes
 
-    const opts = options as unknown as VolumeOptions
+    const opts = options as VolumeOptions
     const upColor = opts.upColor ?? 'var(--color-emerald-500, #10b981)'
     const downColor = opts.downColor ?? 'var(--color-red-500, #ef4444)'
     const gapFrac = opts.gap ?? 0.2
@@ -94,7 +95,7 @@ export const volumeChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series) return null
 
-    const opts = options as unknown as VolumeOptions
+    const opts = options as VolumeOptions
     const gapFrac = opts.gap ?? 0.2
     const bw = getBandwidth(xScale)
     const barWidth = bw * (1 - gapFrac)

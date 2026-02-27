@@ -6,7 +6,7 @@ import { prepareData } from '../../data/prepare'
 import { group, line } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
 
-export interface OHLCOptions {
+export interface OHLCOptions extends ResolvedOptions {
   /** OHLC data arrays. */
   ohlc?: {
     open: number[]
@@ -32,13 +32,14 @@ export interface OHLCOptions {
  */
 export const ohlcChartType: ChartTypePlugin = {
   type: 'ohlc',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
   },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    const opts = options as unknown as OHLCOptions
+    const opts = options as OHLCOptions
     const ohlc = opts.ohlc
     const prepared = prepareData(data, options)
 
@@ -62,7 +63,7 @@ export const ohlcChartType: ChartTypePlugin = {
     const { data, xScale, yScale, options } = ctx
     const nodes: RenderNode[] = []
 
-    const opts = options as unknown as OHLCOptions
+    const opts = options as OHLCOptions
     const ohlc = opts.ohlc
     if (!ohlc) return nodes
 
@@ -134,7 +135,7 @@ export const ohlcChartType: ChartTypePlugin = {
 
   hitTest(ctx: RenderContext, mx: number, _my: number): HitResult | null {
     const { xScale, yScale, options } = ctx
-    const opts = options as unknown as OHLCOptions
+    const opts = options as OHLCOptions
     const ohlc = opts.ohlc
     if (!ohlc) return null
 

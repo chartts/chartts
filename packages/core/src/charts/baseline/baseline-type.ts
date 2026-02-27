@@ -7,7 +7,7 @@ import { prepareData } from '../../data/prepare'
 import { group, path, circle, line } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
 
-export interface BaselineOptions {
+export interface BaselineOptions extends ResolvedOptions {
   /** Reference value for positive/negative split. Default 0. */
   baseline?: number
   /** Color for values above baseline. Default green. */
@@ -36,7 +36,7 @@ export const baselineChartType: ChartTypePlugin = {
   },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    const opts = options as unknown as BaselineOptions
+    const opts = options as BaselineOptions
     const bv = opts.baseline ?? 0
     const prepared = prepareData(data, options)
     // Ensure baseline value is visible in the scale
@@ -49,7 +49,7 @@ export const baselineChartType: ChartTypePlugin = {
     const { data, xScale, yScale, area, options, theme } = ctx
     const nodes: RenderNode[] = []
 
-    const opts = options as unknown as BaselineOptions
+    const opts = options as BaselineOptions
     const bv = opts.baseline ?? 0
     const posColor = opts.positiveColor ?? 'var(--color-emerald-500, #10b981)'
     const negColor = opts.negativeColor ?? 'var(--color-red-500, #ef4444)'

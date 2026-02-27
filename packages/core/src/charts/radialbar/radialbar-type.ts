@@ -14,6 +14,7 @@ import { PathBuilder } from '../../render/tree'
  */
 export const radialBarChartType: ChartTypePlugin = {
   type: 'radial-bar',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

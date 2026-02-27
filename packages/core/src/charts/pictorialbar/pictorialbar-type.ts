@@ -16,7 +16,7 @@ import { group, path, text } from '../../render/tree'
  * creating a pictograph/isotype visualization.
  */
 
-export interface PictorialBarOptions {
+export interface PictorialBarOptions extends ResolvedOptions {
   /** Symbol shape. Default 'circle'. */
   symbol?: 'circle' | 'diamond' | 'square' | 'triangle' | 'star'
   /** Symbol size in px. Default 12. */
@@ -38,6 +38,7 @@ const SYMBOL_PATHS: Record<string, string> = {
 
 export const pictorialBarChartType: ChartTypePlugin = {
   type: 'pictorialbar',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -54,7 +55,7 @@ export const pictorialBarChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const pOpts = options as unknown as PictorialBarOptions
+    const pOpts = options as PictorialBarOptions
     const symbolShape = pOpts.symbol ?? 'circle'
     const symbolSize = pOpts.symbolSize ?? 14
     const symbolGap = pOpts.symbolGap ?? 2
@@ -152,7 +153,7 @@ export const pictorialBarChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return null
 
-    const pOpts = ctx.options as unknown as PictorialBarOptions
+    const pOpts = ctx.options as PictorialBarOptions
     const symbolSize = pOpts.symbolSize ?? 14
 
     const barCount = series.values.length

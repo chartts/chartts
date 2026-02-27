@@ -348,6 +348,10 @@ export interface RenderContext {
 
 export interface ChartTypePlugin {
   readonly type: string
+  /** If true, axes/grid/legend are suppressed and the chart renders its own layout. */
+  readonly suppressAxes?: boolean
+  /** If true, x-scale uses band mode (bars don't overflow). */
+  readonly useBandScale?: boolean
   getScaleTypes(): { x: ScaleType; y: ScaleType }
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData
   render(ctx: RenderContext): RenderNode[]

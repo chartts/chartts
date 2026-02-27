@@ -16,6 +16,7 @@ import { roundedSlicePath } from '../../utils/slice-path'
  */
 export const polarChartType: ChartTypePlugin = {
   type: 'polar',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

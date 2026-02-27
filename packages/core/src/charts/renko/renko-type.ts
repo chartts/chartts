@@ -5,7 +5,7 @@ import type {
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect } from '../../render/tree'
 
-export interface RenkoOptions {
+export interface RenkoOptions extends ResolvedOptions {
   /** Brick size in data units. Auto-calculated from ATR if omitted. */
   brickSize?: number
   /** Up brick color. Default green. */
@@ -33,6 +33,7 @@ interface RenkoBrick {
  */
 export const renkoChartType: ChartTypePlugin = {
   type: 'renko',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -49,7 +50,7 @@ export const renkoChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length < 2) return nodes
 
-    const opts = options as unknown as RenkoOptions
+    const opts = options as RenkoOptions
     const upColor = opts.upColor ?? 'var(--color-emerald-500, #10b981)'
     const downColor = opts.downColor ?? 'var(--color-red-500, #ef4444)'
     const gap = opts.gap ?? 1

@@ -11,7 +11,7 @@ import type {
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect, text } from '../../render/tree'
 
-export interface PillarOptions {
+export interface PillarOptions extends ResolvedOptions {
   /** Scale for ring width. Default 1. */
   intensity?: number
   /** Show value labels. Default true. */
@@ -37,7 +37,7 @@ export const pillarChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const opts = options as unknown as PillarOptions
+    const opts = options as PillarOptions
     const intensity = opts.intensity ?? 1
     const showLabels = opts.showLabels ?? true
     const horizontal = opts.orientation === 'horizontal'
@@ -158,7 +158,7 @@ export const pillarChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return null
 
-    const opts = options as unknown as PillarOptions
+    const opts = options as PillarOptions
     const horizontal = opts.orientation === 'horizontal'
     const numRings = series.values.length
     const gap = 3

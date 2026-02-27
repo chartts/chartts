@@ -6,7 +6,7 @@ import { prepareNoAxes } from '../../utils/prepare'
 import { path, circle, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
 
-export interface GaugeOptions {
+export interface GaugeOptions extends ResolvedOptions {
   /** Minimum value. Default 0. */
   gaugeMin?: number
   /** Maximum value. Default 100. */
@@ -25,6 +25,7 @@ export interface GaugeOptions {
  */
 export const gaugeChartType: ChartTypePlugin = {
   type: 'gauge',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -41,7 +42,7 @@ export const gaugeChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const gOpts = options as unknown as GaugeOptions
+    const gOpts = options as GaugeOptions
     const min = gOpts.gaugeMin ?? 0
     const max = gOpts.gaugeMax ?? 100
     const showValue = gOpts.showValue ?? true

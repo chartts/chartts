@@ -28,7 +28,7 @@ export interface LinesPoint {
   y: number  // 0..1 normalized
 }
 
-export interface LinesOptions {
+export interface LinesOptions extends ResolvedOptions {
   points?: LinesPoint[]
   showNodes?: boolean
   showArrows?: boolean
@@ -44,6 +44,7 @@ interface ParsedFlow {
 
 export const linesChartType: ChartTypePlugin = {
   type: 'lines',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -57,7 +58,7 @@ export const linesChartType: ChartTypePlugin = {
     const { data, area, theme, options } = ctx
     const nodes: RenderNode[] = []
 
-    const lOpts = options as unknown as LinesOptions
+    const lOpts = options as LinesOptions
     const showNodes = lOpts.showNodes !== false
     const showArrows = lOpts.showArrows !== false
     const showLabels = lOpts.showLabels !== false
@@ -219,7 +220,7 @@ export const linesChartType: ChartTypePlugin = {
 
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     const { options } = ctx
-    const lOpts = options as unknown as LinesOptions
+    const lOpts = options as LinesOptions
     const pointMap = new Map<string, { x: number; y: number }>()
 
     if (lOpts.points) {

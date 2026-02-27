@@ -14,6 +14,7 @@ import { group, path, text } from '../../render/tree'
  */
 export const voronoiChartType: ChartTypePlugin = {
   type: 'voronoi',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

@@ -1,13 +1,10 @@
 import type {
   ChartData, ChartOptions, ChartInstance, ChartTypePlugin,
-  RenderNode, RenderContext, EventBus, PreparedData, Renderer, RendererRoot,
+  RenderNode, RenderContext, EventBus, PreparedData,
 } from '../types'
-import { resolveOptions, NO_AXES_TYPES, BAND_SCALE_TYPES } from '../constants'
-import { resolveTheme, applyTheme, watchScheme } from '../theme/engine'
+import { resolveOptions } from '../constants'
+import { resolveTheme, watchScheme } from '../theme/engine'
 import { createEventBus } from '../events/bus'
-import { createSVGRenderer } from '../render/svg'
-import { createCanvasRenderer } from '../render/canvas'
-import { createWebGLRenderer } from '../render/webgl'
 import { computeLayout } from '../layout/compute'
 import { observeResize } from '../layout/responsive'
 import { renderXAxis, renderYAxis, renderGrid } from '../axis/axis'
@@ -15,13 +12,15 @@ import { renderLegend } from '../legend/legend'
 import { createLinearScale } from '../scales/linear'
 import { createCategoricalScale } from '../scales/categorical'
 import { group, defs, clipPathDef, rect } from '../render/tree'
-import { createEffectDefs } from '../render/effects'
 import { createInteractionLayer } from '../interaction/interaction'
 import { createZoomPan, type ZoomPanInstance } from '../interaction/zoom-pan'
 import { createBrush, type BrushInstance } from '../interaction/brush'
 import { createDebugPanel, type DebugPanel } from '../debug/debug'
 import { renderEmptyState, renderLoadingState, renderErrorState } from '../render/states'
 import { decimateData } from '../data/decimate'
+import { resolveRendererType, createRendererManager } from './renderer-manager'
+import { createStateManager } from './state-manager'
+import { createExporter } from './exporter'
 
 /** Extended options for createChart (includes debug flag) */
 interface CreateChartOptions extends ChartOptions {
@@ -54,41 +53,38 @@ export function createChart(
   let height = currentOptions.height || container.clientHeight || 300
   let lastCtx: RenderContext | null = null
   let lastPrepared: PreparedData | null = null
-  let chartState: 'ready' | 'loading' | 'error' | 'empty' = 'ready'
-  let stateMessage: string | undefined
   let lastRenderedNodes: RenderNode[] = []
 
-  // Systems — resolve renderer
-  let resolvedRenderer = currentOptions.renderer
-  if (resolvedRenderer === 'auto') {
-    const totalPoints = data.series.reduce((sum, s) => sum + s.values.length, 0)
-    resolvedRenderer = totalPoints > 100_000 ? 'webgl' : totalPoints > 5_000 ? 'canvas' : 'svg'
-  }
-  const useCanvas = resolvedRenderer === 'canvas' || resolvedRenderer === 'webgl'
-  const bus: EventBus = createEventBus()
-  const renderer: Renderer = resolvedRenderer === 'webgl'
-    ? createWebGLRenderer(currentTheme)
-    : resolvedRenderer === 'canvas'
-      ? createCanvasRenderer(() => currentTheme)
-      : createSVGRenderer()
-  const root: RendererRoot = renderer.createRoot(container, width, height, {
-    class: `chartts ${currentOptions.className}`.trim(),
-    role: 'img',
+  // Renderer subsystem
+  const rendererType = resolveRendererType(currentOptions.renderer, data)
+  const rm = createRendererManager({
+    container,
+    rendererType,
+    theme: currentTheme,
+    width,
+    height,
+    className: currentOptions.className,
     ariaLabel: currentOptions.ariaLabel,
   })
 
-  if (!useCanvas) {
-    applyTheme(root.element, currentTheme)
-  } else {
-    // Canvas mode: container needs relative positioning for overlay, and background
-    container.style.position = 'relative'
-    container.style.background = currentTheme.background
-  }
+  // State manager
+  const stateManager = createStateManager(() => render())
+
+  // Exporter
+  const exporter = createExporter({
+    getRoot: () => rm.root,
+    getWidth: () => width,
+    getHeight: () => height,
+    isCanvas: rm.useCanvas,
+  })
+
+  // Event bus
+  const bus: EventBus = createEventBus()
 
   // Shared interaction state — coordinates between zoom-pan and interaction layer
   const interactionState = { isPanning: false }
 
-  // Interaction layer — attaches to SVG; for Canvas, attaches to the canvas element
+  // Interaction layer
   const interaction = createInteractionLayer(
     chartType,
     () => lastCtx!,
@@ -99,19 +95,18 @@ export function createChart(
     currentOptions.onClick,
     currentOptions.onHover,
     interactionState,
-    useCanvas ? { renderer, root, getLastNodes: () => lastRenderedNodes } : undefined,
+    rm.useCanvas ? { renderer: rm.renderer, root: rm.root, getLastNodes: () => lastRenderedNodes } : undefined,
   )
-  if (useCanvas) {
-    interaction.attach(root.element as unknown as SVGElement, container)
+  if (rm.useCanvas) {
+    interaction.attach(rm.root.element as unknown as SVGElement, container)
   } else {
-    interaction.attach(root.element as SVGElement, container)
+    interaction.attach(rm.root.element as SVGElement, container)
   }
 
   // Zoom & Pan
   let zoomPan: ZoomPanInstance | null = null
   if (currentOptions.zoom || currentOptions.pan) {
-    // Geo/radial charts need 2D zoom; axis-based charts only zoom x
-    const needs2DZoom = NO_AXES_TYPES.has(chartType.type)
+    const needs2DZoom = !!chartType.suppressAxes
     zoomPan = createZoomPan(
       {
         x: true,
@@ -129,7 +124,7 @@ export function createChart(
       interactionState,
     )
     zoomPan.attach(
-      root.element as HTMLElement | SVGElement,
+      rm.root.element as HTMLElement | SVGElement,
       () => lastCtx!.area,
       () => ({ xScale: lastCtx!.xScale, yScale: lastCtx!.yScale }),
     )
@@ -141,7 +136,7 @@ export function createChart(
     brush = createBrush(
       {},
       bus,
-      root.element as HTMLElement | SVGElement,
+      rm.root.element as HTMLElement | SVGElement,
       () => lastCtx!.area,
       () => lastCtx!.xScale,
       () => lastPrepared!,
@@ -153,7 +148,7 @@ export function createChart(
   let debug: DebugPanel | null = null
   if (options.debug) {
     debug = createDebugPanel()
-    debug.attach(container, root.element as SVGElement)
+    debug.attach(container, rm.root.element as SVGElement)
   }
 
   // Auto-resize
@@ -170,47 +165,28 @@ export function createChart(
   const stopThemeWatch = currentOptions.theme === 'auto'
     ? watchScheme(() => {
         currentTheme = resolveTheme('auto')
-        if (useCanvas) {
-          container.style.background = currentTheme.background
-        } else {
-          applyTheme(root.element, currentTheme)
-        }
+        rm.applyTheme(currentTheme)
         render()
       })
     : () => {}
 
   // Initial render
   render()
-  // After first paint, mark root so subsequent renders skip entry animations.
-  // Must defer so the browser paints the first frame with animations running;
-  // adding synchronously would kill animations before they start.
   requestAnimationFrame(() => {
-    root.element.classList.add('chartts-skip-anim')
+    rm.root.element.classList.add('chartts-skip-anim')
   })
 
   // -----------------------------------------------------------------------
   function render(): void {
-    // Canvas: resize canvas element; SVG: update viewBox
-    if (useCanvas) {
-      const canvas = root.element as HTMLCanvasElement
-      const dpr = window.devicePixelRatio || 1
-      canvas.width = Math.round(width * dpr)
-      canvas.height = Math.round(height * dpr)
-      canvas.style.width = `${width}px`
-      canvas.style.height = `${height}px`
-      const ctx2d = canvas.getContext('2d')!
-      ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0)
-    } else {
-      root.element.setAttribute('viewBox', `0 0 ${width} ${height}`)
-    }
+    rm.updateViewport(width, height)
 
     // Render state overlays (loading / error / empty)
-    if (chartState === 'loading') {
-      renderer.render(root, renderLoadingState(width, height, currentTheme))
+    if (stateManager.state === 'loading') {
+      rm.renderer.render(rm.root, renderLoadingState(width, height, currentTheme))
       return
     }
-    if (chartState === 'error') {
-      renderer.render(root, renderErrorState(width, height, currentTheme, stateMessage))
+    if (stateManager.state === 'error') {
+      rm.renderer.render(rm.root, renderErrorState(width, height, currentTheme, stateManager.message))
       return
     }
 
@@ -220,8 +196,8 @@ export function createChart(
       !currentData.series.length ||
       currentData.series.every(s => s.values.length === 0)
     )
-    if (chartState === 'empty' || isEmpty) {
-      renderer.render(root, renderEmptyState(width, height, currentTheme, stateMessage))
+    if (stateManager.state === 'empty' || isEmpty) {
+      rm.renderer.render(rm.root, renderEmptyState(width, height, currentTheme, stateManager.message))
       return
     }
 
@@ -235,14 +211,14 @@ export function createChart(
     lastPrepared = prepared
 
     // Chart types that suppress axes/grid don't need axis margins
-    const suppressAxes = NO_AXES_TYPES.has(chartType.type)
+    const suppressAxes = !!chartType.suppressAxes
     const layoutOpts = suppressAxes
       ? { ...currentOptions, xAxis: false, yAxis: false, xLabel: '', yLabel: '', legend: false as const, padding: [4, 4, 4, 4] as [number, number, number, number] }
       : currentOptions
     const { area } = computeLayout(width, height, layoutOpts, prepared)
 
     // Use band mode for bar-like charts so bars don't overflow the chart area
-    const useBand = BAND_SCALE_TYPES.has(chartType.type)
+    const useBand = !!chartType.useBandScale
     const xScale = createCategoricalScale({
       categories: prepared.labels,
       range: [area.x, area.x + area.width],
@@ -276,7 +252,6 @@ export function createChart(
     const clipId = 'chartts-clip'
     const nodes: RenderNode[] = []
 
-    // Clip rect to prevent chart content from overflowing
     nodes.push(defs([
       clipPathDef(clipId, [rect(area.x, area.y, area.width, area.height)]),
     ]))
@@ -296,19 +271,10 @@ export function createChart(
     }
 
     lastRenderedNodes = nodes
-    renderer.render(root, nodes)
+    rm.renderer.render(rm.root, nodes)
 
     // SVG-only: inject effect gradient/filter defs
-    if (!useCanvas) {
-      const NS = 'http://www.w3.org/2000/svg'
-      let fxDefs = root.element.querySelector('defs.chartts-fx') as SVGElement
-      if (!fxDefs) {
-        fxDefs = document.createElementNS(NS, 'defs')
-        fxDefs.classList.add('chartts-fx')
-        root.element.insertBefore(fxDefs, root.element.firstChild)
-      }
-      fxDefs.innerHTML = createEffectDefs(currentOptions.colors)
-    }
+    rm.injectEffectDefs(currentOptions.colors)
 
     // Update debug panel
     debug?.update(ctx, nodes)
@@ -320,8 +286,7 @@ export function createChart(
       const prev = currentData
       currentData = newData
       currentOptions = resolveOptions(options, newData.series.length)
-      chartState = 'ready'
-      stateMessage = undefined
+      stateManager.reset()
       render()
       bus.emit('data:change', { previous: prev, current: newData })
     },
@@ -330,75 +295,20 @@ export function createChart(
       Object.assign(options, newOpts)
       currentOptions = resolveOptions(options, currentData.series.length)
       currentTheme = resolveTheme(currentOptions.theme)
-      applyTheme(root.element, currentTheme)
+      rm.applyTheme(currentTheme)
       render()
     },
 
     getData() { return currentData },
     getOptions() { return currentOptions },
 
-    setLoading(loading = true): void {
-      chartState = loading ? 'loading' : 'ready'
-      stateMessage = undefined
-      render()
-    },
+    setLoading(loading = true) { stateManager.setLoading(loading) },
+    setError(message?: string) { stateManager.setError(message) },
+    setEmpty(message?: string) { stateManager.setEmpty(message) },
 
-    setError(message?: string): void {
-      chartState = 'error'
-      stateMessage = message
-      render()
-    },
-
-    setEmpty(message?: string): void {
-      chartState = 'empty'
-      stateMessage = message
-      render()
-    },
-
-    toSVG(): string {
-      if (useCanvas) throw new Error('[chartts] toSVG() is not available with canvas renderer')
-      return root.element.outerHTML
-    },
-
-    async toPNG(opts?: { scale?: number }): Promise<Blob> {
-      // Canvas renderer: export directly from the canvas
-      if (useCanvas) {
-        const canvas = root.element as HTMLCanvasElement
-        return new Promise((resolve, reject) => {
-          canvas.toBlob((b) => b ? resolve(b) : reject(new Error('PNG export failed')), 'image/png')
-        })
-      }
-
-      // SVG renderer: rasterize via Image
-      const scale = opts?.scale ?? 2
-      const canvas = document.createElement('canvas')
-      canvas.width = width * scale
-      canvas.height = height * scale
-      const canvasCtx = canvas.getContext('2d')!
-      const svgStr = this.toSVG()
-      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-      const img = new Image()
-      img.width = width * scale
-      img.height = height * scale
-
-      return new Promise((resolve, reject) => {
-        img.onload = () => {
-          canvasCtx.drawImage(img, 0, 0, width * scale, height * scale)
-          URL.revokeObjectURL(url)
-          canvas.toBlob((b) => b ? resolve(b) : reject(new Error('PNG export failed')), 'image/png')
-        }
-        img.onerror = reject
-        img.src = url
-      })
-    },
-
-    async toClipboard(): Promise<void> {
-      const blob = await this.toPNG()
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob }),
-      ])
-    },
+    toSVG: () => exporter.toSVG(),
+    toPNG: (opts) => exporter.toPNG(opts),
+    toClipboard: () => exporter.toClipboard(),
 
     on(event, handler) {
       return bus.on(event as never, handler as never)
@@ -426,11 +336,11 @@ export function createChart(
       debug?.destroy()
       bus.emit('destroy', undefined as never)
       bus.destroy()
-      renderer.destroy(root)
+      rm.destroy()
     },
 
     get element(): SVGElement | HTMLCanvasElement {
-      return root.element as SVGElement | HTMLCanvasElement
+      return rm.root.element as SVGElement | HTMLCanvasElement
     },
 
     get _bus(): EventBus {

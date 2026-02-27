@@ -21,6 +21,7 @@ import { getBandwidth } from '../../utils/scale'
  */
 export const comboChartType: ChartTypePlugin = {
   type: 'combo',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

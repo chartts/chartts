@@ -15,6 +15,7 @@ import { createHorizontalMapper } from '../../utils/scale'
  */
 export const dumbbellChartType: ChartTypePlugin = {
   type: 'dumbbell',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

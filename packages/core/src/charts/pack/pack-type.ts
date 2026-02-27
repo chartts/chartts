@@ -12,6 +12,7 @@ import { group, circle, text } from '../../render/tree'
  */
 export const packChartType: ChartTypePlugin = {
   type: 'pack',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

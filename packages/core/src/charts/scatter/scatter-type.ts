@@ -4,6 +4,7 @@ import type {
 } from '../../types'
 import { prepareData } from '../../data/prepare'
 import { group, circle } from '../../render/tree'
+import { nearestPointHitTest } from '../../utils/hit-test'
 
 export const scatterChartType: ChartTypePlugin = {
   type: 'scatter',
@@ -57,23 +58,6 @@ export const scatterChartType: ChartTypePlugin = {
   },
 
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
-    const { data, xScale, yScale, theme } = ctx
-    let best: HitResult | null = null
-    let bestDist = Infinity
-    const hitRadius = theme.pointRadius + 8
-
-    for (const series of data.series) {
-      for (let i = 0; i < series.values.length; i++) {
-        const x = xScale.map(i)
-        const y = yScale.map(series.values[i]!)
-        const dist = Math.sqrt((mx - x) ** 2 + (my - y) ** 2)
-        if (dist < bestDist && dist < hitRadius) {
-          bestDist = dist
-          best = { seriesIndex: series.index, pointIndex: i, distance: dist, x, y }
-        }
-      }
-    }
-
-    return best
+    return nearestPointHitTest(ctx, mx, my, ctx.theme.pointRadius + 8)
   },
 }

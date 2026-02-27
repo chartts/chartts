@@ -9,6 +9,7 @@ import { getBandwidth } from '../../utils/scale'
 
 export const barChartType: ChartTypePlugin = {
   type: 'bar',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

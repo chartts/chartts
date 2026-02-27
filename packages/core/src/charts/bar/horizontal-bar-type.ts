@@ -15,6 +15,8 @@ import { createHorizontalMapper } from '../../utils/scale'
  */
 export const horizontalBarChartType: ChartTypePlugin = {
   type: 'horizontal-bar',
+  useBandScale: true,
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

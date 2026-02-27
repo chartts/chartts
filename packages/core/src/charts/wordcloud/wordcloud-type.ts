@@ -13,6 +13,7 @@ import { text } from '../../render/tree'
  */
 export const wordcloudChartType: ChartTypePlugin = {
   type: 'wordcloud',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

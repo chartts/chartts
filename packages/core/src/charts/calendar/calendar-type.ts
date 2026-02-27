@@ -17,6 +17,7 @@ import { group, rect, text } from '../../render/tree'
  */
 export const calendarChartType: ChartTypePlugin = {
   type: 'calendar',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

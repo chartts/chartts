@@ -16,7 +16,7 @@ import { getBandwidth } from '../../utils/scale'
  * for true KDE computation. Falls back to a smooth approximation
  * from the 5-number summary when samples aren't provided.
  */
-export interface ViolinOptions {
+export interface ViolinOptions extends ResolvedOptions {
   /** KDE bandwidth (smoothing). Default 0.3 of data range. */
   bandwidth?: number
   /** Show inner box + median line. Default true. */
@@ -27,6 +27,7 @@ export interface ViolinOptions {
 
 export const violinChartType: ChartTypePlugin = {
   type: 'violin',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -55,7 +56,7 @@ export const violinChartType: ChartTypePlugin = {
     const seriesCount = data.series.length
     if (seriesCount === 0) return nodes
 
-    const vOpts = options as unknown as ViolinOptions
+    const vOpts = options as ViolinOptions
     const widthRatio = vOpts.violinWidth ?? 0.7
     const showBox = vOpts.showBox !== false
 
@@ -181,7 +182,7 @@ export const violinChartType: ChartTypePlugin = {
     const { data, xScale, yScale, options } = ctx
     if (data.labels.length === 0) return null
 
-    const vOpts = options as unknown as ViolinOptions
+    const vOpts = options as ViolinOptions
     const widthRatio = vOpts.violinWidth ?? 0.7
     const bw = getBandwidth(xScale)
     const halfW = (bw * widthRatio) / 2

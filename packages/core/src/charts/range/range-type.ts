@@ -7,7 +7,7 @@ import { prepareData } from '../../data/prepare'
 import { group, path, circle } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
 
-export interface RangeOptions {
+export interface RangeOptions extends ResolvedOptions {
   /** Upper and lower bound arrays. */
   range?: {
     upper: number[]
@@ -37,7 +37,7 @@ export const rangeChartType: ChartTypePlugin = {
   },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    const opts = options as unknown as RangeOptions
+    const opts = options as RangeOptions
     const range = opts.range
     const prepared = prepareData(data, options)
 
@@ -61,7 +61,7 @@ export const rangeChartType: ChartTypePlugin = {
     const { data, xScale, yScale, options, theme } = ctx
     const nodes: RenderNode[] = []
 
-    const opts = options as unknown as RangeOptions
+    const opts = options as RangeOptions
     const range = opts.range
     if (!range) return nodes
 

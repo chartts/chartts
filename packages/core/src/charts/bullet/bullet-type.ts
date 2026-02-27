@@ -17,6 +17,7 @@ import { group, rect, line, text } from '../../render/tree'
  */
 export const bulletChartType: ChartTypePlugin = {
   type: 'bullet',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

@@ -1,6 +1,7 @@
 // Public API
 export { Line, Bar, StackedBar, HorizontalBar, Pie, Donut, Scatter, Sparkline, Area, Radar, Bubble, Candlestick, Gauge, Waterfall, Funnel, Heatmap, Boxplot, Histogram, Treemap, Polar, RadialBar, Lollipop, Bullet, Dumbbell, Calendar, Combo, Sankey, Sunburst, Tree, Graph, Parallel, ThemeRiver, PictorialBar, Chord, Geo, Lines, Matrix, Custom, OHLC, Step, Volume, Range, Baseline, Kagi, Renko, Violin, Pack, Voronoi, WordCloud, Pillar } from './api/convenience'
 export { createChart } from './api/create'
+export { defineChartType } from './api/define'
 
 // SSR — render to SVG string without DOM
 export { renderToString } from './render/string'
@@ -28,58 +29,25 @@ export type { BrushConfig, BrushInstance } from './interaction/brush'
 export { createStreamingChart } from './data/streaming'
 export type { StreamingConfig, StreamingInstance } from './data/streaming'
 
-// Chart type plugins (for custom registration)
-export { lineChartType } from './charts/line/line-type'
-export { barChartType } from './charts/bar/bar-type'
-export { stackedBarChartType } from './charts/bar/stacked-bar-type'
-export { horizontalBarChartType } from './charts/bar/horizontal-bar-type'
-export { pieChartType, donutChartType } from './charts/pie/pie-type'
-export { scatterChartType } from './charts/scatter/scatter-type'
-export { sparklineChartType } from './charts/sparkline/sparkline-type'
-export { areaChartType } from './charts/area/area-type'
-export { radarChartType } from './charts/radar/radar-type'
-export { bubbleChartType } from './charts/bubble/bubble-type'
-export { candlestickChartType } from './charts/candlestick/candlestick-type'
-export { gaugeChartType } from './charts/gauge/gauge-type'
-export { waterfallChartType } from './charts/waterfall/waterfall-type'
-export { funnelChartType } from './charts/funnel/funnel-type'
-export { heatmapChartType } from './charts/heatmap/heatmap-type'
-export { boxplotChartType } from './charts/boxplot/boxplot-type'
-export { histogramChartType } from './charts/histogram/histogram-type'
-export { treemapChartType } from './charts/treemap/treemap-type'
-export { polarChartType } from './charts/polar/polar-type'
-export { radialBarChartType } from './charts/radialbar/radialbar-type'
-export { lollipopChartType } from './charts/lollipop/lollipop-type'
-export { bulletChartType } from './charts/bullet/bullet-type'
-export { dumbbellChartType } from './charts/dumbbell/dumbbell-type'
-export { calendarChartType } from './charts/calendar/calendar-type'
-export { comboChartType } from './charts/combo/combo-type'
-export { sankeyChartType } from './charts/sankey/sankey-type'
-export { sunburstChartType } from './charts/sunburst/sunburst-type'
-export { treeChartType } from './charts/tree/tree-type'
-export { graphChartType } from './charts/graph/graph-type'
-export { parallelChartType } from './charts/parallel/parallel-type'
-export { themeRiverChartType } from './charts/themeriver/themeriver-type'
-export { pictorialBarChartType } from './charts/pictorialbar/pictorialbar-type'
-export { chordChartType } from './charts/chord/chord-type'
-export { geoChartType } from './charts/geo/geo-type'
+// Chart type plugins — all re-exported from centralized map
+export { CHART_TYPES } from './api/chart-types'
+export {
+  lineChartType, barChartType, stackedBarChartType, horizontalBarChartType,
+  pieChartType, donutChartType, scatterChartType, sparklineChartType,
+  areaChartType, radarChartType, bubbleChartType, candlestickChartType,
+  gaugeChartType, waterfallChartType, funnelChartType, heatmapChartType,
+  boxplotChartType, histogramChartType, treemapChartType, polarChartType,
+  radialBarChartType, lollipopChartType, bulletChartType, dumbbellChartType,
+  calendarChartType, comboChartType, sankeyChartType,
+  sunburstChartType, treeChartType, graphChartType, parallelChartType,
+  themeRiverChartType, pictorialBarChartType, chordChartType,
+  geoChartType, linesChartType, matrixChartType, customChartType,
+  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
+  baselineChartType, kagiChartType, renkoChartType, violinChartType,
+  packChartType, voronoiChartType, wordcloudChartType, pillarChartType,
+} from './api/chart-types'
 export { WORLD_SIMPLE } from './charts/geo/geo-type'
 export { WORLD_REGIONS } from './charts/geo/world-regions'
-export { linesChartType } from './charts/lines/lines-type'
-export { matrixChartType } from './charts/matrix/matrix-type'
-export { customChartType } from './charts/custom/custom-type'
-export { ohlcChartType } from './charts/ohlc/ohlc-type'
-export { stepChartType } from './charts/step/step-type'
-export { volumeChartType } from './charts/volume/volume-type'
-export { rangeChartType } from './charts/range/range-type'
-export { baselineChartType } from './charts/baseline/baseline-type'
-export { kagiChartType } from './charts/kagi/kagi-type'
-export { renkoChartType } from './charts/renko/renko-type'
-export { violinChartType } from './charts/violin/violin-type'
-export { packChartType } from './charts/pack/pack-type'
-export { voronoiChartType } from './charts/voronoi/voronoi-type'
-export { wordcloudChartType } from './charts/wordcloud/wordcloud-type'
-export { pillarChartType } from './charts/pillar/pillar-type'
 
 // Features
 export { filterData, filterSeries, filterLabels, sortData, aggregateData, transformData, pivotData, sliceData } from './features/dataset'
@@ -107,6 +75,13 @@ export { THEME_PRESETS, CORPORATE_THEME, SAAS_THEME, STARTUP_THEME, EDITORIAL_TH
 
 // Formatters
 export { formatValue, formatPercent } from './utils/format'
+
+// Curve utilities
+export { buildLinePath, buildAreaPath, buildLinearPath, buildMonotonePath, buildStepPath } from './utils/curves'
+export type { CurveInterpolation, Point as CurvePoint } from './utils/curves'
+
+// Hit test utilities
+export { nearestPointHitTest } from './utils/hit-test'
 
 // Financial analysis utilities
 export {

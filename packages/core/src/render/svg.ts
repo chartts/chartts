@@ -169,29 +169,30 @@ function setNum(el: SVGElement, attr: string, val: number): void {
   el.setAttribute(attr, String(val))
 }
 
+/** Static attribute name mapping — RenderAttrs keys to SVG attribute names */
+const ATTR_MAP: Record<string, string> = {
+  class: 'class',
+  style: 'style',
+  stroke: 'stroke',
+  strokeWidth: 'stroke-width',
+  strokeDasharray: 'stroke-dasharray',
+  strokeOpacity: 'stroke-opacity',
+  strokeLinecap: 'stroke-linecap',
+  strokeLinejoin: 'stroke-linejoin',
+  fill: 'fill',
+  fillOpacity: 'fill-opacity',
+  opacity: 'opacity',
+  transform: 'transform',
+  filter: 'filter',
+  cursor: 'cursor',
+  pointerEvents: 'pointer-events',
+  role: 'role',
+  ariaLabel: 'aria-label',
+  tabindex: 'tabindex',
+}
+
 /** Map RenderAttrs to SVG DOM attributes */
 function applyAttrs(el: SVGElement, attrs: RenderAttrs): void {
-  const ATTR_MAP: Record<string, string> = {
-    class: 'class',
-    style: 'style',
-    stroke: 'stroke',
-    strokeWidth: 'stroke-width',
-    strokeDasharray: 'stroke-dasharray',
-    strokeOpacity: 'stroke-opacity',
-    strokeLinecap: 'stroke-linecap',
-    strokeLinejoin: 'stroke-linejoin',
-    fill: 'fill',
-    fillOpacity: 'fill-opacity',
-    opacity: 'opacity',
-    transform: 'transform',
-    filter: 'filter',
-    cursor: 'cursor',
-    pointerEvents: 'pointer-events',
-    role: 'role',
-    ariaLabel: 'aria-label',
-    tabindex: 'tabindex',
-  }
-
   for (const [key, value] of Object.entries(attrs)) {
     if (value == null) continue
     // Skip non-SVG attrs handled elsewhere

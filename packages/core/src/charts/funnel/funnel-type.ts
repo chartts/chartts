@@ -6,7 +6,7 @@ import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
 
-export interface FunnelOptions {
+export interface FunnelOptions extends ResolvedOptions {
   /** Gap between steps in px. Default 2. */
   stepGap?: number
   /** Show percentage labels. Default true. */
@@ -21,6 +21,7 @@ export interface FunnelOptions {
  */
 export const funnelChartType: ChartTypePlugin = {
   type: 'funnel',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -37,7 +38,7 @@ export const funnelChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const fOpts = options as unknown as FunnelOptions
+    const fOpts = options as FunnelOptions
     const stepGap = fOpts.stepGap ?? 4
     const showLabels = fOpts.showLabels ?? true
     const showValues = fOpts.showValues ?? true
@@ -119,7 +120,7 @@ export const funnelChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return null
 
-    const fOpts = options as unknown as FunnelOptions
+    const fOpts = options as FunnelOptions
     const stepGap = fOpts.stepGap ?? 2
     const stepCount = series.values.length
     const totalGap = stepGap * (stepCount - 1)

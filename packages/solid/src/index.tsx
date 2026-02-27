@@ -1,19 +1,7 @@
 import { onMount, onCleanup, createEffect, splitProps } from 'solid-js'
 import type { Component } from 'solid-js'
 import {
-  createChart,
-  lineChartType, barChartType, stackedBarChartType, horizontalBarChartType,
-  pieChartType, donutChartType, scatterChartType, sparklineChartType,
-  areaChartType, radarChartType, bubbleChartType, candlestickChartType,
-  gaugeChartType, waterfallChartType, funnelChartType, heatmapChartType,
-  boxplotChartType, histogramChartType, treemapChartType, polarChartType,
-  radialBarChartType, lollipopChartType, bulletChartType, dumbbellChartType,
-  calendarChartType, comboChartType, sankeyChartType,
-  sunburstChartType, treeChartType, graphChartType, parallelChartType,
-  themeRiverChartType, pictorialBarChartType, chordChartType,
-  geoChartType, linesChartType, matrixChartType, customChartType,
-  ohlcChartType, stepChartType, volumeChartType, rangeChartType,
-  baselineChartType, kagiChartType, renkoChartType,
+  createChart, CHART_TYPES,
   type ChartData, type ChartOptions, type ChartInstance, type ChartTypePlugin,
 } from '@chartts/core'
 
@@ -61,59 +49,67 @@ function createChartComponent(chartType: ChartTypePlugin): Component<ChartProps>
 }
 
 // ---------------------------------------------------------------------------
-// Chart components — one per chart type
+// Generate chart components from CHART_TYPES map
 // ---------------------------------------------------------------------------
 
-export const LineChart = createChartComponent(lineChartType)
-export const BarChart = createChartComponent(barChartType)
-export const StackedBarChart = createChartComponent(stackedBarChartType)
-export const HorizontalBarChart = createChartComponent(horizontalBarChartType)
-export const PieChart = createChartComponent(pieChartType)
-export const DonutChart = createChartComponent(donutChartType)
-export const ScatterChart = createChartComponent(scatterChartType)
-export const SparklineChart = createChartComponent(sparklineChartType)
-export const AreaChart = createChartComponent(areaChartType)
-export const RadarChart = createChartComponent(radarChartType)
-export const BubbleChart = createChartComponent(bubbleChartType)
-export const CandlestickChart = createChartComponent(candlestickChartType)
-export const GaugeChart = createChartComponent(gaugeChartType)
-export const WaterfallChart = createChartComponent(waterfallChartType)
-export const FunnelChart = createChartComponent(funnelChartType)
-export const HeatmapChart = createChartComponent(heatmapChartType)
-export const BoxplotChart = createChartComponent(boxplotChartType)
-export const HistogramChart = createChartComponent(histogramChartType)
-export const TreemapChart = createChartComponent(treemapChartType)
-export const PolarChart = createChartComponent(polarChartType)
-export const RadialBarChart = createChartComponent(radialBarChartType)
-export const LollipopChart = createChartComponent(lollipopChartType)
-export const BulletChart = createChartComponent(bulletChartType)
-export const DumbbellChart = createChartComponent(dumbbellChartType)
-export const CalendarChart = createChartComponent(calendarChartType)
-export const ComboChart = createChartComponent(comboChartType)
-export const SankeyChart = createChartComponent(sankeyChartType)
-export const SunburstChart = createChartComponent(sunburstChartType)
-export const TreeChart = createChartComponent(treeChartType)
-export const GraphChart = createChartComponent(graphChartType)
-export const ParallelChart = createChartComponent(parallelChartType)
-export const ThemeRiverChart = createChartComponent(themeRiverChartType)
-export const PictorialBarChart = createChartComponent(pictorialBarChartType)
-export const ChordChart = createChartComponent(chordChartType)
-export const GeoChart = createChartComponent(geoChartType)
-export const LinesChart = createChartComponent(linesChartType)
-export const MatrixChart = createChartComponent(matrixChartType)
-export const CustomChart = createChartComponent(customChartType)
-export const OHLCChart = createChartComponent(ohlcChartType)
-export const StepChart = createChartComponent(stepChartType)
-export const VolumeChart = createChartComponent(volumeChartType)
-export const RangeChart = createChartComponent(rangeChartType)
-export const BaselineChart = createChartComponent(baselineChartType)
-export const KagiChart = createChartComponent(kagiChartType)
-export const RenkoChart = createChartComponent(renkoChartType)
+const _components = Object.fromEntries(
+  Object.entries(CHART_TYPES).map(([name, plugin]) => [
+    `${name}Chart`,
+    createChartComponent(plugin),
+  ]),
+) as Record<string, Component<ChartProps>>
+
+export const LineChart = _components.LineChart!
+export const BarChart = _components.BarChart!
+export const StackedBarChart = _components.StackedBarChart!
+export const HorizontalBarChart = _components.HorizontalBarChart!
+export const PieChart = _components.PieChart!
+export const DonutChart = _components.DonutChart!
+export const ScatterChart = _components.ScatterChart!
+export const SparklineChart = _components.SparklineChart!
+export const AreaChart = _components.AreaChart!
+export const RadarChart = _components.RadarChart!
+export const BubbleChart = _components.BubbleChart!
+export const CandlestickChart = _components.CandlestickChart!
+export const GaugeChart = _components.GaugeChart!
+export const WaterfallChart = _components.WaterfallChart!
+export const FunnelChart = _components.FunnelChart!
+export const HeatmapChart = _components.HeatmapChart!
+export const BoxplotChart = _components.BoxplotChart!
+export const HistogramChart = _components.HistogramChart!
+export const TreemapChart = _components.TreemapChart!
+export const PolarChart = _components.PolarChart!
+export const RadialBarChart = _components.RadialBarChart!
+export const LollipopChart = _components.LollipopChart!
+export const BulletChart = _components.BulletChart!
+export const DumbbellChart = _components.DumbbellChart!
+export const CalendarChart = _components.CalendarChart!
+export const ComboChart = _components.ComboChart!
+export const SankeyChart = _components.SankeyChart!
+export const SunburstChart = _components.SunburstChart!
+export const TreeChart = _components.TreeChart!
+export const GraphChart = _components.GraphChart!
+export const ParallelChart = _components.ParallelChart!
+export const ThemeRiverChart = _components.ThemeRiverChart!
+export const PictorialBarChart = _components.PictorialBarChart!
+export const ChordChart = _components.ChordChart!
+export const GeoChart = _components.GeoChart!
+export const LinesChart = _components.LinesChart!
+export const MatrixChart = _components.MatrixChart!
+export const CustomChart = _components.CustomChart!
+export const OHLCChart = _components.OHLCChart!
+export const StepChart = _components.StepChart!
+export const VolumeChart = _components.VolumeChart!
+export const RangeChart = _components.RangeChart!
+export const BaselineChart = _components.BaselineChart!
+export const KagiChart = _components.KagiChart!
+export const RenkoChart = _components.RenkoChart!
 
 // ---------------------------------------------------------------------------
 // Re-exports
 // ---------------------------------------------------------------------------
 
+export { CHART_TYPES } from '@chartts/core'
 export {
   lineChartType, barChartType, stackedBarChartType, horizontalBarChartType,
   pieChartType, donutChartType, scatterChartType, sparklineChartType,

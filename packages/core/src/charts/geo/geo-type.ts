@@ -11,7 +11,7 @@ export interface GeoRegion {
   path: string
 }
 
-export interface GeoOptions {
+export interface GeoOptions extends ResolvedOptions {
   regions?: GeoRegion[]
   viewBox?: { x: number; y: number; width: number; height: number }
   showLabels?: boolean | 'data'
@@ -97,6 +97,7 @@ function formatValue(v: number): string {
 
 export const geoChartType: ChartTypePlugin = {
   type: 'geo',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -110,7 +111,7 @@ export const geoChartType: ChartTypePlugin = {
     const { data, area, theme, options } = ctx
     const nodes: RenderNode[] = []
 
-    const gOpts = options as unknown as GeoOptions
+    const gOpts = options as GeoOptions
     const regions = gOpts.regions ?? WORLD_SIMPLE
     const showLabels = gOpts.showLabels
     const showLegend = gOpts.legendPosition !== 'none'
@@ -309,7 +310,7 @@ export const geoChartType: ChartTypePlugin = {
     const { data, area, options } = ctx
     if (!data.series[0] || data.series[0].values.length === 0) return null
 
-    const gOpts = options as unknown as GeoOptions
+    const gOpts = options as GeoOptions
     const regions = gOpts.regions ?? WORLD_SIMPLE
     const showLegend = gOpts.legendPosition !== 'none'
     const values = [...new Map(data.labels.map((l, i) => [String(l), data.series[0]!.values[i] ?? 0])).values()]

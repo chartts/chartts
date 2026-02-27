@@ -96,7 +96,10 @@ export const DARK_THEME: ThemeConfig = {
 // Chart type classification sets
 // ---------------------------------------------------------------------------
 
-/** Chart types that suppress axes/grid and render their own layout. */
+/**
+ * @deprecated Use `chartType.suppressAxes` flag instead.
+ * Kept for backwards compatibility only.
+ */
 export const NO_AXES_TYPES = new Set([
   'sparkline', 'gauge', 'funnel', 'radar', 'pie', 'donut',
   'heatmap', 'horizontal-bar', 'treemap', 'polar',
@@ -106,7 +109,10 @@ export const NO_AXES_TYPES = new Set([
   'kagi', 'renko', 'pack', 'voronoi', 'wordcloud',
 ])
 
-/** Chart types that use band mode for the x-scale. */
+/**
+ * @deprecated Use `chartType.useBandScale` flag instead.
+ * Kept for backwards compatibility only.
+ */
 export const BAND_SCALE_TYPES = new Set([
   'bar', 'stacked-bar', 'horizontal-bar', 'candlestick',
   'waterfall', 'histogram', 'boxplot', 'lollipop', 'combo',

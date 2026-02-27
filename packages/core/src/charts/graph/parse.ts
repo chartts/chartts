@@ -14,7 +14,7 @@ export function parseGraphData(
   data: PreparedData,
   options: ResolvedOptions,
 ): { graphNodes: GraphNode[]; graphEdges: GraphEdge[] } {
-  const opts = options as unknown as GraphOptions
+  const opts = options as GraphOptions
   const defaultShape: NodeShape = opts.nodeShape ?? 'rect'
 
   // --- 1. Rich format ---

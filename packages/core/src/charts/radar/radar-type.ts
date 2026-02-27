@@ -12,6 +12,7 @@ import { PathBuilder } from '../../render/tree'
  */
 export const radarChartType: ChartTypePlugin = {
   type: 'radar',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

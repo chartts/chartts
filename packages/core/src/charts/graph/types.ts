@@ -1,3 +1,5 @@
+import type { ResolvedOptions } from '../../types'
+
 /** Node shape types */
 export type NodeShape = 'rect' | 'circle' | 'diamond' | 'hexagon' | 'stadium'
 
@@ -8,7 +10,7 @@ export type GraphLayout = 'force' | 'hierarchical' | 'circular'
 export type LayoutDirection = 'TB' | 'BT' | 'LR' | 'RL'
 
 /** Rich graph options (passed through ctx.options) */
-export interface GraphOptions {
+export interface GraphOptions extends ResolvedOptions {
   /** Rich node definitions */
   nodes?: Array<{
     id: string

@@ -44,6 +44,7 @@ interface SankeyLink {
 
 export const sankeyChartType: ChartTypePlugin = {
   type: 'sankey',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

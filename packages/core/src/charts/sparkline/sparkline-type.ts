@@ -4,7 +4,7 @@ import type {
 } from '../../types'
 import { prepareData } from '../../data/prepare'
 import { path } from '../../render/tree'
-import { PathBuilder } from '../../render/tree'
+import { buildMonotonePath, type Point } from '../../utils/curves'
 import { formatNum } from '../../utils/format'
 
 /**
@@ -13,14 +13,14 @@ import { formatNum } from '../../utils/format'
  */
 export const sparklineChartType: ChartTypePlugin = {
   type: 'sparkline',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
   },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    // Override: sparklines don't need axes/legend space
-    const prepared = prepareData(data, {
+    return prepareData(data, {
       ...options,
       xAxis: false,
       yAxis: false,
@@ -29,7 +29,6 @@ export const sparklineChartType: ChartTypePlugin = {
       yGrid: false,
       padding: [2, 2, 2, 2],
     })
-    return prepared
   },
 
   render(ctx: RenderContext): RenderNode[] {
@@ -38,14 +37,12 @@ export const sparklineChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const values = series.values
-    const points = values.map((v, i) => ({
+    const points: Point[] = series.values.map((v, i) => ({
       x: xScale.map(i),
       y: yScale.map(v),
     }))
 
-    // Build monotone path
-    const linePath = buildSparklinePath(points)
+    const linePath = buildMonotonePath(points)
 
     // Area fill
     const baseline = area.y + area.height
@@ -84,37 +81,6 @@ export const sparklineChartType: ChartTypePlugin = {
   },
 
   hitTest(): HitResult | null {
-    // Sparklines typically don't need hit testing
     return null
   },
-}
-
-function buildSparklinePath(points: { x: number; y: number }[]): string {
-  if (points.length === 0) return ''
-  if (points.length === 1) return `M${formatNum(points[0]!.x)},${formatNum(points[0]!.y)}`
-
-  // Simple monotone interpolation
-  const pb = new PathBuilder()
-  pb.moveTo(points[0]!.x, points[0]!.y)
-
-  if (points.length === 2) {
-    pb.lineTo(points[1]!.x, points[1]!.y)
-    return pb.build()
-  }
-
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[Math.max(0, i - 1)]!
-    const p1 = points[i]!
-    const p2 = points[i + 1]!
-    const p3 = points[Math.min(points.length - 1, i + 2)]!
-
-    const cp1x = p1.x + (p2.x - p0.x) / 6
-    const cp1y = p1.y + (p2.y - p0.y) / 6
-    const cp2x = p2.x - (p3.x - p1.x) / 6
-    const cp2y = p2.y - (p3.y - p1.y) / 6
-
-    pb.curveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y)
-  }
-
-  return pb.build()
 }

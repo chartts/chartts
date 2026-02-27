@@ -20,7 +20,7 @@ import { rect, text, group } from '../../render/tree'
  * - maxColor: color for maximum value
  */
 
-export interface MatrixOptions {
+export interface MatrixOptions extends ResolvedOptions {
   showValues?: boolean
   cellRadius?: number
   colorScale?: 'sequential' | 'diverging'
@@ -30,6 +30,7 @@ export interface MatrixOptions {
 
 export const matrixChartType: ChartTypePlugin = {
   type: 'matrix',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'categorical' }
@@ -43,7 +44,7 @@ export const matrixChartType: ChartTypePlugin = {
     const { data, area, theme, options } = ctx
     const nodes: RenderNode[] = []
 
-    const mOpts = options as unknown as MatrixOptions
+    const mOpts = options as MatrixOptions
     const showValues = mOpts.showValues !== false
     const cellRadius = mOpts.cellRadius ?? 2
     const colorScale = mOpts.colorScale ?? 'sequential'

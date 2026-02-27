@@ -28,7 +28,7 @@ interface TreeNode {
   leafCount: number
 }
 
-export interface TreeOptions {
+export interface TreeOptions extends ResolvedOptions {
   /** Layout direction. Default 'top-down'. */
   treeLayout?: 'top-down' | 'left-right' | 'radial'
   /** Node radius. Default 6. */
@@ -39,6 +39,7 @@ export interface TreeOptions {
 
 export const treeChartType: ChartTypePlugin = {
   type: 'tree',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -55,7 +56,7 @@ export const treeChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const treeOpts = options as unknown as TreeOptions
+    const treeOpts = options as TreeOptions
     const layout = treeOpts.treeLayout ?? 'top-down'
     const nodeRadius = treeOpts.nodeRadius ?? 6
     const showLabels = treeOpts.showLabels ?? true
@@ -154,7 +155,7 @@ export const treeChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return null
 
-    const treeOpts = options as unknown as TreeOptions
+    const treeOpts = options as TreeOptions
     const layout = treeOpts.treeLayout ?? 'top-down'
     const nodeRadius = treeOpts.nodeRadius ?? 6
     const hitRadius = nodeRadius + 5

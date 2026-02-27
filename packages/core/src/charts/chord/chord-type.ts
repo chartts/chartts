@@ -39,6 +39,7 @@ interface ChordRibbon {
 
 export const chordChartType: ChartTypePlugin = {
   type: 'chord',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

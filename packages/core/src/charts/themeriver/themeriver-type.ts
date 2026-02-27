@@ -19,6 +19,7 @@ import { PathBuilder } from '../../render/tree'
 
 export const themeRiverChartType: ChartTypePlugin = {
   type: 'themeriver',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

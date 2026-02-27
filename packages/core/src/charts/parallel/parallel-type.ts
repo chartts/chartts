@@ -18,6 +18,7 @@ import { PathBuilder } from '../../render/tree'
 
 export const parallelChartType: ChartTypePlugin = {
   type: 'parallel',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

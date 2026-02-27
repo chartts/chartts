@@ -16,6 +16,7 @@ import { getBandwidth } from '../../utils/scale'
  */
 export const histogramChartType: ChartTypePlugin = {
   type: 'histogram',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

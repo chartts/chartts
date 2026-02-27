@@ -6,7 +6,7 @@ import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { roundedSlicePath } from '../../utils/slice-path'
 
-export interface PieOptions {
+export interface PieOptions extends ResolvedOptions {
   /** Inner radius ratio (0 = pie, 0.5+ = donut). Default 0.08 (small center gap). */
   innerRadius?: number
   /** Uniform pixel gap between slices. Default 4. */
@@ -23,6 +23,7 @@ export interface PieOptions {
 
 export const pieChartType: ChartTypePlugin = {
   type: 'pie',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -46,7 +47,7 @@ export const pieChartType: ChartTypePlugin = {
     const cx = area.x + area.width / 2
     const cy = area.y + area.height / 2
     const outerR = Math.min(area.width, area.height) / 2 - 2
-    const opts = ctx.options as unknown as PieOptions
+    const opts = ctx.options as PieOptions
     const innerRatio = opts.innerRadius ?? 0.08
     const innerR = outerR * Math.max(0, Math.min(0.9, innerRatio))
     const gapPx = opts.gap ?? 4
@@ -141,7 +142,7 @@ export const pieChartType: ChartTypePlugin = {
     const cx = area.x + area.width / 2
     const cy = area.y + area.height / 2
     const outerR = Math.min(area.width, area.height) / 2 - 2
-    const opts = ctx.options as unknown as PieOptions
+    const opts = ctx.options as PieOptions
     const innerRatio = opts.innerRadius ?? 0.08
     const innerR = outerR * Math.max(0, Math.min(0.9, innerRatio))
 
@@ -176,7 +177,7 @@ export const pieChartType: ChartTypePlugin = {
     const cx = area.x + area.width / 2
     const cy = area.y + area.height / 2
     const outerR = Math.min(area.width, area.height) / 2 - 2
-    const innerRatio = (ctx.options as unknown as PieOptions).innerRadius ?? 0.08
+    const innerRatio = (ctx.options as PieOptions).innerRadius ?? 0.08
     const innerR = outerR * Math.max(0, Math.min(0.9, innerRatio))
 
     const dx = mx - cx
@@ -214,10 +215,16 @@ export const pieChartType: ChartTypePlugin = {
 export const donutChartType: ChartTypePlugin = {
   ...pieChartType,
   type: 'donut',
+  suppressAxes: true,
   render(ctx: RenderContext): RenderNode[] {
-    const opts = ctx.options as unknown as PieOptions
+    const opts = ctx.options as PieOptions
     if (!opts.innerRadius || opts.innerRadius < 0.3) {
-      (opts as PieOptions).innerRadius = 0.55
+      // Create new context to avoid mutating shared options
+      const donutCtx = {
+        ...ctx,
+        options: { ...ctx.options, innerRadius: 0.55 } as typeof ctx.options,
+      }
+      return pieChartType.render(donutCtx)
     }
     return pieChartType.render(ctx)
   },

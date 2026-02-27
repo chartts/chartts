@@ -13,6 +13,7 @@ import { group, rect, text } from '../../render/tree'
  */
 export const treemapChartType: ChartTypePlugin = {
   type: 'treemap',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }

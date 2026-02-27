@@ -6,7 +6,7 @@ import { prepareData } from '../../data/prepare'
 import { group, rect } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
 
-export interface WaterfallOptions {
+export interface WaterfallOptions extends ResolvedOptions {
   /** Indices that represent totals (absolute, not cumulative). Default: last index. */
   totals?: number[]
   /** Up color. Default emerald. */
@@ -26,6 +26,7 @@ export interface WaterfallOptions {
  */
 export const waterfallChartType: ChartTypePlugin = {
   type: 'waterfall',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -34,7 +35,7 @@ export const waterfallChartType: ChartTypePlugin = {
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, options)
 
-    const wOpts = options as unknown as WaterfallOptions
+    const wOpts = options as WaterfallOptions
     const series = data.series[0]
     if (!series) return prepared
 
@@ -68,7 +69,7 @@ export const waterfallChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series || series.values.length === 0) return nodes
 
-    const wOpts = options as unknown as WaterfallOptions
+    const wOpts = options as WaterfallOptions
     const totals = new Set(wOpts.totals ?? [series.values.length - 1])
     const upColor = wOpts.upColor ?? 'var(--color-emerald-500, #10b981)'
     const downColor = wOpts.downColor ?? 'var(--color-red-500, #ef4444)'
@@ -157,7 +158,7 @@ export const waterfallChartType: ChartTypePlugin = {
     const series = data.series[0]
     if (!series) return null
 
-    const wOpts = options as unknown as WaterfallOptions
+    const wOpts = options as WaterfallOptions
     const totals = new Set(wOpts.totals ?? [series.values.length - 1])
     const bw = getBandwidth(xScale)
     const barWidth = bw * 0.6

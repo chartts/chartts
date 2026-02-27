@@ -4,7 +4,7 @@ import type {
 } from '../types'
 import { CHART_CSS } from '../styles/chart'
 import { createEffectDefs } from './effects'
-import { resolveOptions, NO_AXES_TYPES, BAND_SCALE_TYPES } from '../constants'
+import { resolveOptions } from '../constants'
 import { resolveTheme } from '../theme/engine'
 import { computeLayout } from '../layout/compute'
 import { renderXAxis, renderYAxis, renderGrid } from '../axis/axis'
@@ -40,13 +40,13 @@ export function renderToString(
   const prepared = chartType.prepareData(data, resolved)
 
   // Chart types that suppress axes don't need axis margins
-  const suppressAxes = NO_AXES_TYPES.has(chartType.type)
+  const suppressAxes = !!chartType.suppressAxes
   const layoutOpts = suppressAxes
     ? { ...resolved, xAxis: false, yAxis: false, xLabel: '', yLabel: '', legend: false as const, padding: [4, 4, 4, 4] as [number, number, number, number] }
     : resolved
   const { area } = computeLayout(width, height, layoutOpts, prepared)
 
-  const useBand = BAND_SCALE_TYPES.has(chartType.type)
+  const useBand = !!chartType.useBandScale
   const xScale = createCategoricalScale({
     categories: prepared.labels,
     range: [area.x, area.x + area.width],
