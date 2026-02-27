@@ -41,6 +41,6 @@ jobs:
       - name: Trigger website redeploy
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DISPATCH_TOKEN }}
           repository: chartts/chartts.com
           event-type: lib-release
