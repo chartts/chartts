@@ -54,13 +54,14 @@ interface GraphEdge {
 
 export const graphChartType: ChartTypePlugin = {
   type: 'graph',
+  suppressAxes: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
   },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    const opts = options as unknown as GraphOptions
+    const opts = options as GraphOptions
     // Rich format: data lives in options.nodes/edges, not series
     if ((opts.nodes || opts.edges) && (!data.series.length || data.series.every(s => s.values.length === 0))) {
       return {
@@ -69,12 +70,22 @@ export const graphChartType: ChartTypePlugin = {
         bounds: { xMin: 0, xMax: 1, yMin: 0, yMax: 1 },
       }
     }
-    return prepareNoAxes(data, options)
+    // Pad edge series to match label count so validation passes
+    const labelLen = data.labels?.length ?? 0
+    const paddedSeries = data.series.map(s => {
+      if (s.values.length < labelLen) {
+        const padded = new Array(labelLen).fill(0)
+        for (let i = 0; i < s.values.length; i++) padded[i] = s.values[i]!
+        return { ...s, values: padded }
+      }
+      return s
+    })
+    return prepareNoAxes({ ...data, series: paddedSeries }, options)
   },
 
   render(ctx: RenderContext): RenderNode[] {
     const { data, area, theme, options } = ctx
-    const graphOpts = options as unknown as GraphOptions
+    const graphOpts = options as GraphOptions
 
     // Rich format — use the new modular pipeline
     if (graphOpts.nodes || graphOpts.edges) {
@@ -150,7 +161,7 @@ export const graphChartType: ChartTypePlugin = {
 
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     const { data, area, options } = ctx
-    const graphOpts = options as unknown as GraphOptions
+    const graphOpts = options as GraphOptions
 
     // Rich format — use modular hit test
     if (graphOpts.nodes || graphOpts.edges) {
@@ -190,7 +201,7 @@ export const graphChartType: ChartTypePlugin = {
 
 function renderRichGraph(ctx: RenderContext): RenderNode[] {
   const { data, area, theme, options } = ctx
-  const graphOpts = options as unknown as GraphOptions
+  const graphOpts = options as GraphOptions
   const result: RenderNode[] = []
 
   const { graphNodes, graphEdges } = parseGraphData(data, options)
@@ -229,7 +240,7 @@ function renderRichGraph(ctx: RenderContext): RenderNode[] {
 
 function richHitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
   const { data, area, theme, options } = ctx
-  const graphOpts = options as unknown as GraphOptions
+  const graphOpts = options as GraphOptions
 
   const { graphNodes, graphEdges } = parseGraphData(data, options)
   if (graphNodes.length === 0) return null

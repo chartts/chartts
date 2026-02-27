@@ -17,13 +17,14 @@ import { getBandwidth } from '../../utils/scale'
  *
  * Or use multiple series where each series has 5 values for its category.
  */
-export interface BoxplotOptions {
+export interface BoxplotOptions extends ResolvedOptions {
   /** Width ratio of boxes. Default 0.6. */
   boxWidth?: number
 }
 
 export const boxplotChartType: ChartTypePlugin = {
   type: 'boxplot',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
@@ -60,17 +61,21 @@ export const boxplotChartType: ChartTypePlugin = {
     const seriesCount = data.series.length
     if (seriesCount === 0) return nodes
 
-    const bOpts = options as unknown as BoxplotOptions
+    const bOpts = options as BoxplotOptions
     const boxWidthRatio = bOpts.boxWidth ?? 0.6
 
     const bw = getBandwidth(xScale)
     const boxWidth = bw * boxWidthRatio
 
+    // Detect "5 named series" format: Min, Q1, Median, Q3, Max each with N values
+    const fiveSeriesFormat = data.series.length === 5 && data.series.every(s => s.values.length === data.labels.length)
+
     for (let i = 0; i < data.labels.length; i++) {
-      // Collect the 5 values for this label from all series,
-      // or if single series with N*5 values, extract 5 at offset i*5
       let vals: number[]
-      if (data.series.length === 1) {
+      if (fiveSeriesFormat) {
+        // Each series[j].values[i] gives the j-th stat for the i-th label
+        vals = data.series.map(s => s.values[i]!)
+      } else if (data.series.length === 1) {
         const s = data.series[0]!
         if (s.values.length >= (i + 1) * 5) {
           vals = s.values.slice(i * 5, i * 5 + 5)
@@ -152,14 +157,18 @@ export const boxplotChartType: ChartTypePlugin = {
     const { data, xScale, yScale, options } = ctx
     if (data.labels.length === 0) return null
 
-    const bOpts = options as unknown as BoxplotOptions
+    const bOpts = options as BoxplotOptions
     const boxWidthRatio = bOpts.boxWidth ?? 0.6
     const bw = getBandwidth(xScale)
     const boxWidth = bw * boxWidthRatio
 
+    const fiveSeriesFormat = data.series.length === 5 && data.series.every(s => s.values.length === data.labels.length)
+
     for (let i = 0; i < data.labels.length; i++) {
       let vals: number[]
-      if (data.series.length === 1) {
+      if (fiveSeriesFormat) {
+        vals = data.series.map(s => s.values[i]!)
+      } else if (data.series.length === 1) {
         const s = data.series[0]!
         if (s.values.length >= (i + 1) * 5) vals = s.values.slice(i * 5, i * 5 + 5)
         else continue

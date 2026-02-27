@@ -6,7 +6,7 @@ import { prepareData } from '../../data/prepare'
 import { group, rect } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
 
-export interface CandlestickOptions {
+export interface CandlestickOptions extends ResolvedOptions {
   /** OHLC data: { open, high, low, close } arrays. */
   ohlc?: {
     open: number[]
@@ -41,14 +41,24 @@ export interface CandlestickOptions {
  */
 export const candlestickChartType: ChartTypePlugin = {
   type: 'candlestick',
+  useBandScale: true,
 
   getScaleTypes(): { x: ScaleType; y: ScaleType } {
     return { x: 'categorical', y: 'linear' }
   },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    const cOpts = options as unknown as CandlestickOptions
-    const ohlc = cOpts.ohlc
+    const cOpts = options as CandlestickOptions
+    let ohlc = cOpts.ohlc
+
+    // Auto-detect OHLC from 4 series named Open/High/Low/Close
+    if (!ohlc && data.series.length >= 4) {
+      const byName: Record<string, number[]> = {}
+      for (const s of data.series) byName[s.name.toLowerCase()] = s.values
+      if (byName.open && byName.high && byName.low && byName.close) {
+        ohlc = { open: byName.open, high: byName.high, low: byName.low, close: byName.close }
+      }
+    }
 
     // Expand bounds to include all OHLC values
     const prepared = prepareData(data, options)
@@ -73,8 +83,18 @@ export const candlestickChartType: ChartTypePlugin = {
     const { data, xScale, yScale, options } = ctx
     const nodes: RenderNode[] = []
 
-    const cOpts = options as unknown as CandlestickOptions
-    const ohlc = cOpts.ohlc
+    const cOpts = options as CandlestickOptions
+    let ohlc = cOpts.ohlc
+
+    // Auto-detect OHLC from 4 series named Open/High/Low/Close
+    if (!ohlc && data.series.length >= 4) {
+      const byName: Record<string, number[]> = {}
+      for (const s of data.series) byName[s.name.toLowerCase()] = s.values
+      if (byName.open && byName.high && byName.low && byName.close) {
+        ohlc = { open: byName.open, high: byName.high, low: byName.low, close: byName.close }
+      }
+    }
+
     if (!ohlc) return nodes
 
     const series = data.series[0]
@@ -148,9 +168,18 @@ export const candlestickChartType: ChartTypePlugin = {
   },
 
   hitTest(ctx: RenderContext, mx: number, _my: number): HitResult | null {
-    const { xScale, yScale, options } = ctx
-    const cOpts = options as unknown as CandlestickOptions
-    const ohlc = cOpts.ohlc
+    const { data, xScale, yScale, options } = ctx
+    const cOpts = options as CandlestickOptions
+    let ohlc = cOpts.ohlc
+
+    if (!ohlc && data.series.length >= 4) {
+      const byName: Record<string, number[]> = {}
+      for (const s of data.series) byName[s.name.toLowerCase()] = s.values
+      if (byName.open && byName.high && byName.low && byName.close) {
+        ohlc = { open: byName.open, high: byName.high, low: byName.low, close: byName.close }
+      }
+    }
+
     if (!ohlc) return null
 
     const bw = getBandwidth(xScale)
