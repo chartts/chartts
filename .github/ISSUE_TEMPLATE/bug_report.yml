@@ -1,0 +1,88 @@
+name: Bug Report
+description: Report a bug in Chart.ts
+labels: [bug]
+body:
+  - type: dropdown
+    id: chart-type
+    attributes:
+      label: Chart Type
+      description: Which chart type is affected?
+      options:
+        - Line
+        - Bar
+        - Pie
+        - Candlestick
+        - Sankey
+        - Heatmap
+        - Treemap
+        - Gauge
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: renderer
+    attributes:
+      label: Renderer
+      description: Which renderer are you using?
+      options:
+        - SVG
+        - Canvas
+        - WebGL
+        - Auto
+    validations:
+      required: true
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      description: Which framework integration are you using?
+      options:
+        - Vanilla JS
+        - React
+        - Vue
+        - Svelte
+        - Solid
+        - Angular
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps to reproduce the behavior.
+      placeholder: |
+        1. Create a chart with...
+        2. Pass data...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe the expected behavior...
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Provide details about your environment.
+      placeholder: |
+        - Chart.ts version:
+        - Node version:
+        - Browser:
+        - OS:

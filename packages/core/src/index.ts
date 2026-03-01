@@ -84,7 +84,7 @@ export type { CurveInterpolation, Point as CurvePoint } from './utils/curves'
 // Hit test utilities
 export { nearestPointHitTest } from './utils/hit-test'
 
-// Financial analysis utilities
+// Financial analysis utilities (also available standalone via @chartts/finance)
 export {
   sma, ema, wma,
   rsi, stochastic,

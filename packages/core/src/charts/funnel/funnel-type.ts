@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -19,13 +20,10 @@ export interface FunnelOptions extends ResolvedOptions {
  * Funnel chart — tapered horizontal bars representing conversion steps.
  * Uses the first series. Values should be descending (largest to smallest).
  */
-export const funnelChartType: ChartTypePlugin = {
+export const funnelChartType = defineChartType({
   type: 'funnel',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -135,4 +133,4 @@ export const funnelChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

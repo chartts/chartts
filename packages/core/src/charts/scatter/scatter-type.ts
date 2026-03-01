@@ -1,21 +1,14 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
-import { prepareData } from '../../data/prepare'
+import { defineChartType } from '../../api/define'
 import { group, circle } from '../../render/tree'
 import { nearestPointHitTest } from '../../utils/hit-test'
 
-export const scatterChartType: ChartTypePlugin = {
+export const scatterChartType = defineChartType({
   type: 'scatter',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
-  prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    return prepareData(data, options)
-  },
 
   render(ctx: RenderContext): RenderNode[] {
     const { data, xScale, yScale, theme } = ctx
@@ -60,4 +53,4 @@ export const scatterChartType: ChartTypePlugin = {
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     return nearestPointHitTest(ctx, mx, my, ctx.theme.pointRadius + 8)
   },
-}
+})

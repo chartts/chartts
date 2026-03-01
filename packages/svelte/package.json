@@ -1,6 +1,6 @@
 {
   "name": "@chartts/svelte",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Chartts for Svelte. 40+ chart types, beautiful defaults, Tailwind ready.",
   "type": "module",
   "svelte": "./src/index.ts",

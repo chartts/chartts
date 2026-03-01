@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { path, text } from '../../render/tree'
 import { roundedSlicePath } from '../../utils/slice-path'
@@ -30,13 +31,10 @@ interface SunburstNode {
   totalValue: number
 }
 
-export const sunburstChartType: ChartTypePlugin = {
+export const sunburstChartType = defineChartType({
   type: 'sunburst',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -183,7 +181,7 @@ export const sunburstChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 // ---------------------------------------------------------------------------
 // Tree building

@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect, text } from '../../render/tree'
 
@@ -11,13 +12,10 @@ import { group, rect, text } from '../../render/tree'
  * Uses the first series' values as areas. Labels are cell labels.
  * Implements a simple squarified treemap layout.
  */
-export const treemapChartType: ChartTypePlugin = {
+export const treemapChartType = defineChartType({
   type: 'treemap',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -124,7 +122,7 @@ export const treemapChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 interface Rect { x: number; y: number; w: number; h: number }
 

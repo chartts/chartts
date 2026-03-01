@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ResolvedOptions,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { roundedSlicePath } from '../../utils/slice-path'
@@ -21,17 +22,10 @@ export interface PieOptions extends ResolvedOptions {
 // Pie chart type
 // ---------------------------------------------------------------------------
 
-export const pieChartType: ChartTypePlugin = {
+export const pieChartType = defineChartType({
   type: 'pie',
   suppressAxes: true,
-
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
-
-  prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    return prepareNoAxes(data, options)
-  },
+  prepareData: (data, options) => prepareNoAxes(data, options),
 
   render(ctx: RenderContext): RenderNode[] {
     const { data, area, theme } = ctx
@@ -209,17 +203,16 @@ export const pieChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 /** Donut chart = pie with innerRadius */
-export const donutChartType: ChartTypePlugin = {
+export const donutChartType = defineChartType({
   ...pieChartType,
   type: 'donut',
   suppressAxes: true,
   render(ctx: RenderContext): RenderNode[] {
     const opts = ctx.options as PieOptions
     if (!opts.innerRadius || opts.innerRadius < 0.3) {
-      // Create new context to avoid mutating shared options
       const donutCtx = {
         ...ctx,
         options: { ...ctx.options, innerRadius: 0.55 } as typeof ctx.options,
@@ -228,4 +221,4 @@ export const donutChartType: ChartTypePlugin = {
     }
     return pieChartType.render(ctx)
   },
-}
+})

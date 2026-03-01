@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 
@@ -12,13 +13,10 @@ import { group, path, text } from '../../render/tree'
  * lighter seed, giving heavier seeds (higher values) larger cells.
  * Labels are the cell names, series[0] values control cell size.
  */
-export const voronoiChartType: ChartTypePlugin = {
+export const voronoiChartType = defineChartType({
   type: 'voronoi',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -157,7 +155,7 @@ export const voronoiChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 interface Pt { x: number; y: number }
 

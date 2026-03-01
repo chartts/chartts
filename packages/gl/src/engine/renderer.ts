@@ -71,8 +71,18 @@ export function createGLRenderer(container: HTMLElement): GLRenderer {
   gl.enable(gl.BLEND)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-  const width = container.clientWidth
-  const height = container.clientHeight
+  const width = container.clientWidth || 400
+  const height = container.clientHeight || 300
+
+  // Set initial canvas buffer size (before ResizeObserver fires)
+  const pw = Math.round(width * pixelRatio)
+  const ph = Math.round(height * pixelRatio)
+  glCanvas.width = pw
+  glCanvas.height = ph
+  overlayCanvas.width = pw
+  overlayCanvas.height = ph
+  gl.viewport(0, 0, pw, ph)
+  ctx2d.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
 
   const renderer: GLRenderer = {
     gl,

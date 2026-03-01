@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, rect, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -42,13 +43,10 @@ interface SankeyLink {
   width: number
 }
 
-export const sankeyChartType: ChartTypePlugin = {
+export const sankeyChartType = defineChartType({
   type: 'sankey',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -192,7 +190,7 @@ export const sankeyChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 // ---------------------------------------------------------------------------
 // Parsing helpers

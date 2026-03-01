@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
+  ChartData, ResolvedOptions, PreparedData,
   RenderContext, RenderNode, HitResult, ScaleType,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { text } from '../../render/tree'
 
@@ -22,7 +23,7 @@ export interface CustomChartOptions extends ResolvedOptions {
   scaleTypes?: { x: ScaleType; y: ScaleType }
 }
 
-export const customChartType: ChartTypePlugin = {
+export const customChartType = defineChartType({
   type: 'custom',
   suppressAxes: true,
 
@@ -71,4 +72,4 @@ export const customChartType: ChartTypePlugin = {
     }
     return null
   },
-}
+})

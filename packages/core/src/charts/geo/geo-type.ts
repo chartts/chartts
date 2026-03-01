@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { path, rect, circle, text, group } from '../../render/tree'
 import { WORLD_REGIONS } from './world-regions'
@@ -95,13 +96,10 @@ function formatValue(v: number): string {
   return v % 1 === 0 ? String(v) : v.toFixed(1)
 }
 
-export const geoChartType: ChartTypePlugin = {
+export const geoChartType = defineChartType({
   type: 'geo',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -361,7 +359,7 @@ export const geoChartType: ChartTypePlugin = {
 
     return { seriesIndex: 0, pointIndex: best.idx, distance: best.dist, x: px, y: py }
   },
-}
+})
 
 /** Extract all x,y coordinate pairs from SVG path string. */
 function extractCoords(d: string): number[] {

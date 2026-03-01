@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect, path, text } from '../../render/tree'
 import { formatNum } from '../../utils/format'
@@ -13,14 +14,11 @@ import { createHorizontalMapper } from '../../utils/scale'
  * Uses the xScale for categories (mapped to y positions) and yScale for values
  * (mapped to x positions), but transposes the rendering.
  */
-export const horizontalBarChartType: ChartTypePlugin = {
+export const horizontalBarChartType = defineChartType({
   type: 'horizontal-bar',
   useBandScale: true,
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, {
@@ -163,4 +161,4 @@ export const horizontalBarChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

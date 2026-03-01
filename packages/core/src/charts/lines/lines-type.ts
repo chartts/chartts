@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { circle, text, group } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -42,13 +43,10 @@ interface ParsedFlow {
   value: number
 }
 
-export const linesChartType: ChartTypePlugin = {
+export const linesChartType = defineChartType({
   type: 'lines',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -245,4 +243,4 @@ export const linesChartType: ChartTypePlugin = {
     }
     return null
   },
-}
+})

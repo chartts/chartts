@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { text } from '../../render/tree'
 
@@ -11,13 +12,10 @@ import { text } from '../../render/tree'
  * Labels are the words, series[0] values control font size.
  * Uses Archimedean spiral placement with bounding-box collision detection.
  */
-export const wordcloudChartType: ChartTypePlugin = {
+export const wordcloudChartType = defineChartType({
   type: 'wordcloud',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -118,7 +116,7 @@ export const wordcloudChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 interface WordItem {
   index: number

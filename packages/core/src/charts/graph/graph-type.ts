@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, circle, text, line } from '../../render/tree'
 import type { GraphNode as RichGraphNode, GraphEdge as RichGraphEdge, GraphOptions, GraphLayout } from './types'
@@ -52,13 +53,10 @@ interface GraphEdge {
   weight: number
 }
 
-export const graphChartType: ChartTypePlugin = {
+export const graphChartType = defineChartType({
   type: 'graph',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const opts = options as GraphOptions
@@ -193,7 +191,7 @@ export const graphChartType: ChartTypePlugin = {
 
     return best
   },
-}
+})
 
 // ---------------------------------------------------------------------------
 // Rich format rendering (new — shapes, layouts, edge arrows)

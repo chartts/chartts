@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, circle, text } from '../../render/tree'
 
@@ -10,13 +11,10 @@ import { group, circle, text } from '../../render/tree'
  *
  * Uses a front-chain packing algorithm to arrange circles tightly.
  */
-export const packChartType: ChartTypePlugin = {
+export const packChartType = defineChartType({
   type: 'pack',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -141,7 +139,7 @@ export const packChartType: ChartTypePlugin = {
     if (!best) return null
     return { seriesIndex: 0, pointIndex: best.idx, distance: 0, x: best.x, y: best.y }
   },
-}
+})
 
 interface Pos { x: number; y: number }
 

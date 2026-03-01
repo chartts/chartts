@@ -1,8 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ResolvedOptions,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
-import { prepareData } from '../../data/prepare'
+import { defineChartType } from '../../api/define'
 import { group, circle } from '../../render/tree'
 
 export interface BubbleOptions extends ResolvedOptions {
@@ -28,9 +28,14 @@ interface SizeNorm {
 
 function resolveSizeNorm(ctx: RenderContext): SizeNorm {
   const bOpts = ctx.options as BubbleOptions
-  const allSizes = bOpts.sizes ?? []
   const minR = bOpts.minRadius ?? 4
   const maxR = bOpts.maxRadius ?? 30
+
+  // Use explicit sizes, or fall back to using series values as sizes
+  let allSizes = bOpts.sizes ?? []
+  if (allSizes.length === 0) {
+    allSizes = ctx.data.series.map(s => s.values.map(v => Math.abs(v)))
+  }
 
   let sizeMin = Infinity
   let sizeMax = -Infinity
@@ -55,16 +60,10 @@ function normalizeRadius(rawSize: number, norm: SizeNorm): number {
  * Bubble chart — scatter with variable-radius circles.
  * Pass sizes via options: `{ sizes: [[10, 20, 5, ...], ...] }`
  */
-export const bubbleChartType: ChartTypePlugin = {
+export const bubbleChartType = defineChartType({
   type: 'bubble',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
-  prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    return prepareData(data, options)
-  },
 
   render(ctx: RenderContext): RenderNode[] {
     const { data, xScale, yScale } = ctx
@@ -129,4 +128,4 @@ export const bubbleChartType: ChartTypePlugin = {
 
     return best
   },
-}
+})

@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, line, circle, text } from '../../render/tree'
 import { createHorizontalMapper } from '../../utils/scale'
@@ -13,13 +14,10 @@ import { createHorizontalMapper } from '../../utils/scale'
  * Horizontal layout — categories on y-axis, values on x-axis.
  * Requires exactly 2 series. Shows before/after or comparison.
  */
-export const dumbbellChartType: ChartTypePlugin = {
+export const dumbbellChartType = defineChartType({
   type: 'dumbbell',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -144,4 +142,4 @@ export const dumbbellChartType: ChartTypePlugin = {
 
     return best
   },
-}
+})

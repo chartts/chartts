@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { path, circle, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -23,13 +24,10 @@ export interface GaugeOptions extends ResolvedOptions {
  * Uses stroke-linecap:round for clean rounded endcaps. No fill-based donut arcs.
  * Looks like a modern dashboard gauge (Grafana, Material style).
  */
-export const gaugeChartType: ChartTypePlugin = {
+export const gaugeChartType = defineChartType({
   type: 'gauge',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -186,10 +184,7 @@ export const gaugeChartType: ChartTypePlugin = {
     return nodes
   },
 
-  hitTest(): HitResult | null {
-    return null
-  },
-}
+})
 
 /**
  * Stroke-based arc path (open, for use with thick stroke + stroke-linecap:round).

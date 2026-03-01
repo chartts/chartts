@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, line } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
@@ -30,18 +31,24 @@ export interface OHLCOptions extends ResolvedOptions {
  * - Right tick = close price
  * Color indicates direction (green=up, red=down).
  */
-export const ohlcChartType: ChartTypePlugin = {
+export const ohlcChartType = defineChartType({
   type: 'ohlc',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const opts = options as OHLCOptions
-    const ohlc = opts.ohlc
     const prepared = prepareData(data, options)
+
+    // Support ohlc from options OR from 4 series named Open/High/Low/Close
+    let ohlc = opts.ohlc
+    if (!ohlc && data.series.length >= 4) {
+      const byName: Record<string, number[]> = {}
+      for (const s of data.series) byName[s.name.toLowerCase()] = s.values
+      if (byName.open && byName.high && byName.low && byName.close) {
+        ohlc = { open: byName.open, high: byName.high, low: byName.low, close: byName.close }
+      }
+    }
 
     if (ohlc) {
       let yMin = prepared.bounds.yMin
@@ -64,7 +71,16 @@ export const ohlcChartType: ChartTypePlugin = {
     const nodes: RenderNode[] = []
 
     const opts = options as OHLCOptions
-    const ohlc = opts.ohlc
+
+    // Support ohlc from options OR from 4 series named Open/High/Low/Close
+    let ohlc = opts.ohlc
+    if (!ohlc && data.series.length >= 4) {
+      const byName: Record<string, number[]> = {}
+      for (const s of data.series) byName[s.name.toLowerCase()] = s.values
+      if (byName.open && byName.high && byName.low && byName.close) {
+        ohlc = { open: byName.open, high: byName.high, low: byName.low, close: byName.close }
+      }
+    }
     if (!ohlc) return nodes
 
     const series = data.series[0]
@@ -134,9 +150,16 @@ export const ohlcChartType: ChartTypePlugin = {
   },
 
   hitTest(ctx: RenderContext, mx: number, _my: number): HitResult | null {
-    const { xScale, yScale, options } = ctx
+    const { data, xScale, yScale, options } = ctx
     const opts = options as OHLCOptions
-    const ohlc = opts.ohlc
+    let ohlc = opts.ohlc
+    if (!ohlc && data.series.length >= 4) {
+      const byName: Record<string, number[]> = {}
+      for (const s of data.series) byName[s.name.toLowerCase()] = s.values
+      if (byName.open && byName.high && byName.low && byName.close) {
+        ohlc = { open: byName.open, high: byName.high, low: byName.low, close: byName.close }
+      }
+    }
     if (!ohlc) return null
 
     const bw = getBandwidth(xScale)
@@ -151,4 +174,4 @@ export const ohlcChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

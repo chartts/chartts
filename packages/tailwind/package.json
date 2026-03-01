@@ -1,6 +1,6 @@
 {
   "name": "@chartts/tailwind",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Tailwind CSS plugin for Chartts. Bridge Tailwind v3 color variables and theme presets.",
   "type": "module",
   "main": "./dist/index.cjs",

@@ -42,6 +42,19 @@ export const flowChartType = defineChartType({
   suppressAxes: true,
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
+    // Pad edge series to match label count so validation passes
+    const labelLen = data.labels?.length ?? 0
+    if (labelLen > 0) {
+      const paddedSeries = data.series.map(s => {
+        if (s.values.length < labelLen) {
+          const padded = new Array(labelLen).fill(0)
+          for (let i = 0; i < s.values.length; i++) padded[i] = s.values[i]!
+          return { ...s, values: padded }
+        }
+        return s
+      })
+      return prepareNoAxes({ ...data, series: paddedSeries }, options)
+    }
     return prepareNoAxes(data, options)
   },
 

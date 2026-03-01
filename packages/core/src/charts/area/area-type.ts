@@ -1,19 +1,17 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { lineChartType } from '../line/line-type'
 
 /**
  * Area chart — line chart with fill enabled on all series by default.
  * Delegates entirely to lineChartType after forcing fill:true.
  */
-export const areaChartType: ChartTypePlugin = {
+export const areaChartType = defineChartType({
   type: 'area',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     // Force fill on all series
@@ -35,4 +33,4 @@ export const areaChartType: ChartTypePlugin = {
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     return lineChartType.hitTest(ctx, mx, my)
   },
-}
+})

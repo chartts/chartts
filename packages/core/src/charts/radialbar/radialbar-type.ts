@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -12,13 +13,10 @@ import { PathBuilder } from '../../render/tree'
  * Each category gets its own ring. Arc length is proportional to value.
  * Uses the first series' values.
  */
-export const radialBarChartType: ChartTypePlugin = {
+export const radialBarChartType = defineChartType({
   type: 'radial-bar',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -145,7 +143,7 @@ export const radialBarChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 function strokeArc(pb: PathBuilder, cx: number, cy: number, r: number, startAngle: number, endAngle: number): void {
   const x1 = cx + r * Math.cos(startAngle)

@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect, line } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
@@ -22,13 +23,10 @@ export interface BoxplotOptions extends ResolvedOptions {
   boxWidth?: number
 }
 
-export const boxplotChartType: ChartTypePlugin = {
+export const boxplotChartType = defineChartType({
   type: 'boxplot',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     // Boxplot: single series with N*5 values. Create synthetic labels if needed.
@@ -192,4 +190,4 @@ export const boxplotChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
+  ChartData, ResolvedOptions, PreparedData,
   RenderContext, RenderNode, HitResult, ScaleType,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { rect, text, group } from '../../render/tree'
 
@@ -28,7 +29,7 @@ export interface MatrixOptions extends ResolvedOptions {
   maxColor?: string
 }
 
-export const matrixChartType: ChartTypePlugin = {
+export const matrixChartType = defineChartType({
   type: 'matrix',
   suppressAxes: true,
 
@@ -176,7 +177,7 @@ export const matrixChartType: ChartTypePlugin = {
     }
     return null
   },
-}
+})
 
 // ---------------------------------------------------------------------------
 // Color helpers

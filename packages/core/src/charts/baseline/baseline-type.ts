@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { CSS_PREFIX } from '../../constants'
 import { prepareData } from '../../data/prepare'
 import { group, path, circle, line } from '../../render/tree'
@@ -28,12 +29,9 @@ export interface BaselineOptions extends ResolvedOptions {
  * Values above the baseline are shaded green, below shaded red.
  * Used for: performance vs benchmark, P&L, temperature anomalies.
  */
-export const baselineChartType: ChartTypePlugin = {
+export const baselineChartType = defineChartType({
   type: 'baseline',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const opts = options as BaselineOptions
@@ -168,7 +166,7 @@ export const baselineChartType: ChartTypePlugin = {
 
     return best && best.distance < 30 ? best : null
   },
-}
+})
 
 /**
  * Build a filled area path clipped to one side of the baseline.

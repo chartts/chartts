@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, path, line, rect } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
@@ -25,13 +26,10 @@ export interface ViolinOptions extends ResolvedOptions {
   violinWidth?: number
 }
 
-export const violinChartType: ChartTypePlugin = {
+export const violinChartType = defineChartType({
   type: 'violin',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const labelCount = data.labels?.length ?? 0
@@ -220,7 +218,7 @@ export const violinChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 function gaussianKernel(x: number, mu: number, sigma: number): number {
   const z = (x - mu) / sigma

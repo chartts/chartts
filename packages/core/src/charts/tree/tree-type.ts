@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, circle, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -37,13 +38,10 @@ export interface TreeOptions extends ResolvedOptions {
   showLabels?: boolean
 }
 
-export const treeChartType: ChartTypePlugin = {
+export const treeChartType = defineChartType({
   type: 'tree',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -194,7 +192,7 @@ export const treeChartType: ChartTypePlugin = {
     checkNode(root)
     return best
   },
-}
+})
 
 // ---------------------------------------------------------------------------
 // Tree building

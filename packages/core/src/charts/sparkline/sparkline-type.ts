@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { path } from '../../render/tree'
 import { buildMonotonePath, type Point } from '../../utils/curves'
@@ -11,13 +12,10 @@ import { formatNum } from '../../utils/format'
  * Sparkline — tiny inline chart with no axes, no labels, no legend.
  * Just the line/area and optionally a highlight of the last value.
  */
-export const sparklineChartType: ChartTypePlugin = {
+export const sparklineChartType = defineChartType({
   type: 'sparkline',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareData(data, {
@@ -80,7 +78,4 @@ export const sparklineChartType: ChartTypePlugin = {
     return nodes
   },
 
-  hitTest(): HitResult | null {
-    return null
-  },
-}
+})

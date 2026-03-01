@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 
@@ -36,13 +37,10 @@ const SYMBOL_PATHS: Record<string, string> = {
   star: 'M0,-0.5L0.15,-0.15L0.5,-0.15L0.22,0.07L0.31,0.45L0,0.22L-0.31,0.45L-0.22,0.07L-0.5,-0.15L-0.15,-0.15Z',
 }
 
-export const pictorialBarChartType: ChartTypePlugin = {
+export const pictorialBarChartType = defineChartType({
   type: 'pictorialbar',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -174,4 +172,4 @@ export const pictorialBarChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

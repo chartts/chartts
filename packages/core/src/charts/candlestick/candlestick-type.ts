@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
@@ -39,13 +40,10 @@ export interface CandlestickOptions extends ResolvedOptions {
  * ```
  * The series values are used as close prices for scale computation.
  */
-export const candlestickChartType: ChartTypePlugin = {
+export const candlestickChartType = defineChartType({
   type: 'candlestick',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const cOpts = options as CandlestickOptions
@@ -194,4 +192,4 @@ export const candlestickChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

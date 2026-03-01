@@ -1,0 +1,35 @@
+{
+  "name": "@chartts/date-fns",
+  "version": "0.1.6",
+  "description": "date-fns adapter for Chartts. Format time scale labels with date-fns.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "@chartts/core": "workspace:*",
+    "date-fns": ">=3.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chartts/chartts"
+  },
+  "homepage": "https://chartts.com"
+}

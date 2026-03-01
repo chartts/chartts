@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, line, circle } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
@@ -12,13 +13,10 @@ import { getBandwidth } from '../../utils/scale'
  * A modern, cleaner alternative to bar charts.
  * Vertical stems from baseline to value with a prominent circle dot.
  */
-export const lollipopChartType: ChartTypePlugin = {
+export const lollipopChartType = defineChartType({
   type: 'lollipop',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, options)
@@ -119,4 +117,4 @@ export const lollipopChartType: ChartTypePlugin = {
 
     return best
   },
-}
+})

@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect, path, circle } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -19,13 +20,10 @@ import { getBandwidth } from '../../utils/scale'
  * - series[0] → bars
  * - series[1..N] → lines
  */
-export const comboChartType: ChartTypePlugin = {
+export const comboChartType = defineChartType({
   type: 'combo',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, options)
@@ -197,4 +195,4 @@ export const comboChartType: ChartTypePlugin = {
 
     return best
   },
-}
+})

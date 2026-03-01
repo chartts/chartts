@@ -1,0 +1,1022 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="380" viewBox="0 0 600 380">
+  <defs>
+    <clipPath id="rounded">
+      <rect width="600" height="380" rx="16" ry="16"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#rounded)">
+    <rect width="600" height="380" fill="#0a0e1a" rx="16" ry="16"/>
+    <g transform="translate(0,0)">
+      <style>
+/* ---- Base ---- */
+.chartts {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Lines ---- */
+.chartts-line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-width 0.2s ease, opacity 0.2s ease;
+}
+.chartts-series:hover .chartts-line {
+  stroke-width: 2.5;
+}
+
+/* Line draw animation */
+@keyframes chartts-draw {
+  from { stroke-dashoffset: var(--chartts-path-len); }
+  to { stroke-dashoffset: 0; }
+}
+.chartts-line[style*="--chartts-path-len"] {
+  animation: chartts-draw 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ---- Area fills ---- */
+@keyframes chartts-fade-up {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-area {
+  animation: chartts-fade-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transition: opacity 0.2s ease;
+}
+
+/* ---- Line glow ---- */
+.chartts-line-glow {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* ---- Point glow ---- */
+.chartts-point-glow, .chartts-dot-glow {
+  pointer-events: none;
+}
+
+/* ---- Data points ---- */
+@keyframes chartts-point-pop {
+  0% { opacity: 0; transform: scale(0); }
+  60% { transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-point {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-point-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 10ms + 0.4s);
+  opacity: 0;
+  transition: opacity 0.15s ease, stroke-width 0.15s ease;
+  cursor: pointer;
+}
+.chartts-point:hover {
+  stroke-width: 3;
+  filter: brightness(1.15);
+}
+
+/* ---- Bars ---- */
+@keyframes chartts-bar-in {
+  from { opacity: 0; transform: scaleY(0.3); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-bar {
+  transform-origin: bottom center;
+  transform-box: fill-box;
+  animation: chartts-bar-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
+  opacity: 0;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-bar:hover {
+  filter: brightness(1.12) saturate(1.1);
+}
+.chartts-bar-horizontal {
+  transform-origin: left center;
+  animation-name: chartts-hbar-in;
+}
+@keyframes chartts-hbar-in {
+  from { opacity: 0; transform: scaleX(0.3); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+/* ---- Pie / Donut slices ---- */
+@keyframes chartts-slice-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-slice {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-slice-in 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
+  opacity: 0;
+  transition: filter 0.2s ease, opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+  cursor: pointer;
+  pointer-events: all;
+}
+.chartts-slice:hover {
+  filter: brightness(1.08) saturate(1.15) drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+  transform: scale(1.04);
+}
+
+/* ---- Sparkline ---- */
+.chartts-sparkline-line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chartts-sparkline-line[style*="--chartts-path-len"] {
+  animation: chartts-draw 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ---- Radar ---- */
+@keyframes chartts-radar-in {
+  from { opacity: 0; transform: scale(0.3); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-radar-area {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-radar-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-radar-i, 0) * 35ms);
+  opacity: 0;
+  transition: opacity 0.2s ease, fill-opacity 0.2s ease;
+}
+.chartts-radar-area:hover {
+  fill-opacity: 0.35;
+}
+.chartts-radar-point {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-point-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 10ms + 0.5s);
+  opacity: 0;
+  transition: r 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-radar-point:hover {
+  filter: brightness(1.15);
+}
+
+/* ---- Gauge ---- */
+@keyframes chartts-gauge-draw {
+  from { stroke-dashoffset: var(--chartts-path-len); }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes chartts-gauge-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-gauge-fill[style*="--chartts-path-len"] {
+  animation: chartts-gauge-draw 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.chartts-gauge-needle {
+  animation: chartts-gauge-fade 0.4s ease 0.6s forwards;
+  opacity: 0;
+}
+.chartts-gauge-needle-cap {
+  animation: chartts-gauge-fade 0.3s ease 0.65s forwards;
+  opacity: 0;
+}
+.chartts-gauge-tick {
+  opacity: 0.5;
+}
+
+/* ---- Funnel ---- */
+@keyframes chartts-funnel-slide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chartts-funnel-step {
+  animation: chartts-funnel-slide 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-funnel-step:hover {
+  filter: brightness(1.1);
+}
+
+/* ---- Waterfall ---- */
+@keyframes chartts-waterfall-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chartts-waterfall-bar {
+  animation: chartts-waterfall-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-waterfall-bar:hover {
+  filter: brightness(1.12);
+}
+
+/* ---- Candlestick ---- */
+@keyframes chartts-candle-in {
+  from { opacity: 0; transform: scaleY(0.5); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-candle {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-candle-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-candle:hover {
+  filter: brightness(1.15);
+}
+.chartts-wick {
+  transition: opacity 0.15s ease;
+}
+
+/* ---- Bubble ---- */
+@keyframes chartts-bubble-pop {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-bubble {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-bubble-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
+  opacity: 0;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-bubble:hover {
+  filter: brightness(1.1) saturate(1.1);
+}
+
+/* ---- Scatter dots ---- */
+.chartts-dot {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-point-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 10ms);
+  opacity: 0;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-dot:hover {
+  filter: brightness(1.15);
+  opacity: 1;
+}
+
+/* ---- Heatmap ---- */
+@keyframes chartts-cell-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-heatmap-cell {
+  animation: chartts-cell-in 0.3s ease forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
+  opacity: 0;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-heatmap-cell:hover {
+  filter: brightness(1.2) saturate(1.2);
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+/* ---- Boxplot ---- */
+@keyframes chartts-boxplot-in {
+  from { opacity: 0; transform: scaleY(0.4); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-boxplot-box {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-boxplot-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-boxplot-box:hover {
+  filter: brightness(1.15);
+}
+.chartts-boxplot-whisker, .chartts-boxplot-cap, .chartts-boxplot-median {
+  pointer-events: none;
+}
+
+/* ---- Treemap ---- */
+@keyframes chartts-cell-grow {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-treemap-cell {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-cell-grow 0.4s ease forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 12ms);
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.chartts-treemap-cell:hover {
+  filter: brightness(1.15);
+}
+.chartts-treemap-label, .chartts-treemap-value {
+  pointer-events: none;
+}
+
+/* ---- Polar ---- */
+@keyframes chartts-wedge-in {
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-polar-wedge {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-wedge-in 0.5s ease forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.chartts-polar-wedge:hover {
+  filter: brightness(1.15);
+}
+.chartts-polar-label {
+  pointer-events: none;
+}
+.chartts-polar-grid {
+  pointer-events: none;
+}
+
+/* ---- Radial Bar ---- */
+@keyframes chartts-radialbar-in {
+  from { opacity: 0; stroke-dashoffset: var(--chartts-path-len, 200); }
+  to { opacity: 1; stroke-dashoffset: 0; }
+}
+.chartts-radialbar-arc {
+  animation: chartts-radialbar-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 30ms);
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-radialbar-arc:hover {
+  filter: brightness(1.15);
+}
+.chartts-radialbar-track {
+  pointer-events: none;
+}
+
+/* ---- Lollipop ---- */
+@keyframes chartts-lollipop-in {
+  from { opacity: 0; transform: scaleY(0.3); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-lollipop-stem {
+  transform-origin: bottom center;
+  transform-box: fill-box;
+  animation: chartts-lollipop-in 0.4s ease forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 12ms);
+}
+.chartts-lollipop-dot {
+  cursor: pointer;
+  transition: r 0.15s ease, filter 0.15s ease;
+}
+.chartts-lollipop-dot:hover {
+  filter: brightness(1.15);
+}
+
+/* ---- Bullet ---- */
+@keyframes chartts-bullet-in {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.chartts-bullet-bar {
+  transform-origin: left center;
+  transform-box: fill-box;
+  animation: chartts-bullet-in 0.5s ease forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.chartts-bullet-bar:hover {
+  filter: brightness(1.15);
+}
+.chartts-bullet-range, .chartts-bullet-target, .chartts-bullet-label {
+  pointer-events: none;
+}
+
+/* ---- Dumbbell ---- */
+@keyframes chartts-dumbbell-in {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-dumbbell-dot {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-dumbbell-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
+  opacity: 0;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.chartts-dumbbell-dot:hover {
+  filter: brightness(1.15);
+}
+.chartts-dumbbell-connector, .chartts-dumbbell-label {
+  pointer-events: none;
+}
+
+/* ---- Calendar ---- */
+.chartts-calendar-cell {
+  cursor: pointer;
+  transition: filter 0.15s ease;
+  animation: chartts-cell-in 0.3s ease forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
+}
+.chartts-calendar-cell:hover {
+  filter: brightness(1.2);
+}
+.chartts-calendar-daylabel {
+  pointer-events: none;
+}
+
+/* ---- Sankey ---- */
+@keyframes chartts-sankey-link-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-sankey-link {
+  animation: chartts-sankey-link-in 0.5s ease forwards;
+  opacity: 0;
+  transition: fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-sankey-link:hover {
+  fill-opacity: 0.5 !important;
+}
+.chartts-sankey-node {
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.chartts-sankey-node:hover {
+  filter: brightness(1.15);
+}
+.chartts-sankey-label {
+  pointer-events: none;
+}
+
+/* ---- Combo ---- */
+.chartts-combo-line {
+  pointer-events: none;
+}
+.chartts-combo-point {
+  cursor: pointer;
+  transition: r 0.15s ease;
+}
+
+/* ---- Sunburst ---- */
+@keyframes chartts-sunburst-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-sunburst-sector {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-sunburst-in 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 10ms);
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-sunburst-sector:hover {
+  filter: brightness(1.15);
+  fill-opacity: 0.95 !important;
+}
+.chartts-sunburst-label {
+  pointer-events: none;
+}
+
+/* ---- Tree ---- */
+@keyframes chartts-tree-node-in {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-tree-node {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-tree-node-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 15ms);
+  opacity: 0;
+  transition: filter 0.15s ease, r 0.15s ease;
+  cursor: pointer;
+}
+.chartts-tree-node:hover {
+  filter: brightness(1.15);
+}
+.chartts-tree-edge {
+  opacity: 0.6;
+  pointer-events: none;
+}
+.chartts-tree-label {
+  pointer-events: none;
+}
+
+/* ---- Graph ---- */
+@keyframes chartts-graph-node-in {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-graph-node {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-graph-node-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 12ms);
+  opacity: 0;
+  transition: filter 0.15s ease, r 0.15s ease;
+  cursor: pointer;
+}
+.chartts-graph-node:hover {
+  filter: brightness(1.15) saturate(1.2);
+}
+.chartts-graph-edge {
+  pointer-events: none;
+  animation: chartts-sankey-link-in 0.5s ease forwards;
+  opacity: 0;
+}
+.chartts-graph-label {
+  pointer-events: none;
+}
+
+/* ---- Parallel ---- */
+@keyframes chartts-parallel-in {
+  from { opacity: 0; stroke-dashoffset: var(--chartts-path-len, 1000); }
+  to { opacity: 1; stroke-dashoffset: 0; }
+}
+.chartts-parallel-line {
+  transition: opacity 0.2s ease, stroke-width 0.2s ease;
+  cursor: pointer;
+}
+.chartts-parallel-line:hover {
+  opacity: 1 !important;
+  stroke-width: 3;
+}
+.chartts-parallel-axis {
+  pointer-events: none;
+}
+.chartts-parallel-label, .chartts-parallel-tick {
+  pointer-events: none;
+}
+
+/* ---- ThemeRiver ---- */
+@keyframes chartts-stream-in {
+  from { opacity: 0; transform: scaleY(0.3); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-themeriver-stream {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-stream-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 25ms);
+  opacity: 0;
+  transition: fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-themeriver-stream:hover {
+  fill-opacity: 0.9 !important;
+}
+.chartts-themeriver-label {
+  pointer-events: none;
+}
+
+/* ---- PictorialBar ---- */
+@keyframes chartts-pictorial-in {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-pictorialbar-symbol {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-pictorial-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-pictorialbar-symbol:hover {
+  filter: brightness(1.15);
+}
+.chartts-pictorialbar-value, .chartts-pictorialbar-label {
+  pointer-events: none;
+}
+
+/* ---- Chord ---- */
+@keyframes chartts-chord-arc-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-chord-arc {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-chord-arc-in 0.5s ease forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 3ms);
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-chord-arc:hover {
+  filter: brightness(1.15);
+}
+@keyframes chartts-chord-ribbon-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-chord-ribbon {
+  animation: chartts-chord-ribbon-in 0.6s ease 0.3s forwards;
+  opacity: 0;
+  transition: fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-chord-ribbon:hover {
+  fill-opacity: 0.55 !important;
+}
+.chartts-chord-label {
+  pointer-events: none;
+}
+
+/* ---- States (empty / loading / error) ---- */
+.chartts-state {
+  opacity: 1;
+}
+@keyframes chartts-shimmer {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.3; }
+}
+.chartts-skeleton-bar {
+  animation: chartts-shimmer 1.5s ease-in-out infinite;
+  animation-delay: calc(var(--chartts-i, 0) * 40ms);
+}
+
+/* ---- Grid ---- */
+.chartts-grid-h, .chartts-grid-v {
+  opacity: 0.6;
+}
+
+/* ---- GEO/Map ---- */
+@keyframes chartts-geo-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-geo-region {
+  animation: chartts-geo-in 0.4s ease calc(var(--chartts-i, 0) * 3ms) forwards;
+  opacity: 0;
+  transition: fill-opacity 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease, stroke 0.15s ease;
+  cursor: pointer;
+}
+.chartts-geo-region:hover {
+  filter: brightness(1.15) drop-shadow(0 0 2px rgba(0,0,0,0.3));
+  fill-opacity: 0.95 !important;
+  stroke: #fff !important;
+  stroke-width: 1.5px !important;
+}
+.chartts-geo-label {
+  pointer-events: none;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5), 0 0 6px rgba(0,0,0,0.3);
+}
+.chartts-geo-scatter {
+  transition: r 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-geo-scatter:hover {
+  opacity: 0.9;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+.chartts-geo-legend text {
+  user-select: none;
+}
+
+/* ---- Lines (flow) ---- */
+@keyframes chartts-lines-flow-in {
+  from { stroke-dashoffset: 300; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+.chartts-lines-flow {
+  stroke-dasharray: 300;
+  animation: chartts-lines-flow-in 0.8s ease calc(var(--chartts-i, 0) * 8ms) forwards;
+  opacity: 0;
+  transition: stroke-width 0.2s ease, stroke-opacity 0.2s ease;
+  cursor: pointer;
+}
+.chartts-lines-flow:hover {
+  stroke-opacity: 0.9;
+  stroke-width: 4;
+}
+.chartts-lines-node {
+  transition: r 0.15s ease;
+  cursor: pointer;
+}
+
+/* ---- Matrix ---- */
+@keyframes chartts-matrix-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-matrix-cell {
+  animation: chartts-matrix-in 0.3s ease calc(var(--chartts-i, 0) * 5ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-matrix-cell:hover {
+  filter: brightness(1.15);
+}
+
+/* ---- OHLC ---- */
+@keyframes chartts-ohlc-in {
+  from { opacity: 0; transform: scaleY(0.5); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-ohlc-stem, .chartts-ohlc-tick {
+  animation: chartts-ohlc-in 0.3s ease calc(var(--chartts-i, 0) * 8ms) forwards;
+  opacity: 0;
+  transition: stroke-width 0.15s ease;
+}
+.chartts-ohlc-stem:hover, .chartts-ohlc-tick:hover {
+  stroke-width: 2.5;
+}
+
+/* ---- Volume ---- */
+@keyframes chartts-volume-in {
+  from { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
+  to { opacity: 1; transform: scaleY(1); }
+}
+.chartts-volume-bar {
+  animation: chartts-volume-in 0.3s ease calc(var(--chartts-i, 0) * 8ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-volume-bar:hover {
+  filter: brightness(1.1);
+  fill-opacity: 1 !important;
+}
+
+/* ---- Range / Band ---- */
+@keyframes chartts-range-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-range-band {
+  animation: chartts-range-in 0.5s ease forwards;
+  opacity: 0;
+}
+.chartts-range-center {
+  animation: chartts-range-in 0.6s ease 0.1s forwards;
+  opacity: 0;
+}
+.chartts-range-bound {
+  animation: chartts-range-in 0.5s ease 0.05s forwards;
+  opacity: 0;
+}
+
+/* ---- Baseline ---- */
+@keyframes chartts-baseline-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.chartts-baseline-pos, .chartts-baseline-neg {
+  animation: chartts-baseline-in 0.5s ease forwards;
+  opacity: 0;
+}
+.chartts-baseline-line {
+  animation: chartts-baseline-in 0.6s ease 0.1s forwards;
+  opacity: 0;
+}
+.chartts-baseline-ref {
+  animation: chartts-baseline-in 0.3s ease forwards;
+  opacity: 0;
+}
+
+/* ---- Kagi ---- */
+@keyframes chartts-kagi-in {
+  from { stroke-dashoffset: 200; opacity: 0; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+.chartts-kagi-line {
+  stroke-dasharray: 200;
+  animation: chartts-kagi-in 0.6s ease calc(var(--chartts-i, 0) * 12ms) forwards;
+  opacity: 0;
+  transition: stroke-width 0.15s ease;
+}
+
+/* ---- Renko ---- */
+@keyframes chartts-renko-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-renko-brick {
+  animation: chartts-renko-in 0.3s ease calc(var(--chartts-i, 0) * 8ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+.chartts-renko-brick:hover {
+  filter: brightness(1.15);
+}
+
+/* ---- Violin ---- */
+@keyframes chartts-violin-in {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+.chartts-violin-shape {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-violin-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 30ms);
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-violin-shape:hover {
+  filter: brightness(1.15);
+  fill-opacity: 0.45 !important;
+}
+.chartts-violin-box, .chartts-violin-median {
+  pointer-events: none;
+}
+
+/* ---- Pack (Circle Packing) ---- */
+@keyframes chartts-pack-in {
+  0% { opacity: 0; transform: scale(0); }
+  70% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.chartts-pack-circle {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-pack-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 20ms);
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-pack-circle:hover {
+  filter: brightness(1.15) saturate(1.1);
+}
+.chartts-pack-label {
+  pointer-events: none;
+}
+
+/* ---- Voronoi ---- */
+@keyframes chartts-voronoi-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.chartts-voronoi-cell {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-voronoi-in 0.4s ease calc(var(--chartts-i, 0) * 20ms) forwards;
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-voronoi-cell:hover {
+  filter: brightness(1.2) saturate(1.2);
+  fill-opacity: 0.9 !important;
+}
+.chartts-voronoi-seed, .chartts-voronoi-label {
+  pointer-events: none;
+}
+
+/* ---- Word Cloud ---- */
+@keyframes chartts-wordcloud-in {
+  0% { opacity: 0; transform: scale(0.3) rotate(-8deg); }
+  70% { transform: scale(1.05) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.chartts-wordcloud-word {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: chartts-wordcloud-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--chartts-i, 0) * 40ms);
+  opacity: 0;
+  transition: filter 0.15s ease, fill-opacity 0.15s ease;
+  cursor: pointer;
+}
+.chartts-wordcloud-word:hover {
+  filter: brightness(1.2) saturate(1.3);
+  fill-opacity: 1 !important;
+}
+
+/* ---- DataZoom ---- */
+.chartts-datazoom-handle {
+  cursor: ew-resize;
+  transition: fill 0.15s ease;
+}
+.chartts-datazoom-handle:hover {
+  fill: #374151;
+}
+.chartts-datazoom-selected {
+  cursor: grab;
+}
+
+/* ---- Text ---- */
+.chartts-x-label, .chartts-y-label,
+.chartts-x-axis-label, .chartts-y-axis-label,
+.chartts-legend text, .chartts-slice-label {
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ---- Legend ---- */
+.chartts-legend-item {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.chartts-legend-item:hover {
+  opacity: 0.7;
+}
+
+/* ---- Skip animations on data update ---- */
+.chartts-skip-anim .chartts-line, .chartts-skip-anim .chartts-area, .chartts-skip-anim .chartts-point,
+.chartts-skip-anim .chartts-bar, .chartts-skip-anim .chartts-slice, .chartts-skip-anim .chartts-bubble,
+.chartts-skip-anim .chartts-funnel-step, .chartts-skip-anim .chartts-waterfall-bar,
+.chartts-skip-anim .chartts-sparkline-line, .chartts-skip-anim .chartts-gauge-fill,
+.chartts-skip-anim .chartts-gauge-needle, .chartts-skip-anim .chartts-gauge-needle-cap,
+.chartts-skip-anim .chartts-radar-area, .chartts-skip-anim .chartts-radar-point,
+.chartts-skip-anim .chartts-treemap-cell, .chartts-skip-anim .chartts-polar-wedge,
+.chartts-skip-anim .chartts-lollipop-stem, .chartts-skip-anim .chartts-bullet-bar,
+.chartts-skip-anim .chartts-dumbbell-dot, .chartts-skip-anim .chartts-boxplot-box,
+.chartts-skip-anim .chartts-radialbar-arc, .chartts-skip-anim .chartts-sankey-link,
+.chartts-skip-anim .chartts-calendar-cell,
+.chartts-skip-anim .chartts-sunburst-sector, .chartts-skip-anim .chartts-tree-node,
+.chartts-skip-anim .chartts-graph-node, .chartts-skip-anim .chartts-graph-edge,
+.chartts-skip-anim .chartts-themeriver-stream, .chartts-skip-anim .chartts-pictorialbar-symbol,
+.chartts-skip-anim .chartts-chord-arc, .chartts-skip-anim .chartts-chord-ribbon,
+.chartts-skip-anim .chartts-geo-region, .chartts-skip-anim .chartts-lines-flow,
+.chartts-skip-anim .chartts-lines-node, .chartts-skip-anim .chartts-matrix-cell,
+.chartts-skip-anim .chartts-ohlc-stem, .chartts-skip-anim .chartts-ohlc-tick,
+.chartts-skip-anim .chartts-volume-bar, .chartts-skip-anim .chartts-range-band,
+.chartts-skip-anim .chartts-baseline-pos, .chartts-skip-anim .chartts-baseline-neg,
+.chartts-skip-anim .chartts-baseline-line, .chartts-skip-anim .chartts-kagi-line,
+.chartts-skip-anim .chartts-renko-brick,
+.chartts-skip-anim .chartts-violin-shape, .chartts-skip-anim .chartts-pack-circle,
+.chartts-skip-anim .chartts-voronoi-cell, .chartts-skip-anim .chartts-wordcloud-word {
+  animation: none !important;
+  opacity: 1 !important;
+}
+.chartts-skip-anim .chartts-line,
+.chartts-skip-anim .chartts-sparkline-line,
+.chartts-skip-anim .chartts-gauge-fill {
+  stroke-dashoffset: 0 !important;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .chartts-line, .chartts-area, .chartts-point,
+  .chartts-bar, .chartts-slice, .chartts-bubble,
+  .chartts-funnel-step, .chartts-waterfall-bar,
+  .chartts-sparkline-line, .chartts-gauge-fill,
+  .chartts-gauge-needle, .chartts-gauge-needle-cap,
+  .chartts-radar-area, .chartts-radar-point,
+  .chartts-treemap-cell, .chartts-polar-wedge,
+  .chartts-lollipop-stem, .chartts-bullet-bar,
+  .chartts-dumbbell-dot, .chartts-boxplot-box,
+  .chartts-radialbar-arc, .chartts-sankey-link,
+  .chartts-calendar-cell,
+  .chartts-sunburst-sector, .chartts-tree-node,
+  .chartts-graph-node, .chartts-graph-edge,
+  .chartts-themeriver-stream, .chartts-pictorialbar-symbol,
+  .chartts-chord-arc, .chartts-chord-ribbon,
+  .chartts-geo-region, .chartts-lines-flow,
+  .chartts-lines-node, .chartts-matrix-cell,
+  .chartts-ohlc-stem, .chartts-ohlc-tick,
+  .chartts-volume-bar, .chartts-range-band,
+  .chartts-baseline-pos, .chartts-baseline-neg,
+  .chartts-baseline-line, .chartts-kagi-line,
+  .chartts-renko-brick,
+  .chartts-violin-shape, .chartts-pack-circle,
+  .chartts-voronoi-cell, .chartts-wordcloud-word {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .chartts-line,
+  .chartts-sparkline-line,
+  .chartts-gauge-fill {
+    stroke-dashoffset: 0 !important;
+  }
+}
+</style><defs class="chartts-fx"><linearGradient id="chartts-area-0" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-0" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="1"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-0"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.4"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-0" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#3b82f6" stop-opacity="1"/><stop offset="100%" stop-color="rgba(59,130,246,0.85)"/></radialGradient><linearGradient id="chartts-area-1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.35"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="1"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.4"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-1" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#ef4444" stop-opacity="1"/><stop offset="100%" stop-color="rgba(239,68,68,0.85)"/></radialGradient><linearGradient id="chartts-area-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/><stop offset="100%" stop-color="#10b981" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity="1"/><stop offset="100%" stop-color="#10b981" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-2"><stop offset="0%" stop-color="#10b981" stop-opacity="0.4"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-2" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#10b981" stop-opacity="1"/><stop offset="100%" stop-color="rgba(16,185,129,0.85)"/></radialGradient><linearGradient id="chartts-area-3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.35"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b" stop-opacity="1"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-3"><stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/><stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-3" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#f59e0b" stop-opacity="1"/><stop offset="100%" stop-color="rgba(245,158,11,0.85)"/></radialGradient><linearGradient id="chartts-area-4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35"/><stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="1"/><stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-4"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.4"/><stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-4" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="1"/><stop offset="100%" stop-color="rgba(139,92,246,0.85)"/></radialGradient><linearGradient id="chartts-area-5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ec4899" stop-opacity="0.35"/><stop offset="100%" stop-color="#ec4899" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ec4899" stop-opacity="1"/><stop offset="100%" stop-color="#ec4899" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-5"><stop offset="0%" stop-color="#ec4899" stop-opacity="0.4"/><stop offset="100%" stop-color="#ec4899" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-5" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#ec4899" stop-opacity="1"/><stop offset="100%" stop-color="rgba(236,72,153,0.85)"/></radialGradient><linearGradient id="chartts-area-6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/><stop offset="100%" stop-color="#06b6d4" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#06b6d4" stop-opacity="1"/><stop offset="100%" stop-color="#06b6d4" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-6"><stop offset="0%" stop-color="#06b6d4" stop-opacity="0.4"/><stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-6" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#06b6d4" stop-opacity="1"/><stop offset="100%" stop-color="rgba(6,182,212,0.85)"/></radialGradient><linearGradient id="chartts-area-7" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#84cc16" stop-opacity="0.35"/><stop offset="100%" stop-color="#84cc16" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-7" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#84cc16" stop-opacity="1"/><stop offset="100%" stop-color="#84cc16" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-7"><stop offset="0%" stop-color="#84cc16" stop-opacity="0.4"/><stop offset="100%" stop-color="#84cc16" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-7" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#84cc16" stop-opacity="1"/><stop offset="100%" stop-color="rgba(132,204,22,0.85)"/></radialGradient><linearGradient id="chartts-area-8" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316" stop-opacity="0.35"/><stop offset="100%" stop-color="#f97316" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-8" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316" stop-opacity="1"/><stop offset="100%" stop-color="#f97316" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-8"><stop offset="0%" stop-color="#f97316" stop-opacity="0.4"/><stop offset="100%" stop-color="#f97316" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-8" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#f97316" stop-opacity="1"/><stop offset="100%" stop-color="rgba(249,115,22,0.85)"/></radialGradient><linearGradient id="chartts-area-9" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.35"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0.02"/></linearGradient><linearGradient id="chartts-bar-9" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="1"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0.75"/></linearGradient><radialGradient id="chartts-pglow-9"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.4"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></radialGradient><radialGradient id="chartts-pie-9" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="#6366f1" stop-opacity="1"/><stop offset="100%" stop-color="rgba(99,102,241,0.85)"/></radialGradient><filter id="chartts-glow" filterUnits="userSpaceOnUse"><feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur"/><feColorMatrix in="blur" type="saturate" values="2" result="saturated"/><feMerge><feMergeNode in="saturated"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="chartts-shadow"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.12"/></filter></defs><defs><clipPath id="chartts-clip"><rect x="4" y="4" width="592" height="372"/></clipPath></defs><g class="chartts-content" clip-path="url(#chartts-clip)"><g class="chartts-series chartts-series-0" data-series-name="React"><path d="M301.93,12.01Q302.00,6.01,308.00,6.17A184,184,0,0,1,395.57,347.24Q390.39,350.27,387.44,345.04L307.51,202.66A14.72,14.72,0,0,0,300.48,175.29Z" class="chartts-slice" fill="url(#chartts-pie-0)" data-series="0" data-index="0" tabindex="0" role="img" aria-label="React: 42"/><text x="396.2384228897408" y="165.2901728113" class="chartts-slice-label" fill="#fff" text-anchor="middle" dominant-baseline="central" font-size="10" font-family="var(--font-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif)" font-weight="600">42%</text></g><g class="chartts-series chartts-series-1" data-series-name="Vue"><path d="M384.05,346.91Q386.88,352.19,381.55,354.94A184,184,0,0,1,127.64,254.41Q125.63,248.76,131.32,246.84L286.16,195.00A14.72,14.72,0,0,0,306.67,203.12Z" class="chartts-slice" fill="url(#chartts-pie-1)" data-series="0" data-index="1" tabindex="0" role="img" aria-label="Vue: 28"/><text x="263.42314444525044" y="282.38259163785665" class="chartts-slice-label" fill="#fff" text-anchor="middle" dominant-baseline="central" font-size="10" font-family="var(--font-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif)" font-weight="600">28%</text></g><g class="chartts-series chartts-series-2" data-series-name="Angular"><path d="M130.12,243.16Q124.40,244.95,122.70,239.20A184,184,0,0,1,168.33,61.47Q172.59,57.25,176.75,61.58L289.58,179.60A14.72,14.72,0,0,0,285.86,194.09Z" class="chartts-slice" fill="url(#chartts-pie-2)" data-series="0" data-index="2" tabindex="0" role="img" aria-label="Angular: 18"/><text x="203.76157711025922" y="165.29017281130004" class="chartts-slice-label" fill="#fff" text-anchor="middle" dominant-baseline="central" font-size="10" font-family="var(--font-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif)" font-weight="600">18%</text></g><g class="chartts-series chartts-series-3" data-series-name="Svelte"><path d="M179.57,58.93Q175.51,54.51,179.99,50.52A184,184,0,0,1,246.54,13.94Q252.31,12.29,253.86,18.08L295.88,175.87A14.72,14.72,0,0,0,290.28,178.95Z" class="chartts-slice" fill="url(#chartts-pie-3)" data-series="0" data-index="3" tabindex="0" role="img" aria-label="Svelte: 8"/><text x="252.1329549412535" y="102.93016827084176" class="chartts-slice-label" fill="#fff" text-anchor="middle" dominant-baseline="central" font-size="10" font-family="var(--font-sans, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif)" font-weight="600">8%</text></g><g class="chartts-series chartts-series-4" data-series-name="Solid"><path d="M257.61,17.12Q256.18,11.29,262.03,9.96A184,184,0,0,1,292.00,6.17Q298.00,6.01,298.07,12.01L299.52,175.29A14.72,14.72,0,0,0,296.81,175.63Z" class="chartts-slice" fill="url(#chartts-pie-4)" data-series="0" data-index="4" tabindex="0" role="img" aria-label="Solid: 4"/></g></g>
+    </g>
+  </g>
+</svg>

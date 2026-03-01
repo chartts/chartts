@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect, text } from '../../render/tree'
 
@@ -12,13 +13,10 @@ import { group, rect, text } from '../../render/tree'
  * Labels are column headers, series names are row headers.
  * Cell color intensity is proportional to value.
  */
-export const heatmapChartType: ChartTypePlugin = {
+export const heatmapChartType = defineChartType({
   type: 'heatmap',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -172,7 +170,7 @@ export const heatmapChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})
 
 /** Interpolate from transparent to the given color based on t (0..1) */
 function interpolateColor(baseColor: string, t: number): string {

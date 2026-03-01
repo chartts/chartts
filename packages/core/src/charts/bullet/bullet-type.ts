@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect, line, text } from '../../render/tree'
 
@@ -15,13 +16,10 @@ import { group, rect, line, text } from '../../render/tree'
  * Qualitative ranges (poor/satisfactory/good) are auto-generated
  * from the max value.
  */
-export const bulletChartType: ChartTypePlugin = {
+export const bulletChartType = defineChartType({
   type: 'bullet',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -143,4 +141,4 @@ export const bulletChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

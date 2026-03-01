@@ -1,6 +1,6 @@
 {
   "name": "@chartts/json",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "JSON adapter for Chartts. Convert between JSON and chart data.",
   "type": "module",
   "main": "./dist/index.cjs",

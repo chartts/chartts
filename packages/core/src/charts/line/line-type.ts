@@ -1,23 +1,16 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { CSS_PREFIX } from '../../constants'
-import { prepareData } from '../../data/prepare'
 import { group, path, circle } from '../../render/tree'
 import { buildLinePath, buildAreaPath } from '../../utils/curves'
 import { nearestPointHitTest } from '../../utils/hit-test'
 
-export const lineChartType: ChartTypePlugin = {
+export const lineChartType = defineChartType({
   type: 'line',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
-  prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
-    return prepareData(data, options)
-  },
 
   render(ctx: RenderContext): RenderNode[] {
     const { data, options, area, xScale, yScale, theme } = ctx
@@ -92,4 +85,4 @@ export const lineChartType: ChartTypePlugin = {
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     return nearestPointHitTest(ctx, mx, my, 30)
   },
-}
+})

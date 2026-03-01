@@ -1,0 +1,50 @@
+name: Feature Request
+description: Suggest a new feature or improvement for Chart.ts
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What kind of feature are you requesting?
+      options:
+        - New chart type
+        - Renderer improvement
+        - New package
+        - API enhancement
+        - Theme
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the feature.
+      placeholder: Describe the feature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Explain the problem this feature would solve or the use case it enables.
+      placeholder: I need this because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-api
+    attributes:
+      label: Proposed API
+      description: If you have a preferred API design, describe it here.
+      placeholder: |
+        ```ts
+        import { createChart } from '@chartts/core'
+
+        const chart = createChart({
+          // your proposed API...
+        })
+        ```

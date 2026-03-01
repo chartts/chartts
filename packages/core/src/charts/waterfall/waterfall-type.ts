@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
@@ -24,13 +25,10 @@ export interface WaterfallOptions extends ResolvedOptions {
  * Each value is a delta from the previous running total.
  * Positive = up (green), negative = down (red), totals = absolute (blue).
  */
-export const waterfallChartType: ChartTypePlugin = {
+export const waterfallChartType = defineChartType({
   type: 'waterfall',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, options)
@@ -181,4 +179,4 @@ export const waterfallChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

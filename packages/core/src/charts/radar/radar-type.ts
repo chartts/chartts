@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, circle, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -10,13 +11,10 @@ import { PathBuilder } from '../../render/tree'
  * Radar / Spider chart — plots multi-dimensional data on radial axes.
  * Each category becomes an axis radiating from center.
  */
-export const radarChartType: ChartTypePlugin = {
+export const radarChartType = defineChartType({
   type: 'radar',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -194,4 +192,4 @@ export const radarChartType: ChartTypePlugin = {
 
     return best
   },
-}
+})

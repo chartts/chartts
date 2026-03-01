@@ -5,9 +5,10 @@
  */
 
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect, text } from '../../render/tree'
 
@@ -20,12 +21,9 @@ export interface PillarOptions extends ResolvedOptions {
   orientation?: 'vertical' | 'horizontal'
 }
 
-export const pillarChartType: ChartTypePlugin = {
+export const pillarChartType = defineChartType({
   type: 'pillar',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -183,4 +181,4 @@ export const pillarChartType: ChartTypePlugin = {
       return { seriesIndex: 0, pointIndex: idx, distance: Math.abs(my - ringCy), x: cx, y: ringCy }
     }
   },
-}
+})

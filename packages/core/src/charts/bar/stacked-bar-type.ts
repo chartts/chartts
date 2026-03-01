@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect, path } from '../../render/tree'
 import { formatNum } from '../../utils/format'
@@ -10,13 +11,10 @@ import { getBandwidth } from '../../utils/scale'
 /**
  * Stacked bar chart — all series at the same x position are stacked vertically.
  */
-export const stackedBarChartType: ChartTypePlugin = {
+export const stackedBarChartType = defineChartType({
   type: 'stacked-bar',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, options)
@@ -152,4 +150,4 @@ export const stackedBarChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

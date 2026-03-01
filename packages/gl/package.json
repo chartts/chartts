@@ -1,6 +1,6 @@
 {
   "name": "@chartts/gl",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "WebGL chart types for Chartts. 3D bar, scatter, surface, globe, and more.",
   "type": "module",
   "main": "./dist/index.cjs",

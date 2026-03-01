@@ -1,6 +1,6 @@
 {
   "name": "@chartts/vue",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Chartts for Vue. 40+ chart types, beautiful defaults, Tailwind ready.",
   "type": "module",
   "main": "./dist/index.cjs",

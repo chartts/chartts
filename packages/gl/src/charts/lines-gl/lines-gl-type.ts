@@ -89,8 +89,10 @@ export function createLinesGLPlugin(): GLChartTypePlugin {
       ])
       applyVertexLayout(gl, layout)
       gl.disable(gl.DEPTH_TEST)
+      gl.disable(gl.CULL_FACE)
       ibo.bind()
       gl.drawElements(gl.TRIANGLES, indexCount, indexType, 0)
+      gl.enable(gl.CULL_FACE)
       gl.enable(gl.DEPTH_TEST)
       disableVertexLayout(gl, layout)
     },

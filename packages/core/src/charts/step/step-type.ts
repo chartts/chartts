@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { lineChartType } from '../line/line-type'
 
 /**
@@ -10,12 +11,9 @@ import { lineChartType } from '../line/line-type'
  * Delegates entirely to lineChartType after forcing curve:'step'.
  * Used for: interest rates, order books, discrete pricing tiers.
  */
-export const stepChartType: ChartTypePlugin = {
+export const stepChartType = defineChartType({
   type: 'step',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return lineChartType.prepareData(data, options)
@@ -33,4 +31,4 @@ export const stepChartType: ChartTypePlugin = {
   hitTest(ctx: RenderContext, mx: number, my: number): HitResult | null {
     return lineChartType.hitTest(ctx, mx, my)
   },
-}
+})

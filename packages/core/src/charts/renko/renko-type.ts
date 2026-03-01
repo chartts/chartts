@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, rect } from '../../render/tree'
 
@@ -31,13 +32,10 @@ interface RenkoBrick {
  * Up bricks (green) for rising prices, down bricks (red) for falling.
  * Filters out noise and shows pure price action.
  */
-export const renkoChartType: ChartTypePlugin = {
+export const renkoChartType = defineChartType({
   type: 'renko',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -140,7 +138,7 @@ export const renkoChartType: ChartTypePlugin = {
     }
     return null
   },
-}
+})
 
 /**
  * Compute renko bricks from raw price data.

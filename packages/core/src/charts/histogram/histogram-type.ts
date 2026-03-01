@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect } from '../../render/tree'
 import { getBandwidth } from '../../utils/scale'
@@ -14,13 +15,10 @@ import { getBandwidth } from '../../utils/scale'
  * - Bars fill the full bandwidth
  * - Designed for continuous data ranges
  */
-export const histogramChartType: ChartTypePlugin = {
+export const histogramChartType = defineChartType({
   type: 'histogram',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, options)
@@ -102,4 +100,4 @@ export const histogramChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

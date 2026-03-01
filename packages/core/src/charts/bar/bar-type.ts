@@ -1,19 +1,17 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareData } from '../../data/prepare'
 import { group, rect, path } from '../../render/tree'
 import { formatNum } from '../../utils/format'
 import { getBandwidth } from '../../utils/scale'
 
-export const barChartType: ChartTypePlugin = {
+export const barChartType = defineChartType({
   type: 'bar',
   useBandScale: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const prepared = prepareData(data, options)
@@ -164,4 +162,4 @@ export const barChartType: ChartTypePlugin = {
 
     return best
   },
-}
+})

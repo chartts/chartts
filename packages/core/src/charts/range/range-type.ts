@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { CSS_PREFIX } from '../../constants'
 import { prepareData } from '../../data/prepare'
 import { group, path, circle } from '../../render/tree'
@@ -29,24 +30,26 @@ export interface RangeOptions extends ResolvedOptions {
  * Used for: Bollinger bands, confidence intervals, forecast ranges,
  * bid-ask spread visualization.
  */
-export const rangeChartType: ChartTypePlugin = {
+export const rangeChartType = defineChartType({
   type: 'range',
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     const opts = options as RangeOptions
     const range = opts.range
     const prepared = prepareData(data, options)
 
-    if (range) {
+    // Support range from options OR from 2 series
+    const resolvedRange = range ?? (data.series.length >= 2
+      ? { lower: data.series[0]!.values, upper: data.series[1]!.values }
+      : null)
+
+    if (resolvedRange) {
       let yMin = prepared.bounds.yMin
       let yMax = prepared.bounds.yMax
-      for (let i = 0; i < range.upper.length; i++) {
-        const u = range.upper[i]!
-        const l = range.lower[i]!
+      for (let i = 0; i < resolvedRange.upper.length; i++) {
+        const u = resolvedRange.upper[i]!
+        const l = resolvedRange.lower[i]!
         if (!isNaN(u) && u > yMax) yMax = u
         if (!isNaN(l) && l < yMin) yMin = l
       }
@@ -62,10 +65,17 @@ export const rangeChartType: ChartTypePlugin = {
     const nodes: RenderNode[] = []
 
     const opts = options as RangeOptions
-    const range = opts.range
+
+    // Support range from options OR from 2 series (Low/High)
+    let range = opts.range
+    if (!range && data.series.length >= 2) {
+      range = { lower: data.series[0]!.values, upper: data.series[1]!.values }
+    }
     if (!range) return nodes
 
-    const series = data.series[0]
+    const series = data.series.length >= 2
+      ? { ...data.series[0]!, values: data.series[0]!.values.map((v, i) => (v + data.series[1]!.values[i]!) / 2) }
+      : data.series[0]!
     if (!series) return nodes
 
     const showCenter = opts.showCenter ?? true
@@ -185,7 +195,7 @@ export const rangeChartType: ChartTypePlugin = {
 
     return best && best.distance < 30 ? best : null
   },
-}
+})
 
 function buildLinePath(
   values: number[],

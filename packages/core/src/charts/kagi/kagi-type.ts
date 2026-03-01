@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -37,13 +38,10 @@ interface KagiSegment {
  * Thick lines (yang) = up trend, thin lines (yin) = down trend.
  * Thickness changes when price breaks prior high/low.
  */
-export const kagiChartType: ChartTypePlugin = {
+export const kagiChartType = defineChartType({
   type: 'kagi',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -150,7 +148,7 @@ export const kagiChartType: ChartTypePlugin = {
     }
     return null
   },
-}
+})
 
 /**
  * Compute kagi line segments from raw price data.

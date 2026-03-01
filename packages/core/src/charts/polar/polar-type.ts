@@ -1,7 +1,8 @@
 import type {
-  ChartTypePlugin, ChartData, ResolvedOptions, PreparedData,
-  RenderContext, RenderNode, HitResult, ScaleType,
+  ChartData, ResolvedOptions, PreparedData,
+  RenderContext, RenderNode, HitResult,
 } from '../../types'
+import { defineChartType } from '../../api/define'
 import { prepareNoAxes } from '../../utils/prepare'
 import { group, path, text } from '../../render/tree'
 import { PathBuilder } from '../../render/tree'
@@ -14,13 +15,10 @@ import { roundedSlicePath } from '../../utils/slice-path'
  * Uses the first series' values as wedge sizes.
  * Wedges have uniform pixel gaps, rounded corners, and a small inner radius.
  */
-export const polarChartType: ChartTypePlugin = {
+export const polarChartType = defineChartType({
   type: 'polar',
   suppressAxes: true,
 
-  getScaleTypes(): { x: ScaleType; y: ScaleType } {
-    return { x: 'categorical', y: 'linear' }
-  },
 
   prepareData(data: ChartData, options: ResolvedOptions): PreparedData {
     return prepareNoAxes(data, options)
@@ -175,4 +173,4 @@ export const polarChartType: ChartTypePlugin = {
 
     return null
   },
-}
+})

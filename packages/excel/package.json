@@ -1,6 +1,6 @@
 {
   "name": "@chartts/excel",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Excel adapter for Chartts. Import and export .xlsx spreadsheets as chart data.",
   "type": "module",
   "main": "./dist/index.cjs",
