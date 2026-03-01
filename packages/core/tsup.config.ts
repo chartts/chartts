@@ -12,6 +12,7 @@ const chartEntries = [
   'ohlc', 'step', 'volume', 'range', 'baseline', 'kagi', 'renko',
   'violin', 'pack', 'voronoi', 'wordcloud', 'pillar',
   'finance',
+  'all',
 ]
 
 const entry: Record<string, string> = {

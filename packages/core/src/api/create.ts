@@ -65,6 +65,7 @@ export function createChart(
     height,
     className: currentOptions.className,
     ariaLabel: currentOptions.ariaLabel,
+    onReady: () => render(), // Re-render when Canvas/WebGL finishes loading
   })
 
   // State manager

@@ -109,10 +109,6 @@ importers:
         version: 12.1.0
 
   packages/core:
-    dependencies:
-      '@chartts/finance':
-        specifier: workspace:*
-        version: link:../finance
     devDependencies:
       tsup:
         specifier: ^8.5.1

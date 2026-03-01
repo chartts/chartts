@@ -241,6 +241,11 @@
       "types": "./dist/finance.d.ts",
       "import": "./dist/finance.js",
       "require": "./dist/finance.cjs"
+    },
+    "./all": {
+      "types": "./dist/all.d.ts",
+      "import": "./dist/all.js",
+      "require": "./dist/all.cjs"
     }
   },
   "files": [
